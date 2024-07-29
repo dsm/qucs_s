@@ -158,9 +158,13 @@ jobs:
         cp -pR ./build/qucsator_rf/src/qucsator_rf ${{env.QUCS_MACOS_BIN}}
         cp -pR ./build/qucsator_rf/src/converter/qucsconv_rf ${{env.QUCS_MACOS_BIN}}
         cp -pR ./examples/* ${{env.QUCS_MACOS_RESOURCES}}/examples
+        chmod -R 655 ${{env.QUCS_MACOS_RESOURCES}}/examples
         cp -pR ./library/*.lib ${{env.QUCS_MACOS_RESOURCES}}/library
         cp -pR ./library/*.blacklist ${{env.QUCS_MACOS_RESOURCES}}/library
         cp -pR ./library/symbols/* ${{env.QUCS_MACOS_RESOURCES}}/symbols
+        chmod -R 644 ${{env.QUCS_MACOS_RESOURCES}}/examples
+        chmod -R 644 ${{env.QUCS_MACOS_RESOURCES}}/library
+        chmod -R 644 ${{env.QUCS_MACOS_RESOURCES}}/symbols
         macdeployqt ./build/qucs/qucs-s.app
         macdeployqt ${{env.QUCS_MACOS_BIN}}/qucs-sactivefilter.app
         macdeployqt ${{env.QUCS_MACOS_BIN}}/qucs-sattenuator.app
@@ -253,6 +257,9 @@ jobs:
         cp -pR ./library/*.lib ${{env.QUCS_MACOS_RESOURCES}}/library
         cp -pR ./library/*.blacklist ${{env.QUCS_MACOS_RESOURCES}}/library
         cp -pR ./library/symbols/* ${{env.QUCS_MACOS_RESOURCES}}/symbols
+        chmod -R 644 ${{env.QUCS_MACOS_RESOURCES}}/examples
+        chmod -R 644 ${{env.QUCS_MACOS_RESOURCES}}/library
+        chmod -R 644 ${{env.QUCS_MACOS_RESOURCES}}/symbols
         macdeployqt ./build/qucs/qucs-s.app
         macdeployqt ${{env.QUCS_MACOS_BIN}}/qucs-sactivefilter.app
         macdeployqt ${{env.QUCS_MACOS_BIN}}/qucs-sattenuator.app
@@ -303,16 +310,6 @@ jobs:
       uses: actions/checkout@v4
       with:
         submodules: recursive
-    
-    - name: 'Install Qt6'
-      uses: jurplel/install-qt-action@v4
-      with:
-        version: ${{env.QT_VERSION}}
-        host: 'windows'
-        target: 'desktop'
-        cache: true
-        arch: 'win64_msvc2019_64'
-        install-deps: 'true'
 
     - name: Set up MSYS2 environment
       uses: msys2/setup-msys2@v2
@@ -421,15 +418,18 @@ jobs:
         
     - name: Install tools
       run: |
-        choco install ninja
+        shell: pwsh
+        choco install -y ninja
 
     #- uses: ilammy/msvc-dev-cmd@v1
     - name: Build project with CMake
+      shell: pwsh
       run: |
         cmake.exe -B build/ -G "Ninja" -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DWITH_QT6=1
         cmake.exe --build build/ --parallel --config ${{env.BUILD_TYPE}}
 
     - name: Make install
+      shell: pwsh
       run: |
         cd build/ && ninja install DESTDIR=./ 
         cp -rf 'Program Files (x86)/qucs-suite' ./
@@ -437,6 +437,7 @@ jobs:
         strip build/qucs-suite/bin/*.exe 
 
     - name: Deploy Qt6 dependencies
+      shell: pwsh
       run: |
         windeployqt-qt6.exe build/qucs-suite/bin/qucs-s.exe  --svg --no-translations 
         windeployqt-qt6.exe build/qucs-suite/bin/qucs-sactivefilter.exe  --no-translations 
@@ -446,6 +447,7 @@ jobs:
         windeployqt-qt6.exe build/qucs-suite/bin/qucs-strans.exe  --no-translations
             
     - name: Create zip archive for release
+      shell: pwsh
       run: |
         cd build/qucs-suite
         zip -r ../../${{ env.APP_NAME }}-${{ env.VERSION }}-win64_msvc.zip ./bin ./share
