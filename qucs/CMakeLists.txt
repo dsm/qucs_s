@@ -92,7 +92,7 @@ if (MSVC)
     add_compile_options(/Zc:__cplusplus /permissive- /MP /Zc:preprocessor)
 else()
     # additional warnings
-    add_compile_options(-Wall -Wextra -Wno-ignored-attributes)
+    add_compile_options(-Wall -Wextra -Wno-ignored-attributes -Wno-attributes)
 endif()
 
 INCLUDE_DIRECTORIES(
