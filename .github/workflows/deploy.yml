@@ -303,6 +303,16 @@ jobs:
       uses: actions/checkout@v4
       with:
         submodules: recursive
+    
+    - name: 'Install Qt6'
+      uses: jurplel/install-qt-action@v4
+      with:
+        version: ${{env.QT_VERSION}}
+        host: 'windows'
+        target: 'desktop'
+        cache: true
+        arch: 'win64_msvc2019_64'
+        install-deps: 'true'
 
     - name: Set up MSYS2 environment
       uses: msys2/setup-msys2@v2
@@ -371,6 +381,75 @@ jobs:
       with:
         name: ${{ env.APP_NAME }}-${{ env.VERSION }}-win64
         path: ${{ env.APP_NAME }}-${{ env.VERSION }}-win64.zip
+
+  build-windows-msvc:
+    runs-on: windows-2022
+    needs: setup
+    strategy:
+      fail-fast: false
+      
+    steps:  
+    - name: Disable autocrlf in Git
+      shell: pwsh
+      run: |
+        git config --global core.autocrlf false
+        git config --global core.eol lf
+
+    - name: Set version environment variable
+      run: |
+        echo "VERSION=${{ needs.setup.outputs.version }}" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+
+    - name: Print version
+      run: echo "Qucs-S version is ${{ env.VERSION }}"
+
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      #with:
+      #  submodules: recursive
+    
+    - name: 'Install Qt6'
+      uses: jurplel/install-qt-action@v4
+      with:
+        version: ${{env.QT_VERSION}}
+        host: 'windows'
+        target: 'desktop'
+        cache: true
+        arch: 'win64_msvc2019_64'
+        install-deps: 'true'
+
+    - name: Build project with CMake
+      run: |
+        cmake.exe -B build/ -G "ninja" -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DWITH_QT6=1
+        cmake.exe --build build/ -j$(nproc) --config ${{env.BUILD_TYPE}}
+
+    - name: Make install
+      run: |
+        cd build/ && ninja install DESTDIR=./ -j$(nproc)
+        cp -rf 'Program Files (x86)/qucs-suite' ./
+        cd ..
+        strip build/qucs-suite/bin/*.exe 
+
+    - name: Deploy Qt6 dependencies
+      run: |
+        windeployqt-qt6.exe build/qucs-suite/bin/qucs-s.exe  --svg --no-translations 
+        windeployqt-qt6.exe build/qucs-suite/bin/qucs-sactivefilter.exe  --no-translations 
+        windeployqt-qt6.exe build/qucs-suite/bin/qucs-sattenuator.exe  --no-translations 
+        windeployqt-qt6.exe build/qucs-suite/bin/qucs-sfilter.exe  --no-translations 
+        windeployqt-qt6.exe build/qucs-suite/bin/qucs-spowercombining.exe  --no-translations 
+        windeployqt-qt6.exe build/qucs-suite/bin/qucs-strans.exe  --no-translations
+            
+    - name: Create zip archive for release
+      run: |
+        cd build/qucs-suite
+        zip -r ../../${{ env.APP_NAME }}-${{ env.VERSION }}-win64_msvc.zip ./bin ./share
+        cd ../..
+        
+    - name: Upload build artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: ${{ env.APP_NAME }}-${{ env.VERSION }}-win64_msvc
+        path: ${{ env.APP_NAME }}-${{ env.VERSION }}-win64_msvc.zip
+
 
   create-release:
     runs-on: ubuntu-latest
