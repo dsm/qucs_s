@@ -414,7 +414,8 @@ jobs:
         host: 'windows'
         target: 'desktop'
         cache: true
-        arch: 'win64_msvc2019_64'
+        #arch: 'win64_msvc2019_64'
+        arch: 'win64_mingw'
         install-deps: 'true'
 
         
@@ -422,7 +423,7 @@ jobs:
       run: |
         choco install ninja
 
-    - uses: ilammy/msvc-dev-cmd@v1
+    #- uses: ilammy/msvc-dev-cmd@v1
     - name: Build project with CMake
       run: |
         cmake.exe -B build/ -G "Ninja" -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DWITH_QT6=1
@@ -430,7 +431,7 @@ jobs:
 
     - name: Make install
       run: |
-        cd build/ && ninja install DESTDIR=./ -j$(nproc)
+        cd build/ && ninja install DESTDIR=./ 
         cp -rf 'Program Files (x86)/qucs-suite' ./
         cd ..
         strip build/qucs-suite/bin/*.exe 
