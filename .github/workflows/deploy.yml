@@ -465,6 +465,7 @@ jobs:
      - build-mac-intel
      - build-mac-arm
      - build-windows
+     - build-windows-msvc
     steps:
     - name: Checkout repository
       uses: actions/checkout@v4
