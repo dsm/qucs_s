@@ -419,7 +419,7 @@ jobs:
 
     - name: Build project with CMake
       run: |
-        cmake.exe -B build/ -G "ninja" -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DWITH_QT6=1
+        cmake.exe -B build/ -G "Ninja" -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DWITH_QT6=1
         cmake.exe --build build/ -j$(nproc) --config ${{env.BUILD_TYPE}}
 
     - name: Make install
