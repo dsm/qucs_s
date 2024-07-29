@@ -417,6 +417,11 @@ jobs:
         arch: 'win64_msvc2019_64'
         install-deps: 'true'
 
+        
+    - name: Install tools
+      run: |
+        choco install ninja
+
     - name: Build project with CMake
       run: |
         cmake.exe -B build/ -G "Ninja" -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DWITH_QT6=1
