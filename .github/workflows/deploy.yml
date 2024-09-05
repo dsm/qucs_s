@@ -453,7 +453,7 @@ jobs:
           echo "PRERELEASE=" >> $GITHUB_ENV
           echo "RELEASE_NAME=Qucs-S ${{ github.ref_name }}" >> $GITHUB_ENV
           echo "TAG_NAME=${{ github.ref_name }}" >> $GITHUB_ENV
-          echo "RELEASE_NOTES=--generate-notes" >> $GITHUB_ENV
+          echo "RELEASE_NOTES=-F NEWS.md" >> $GITHUB_ENV
         else
           echo "PRERELEASE=-p" >> $GITHUB_ENV
           echo "RELEASE_NAME=Continuous Build" >> $GITHUB_ENV
