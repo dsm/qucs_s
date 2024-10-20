@@ -461,7 +461,11 @@ jobs:
         arch: 'win64_mingw'
         install-deps: 'true'
         modules: 'qtcharts'
-        tools: 'tools_ninja tools_mingw1310'
+
+    - uses: MinoruSekine/setup-scoop@v4.0.1
+      with:
+          buckets: extras
+          apps: ninja
         
     - name: Build project with CMake
       run: |
