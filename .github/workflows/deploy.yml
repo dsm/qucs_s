@@ -455,8 +455,8 @@ jobs:
       uses: jurplel/install-qt-action@v4
       with:
         version: ${{env.QT_VERSION}}
-        host: 'mac'
-        target: 'windows'
+        host: 'windows'
+        target: 'desktop'
         cache: true
         arch: 'win64_mingw'
         install-deps: 'true'
