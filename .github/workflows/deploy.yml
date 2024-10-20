@@ -424,7 +424,104 @@ jobs:
       with:
         name: ${{ env.APP_NAME }}-${{ env.VERSION }}-setup
         path: ${{ env.APP_NAME }}-${{ env.VERSION }}-setup.exe
+    
+  build-windows-native:
+    runs-on: windows-latest
+    needs: setup
+    strategy:
+      fail-fast: false
+    steps:  
+    - name: Disable autocrlf in Git
+      shell: pwsh
+      run: |
+        git config --global core.autocrlf false
+        git config --global core.eol lf
 
+    - name: Set version environment variable
+      shell: pwsh
+      run: |
+        echo "VERSION=${{ needs.setup.outputs.version }}" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+
+    - name: Print version
+      shell: pwsh
+      run: echo "Qucs-S version is ${{ env.VERSION }}"
+
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      #with:
+        #submodules: recursive
+
+    - name: 'Install Qt6'
+      uses: jurplel/install-qt-action@v4
+      with:
+        version: ${{env.QT_VERSION}}
+        host: 'mac'
+        target: 'windows'
+        cache: true
+        arch: 'win64_mingw'
+        install-deps: 'true'
+        modules: 'qtcharts'
+        tools: 'tools_ninja tools_mingw1310'
+        
+    - name: Build project with CMake
+      run: |
+        cmake.exe -B build/ -G "Ninja" \
+                  -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} \
+                  -DWITH_QT6=ON \
+                  -DCI_VERSION="${{env.VERSION}}"
+        cmake.exe --build build/ -j$(nproc) --config ${{env.BUILD_TYPE}}
+
+    - name: Make install
+      run: |
+        cd build/ && mingw32-make.exe install DESTDIR=./ -j$(nproc)
+        cp -rf 'Program Files (x86)/qucs-suite' ./
+        cd ..
+        strip build/qucs-suite/bin/*.exe 
+
+    - name: Deploy Qt6 dependencies
+      run: |
+        windeployqt-qt6.exe build/qucs-suite/bin/qucs-s.exe  --svg --no-translations 
+        windeployqt-qt6.exe build/qucs-suite/bin/qucs-sactivefilter.exe  --no-translations 
+        windeployqt-qt6.exe build/qucs-suite/bin/qucs-sattenuator.exe  --no-translations 
+        windeployqt-qt6.exe build/qucs-suite/bin/qucs-sfilter.exe  --no-translations 
+        windeployqt-qt6.exe build/qucs-suite/bin/qucs-spowercombining.exe  --no-translations 
+        windeployqt-qt6.exe build/qucs-suite/bin/qucs-strans.exe  --no-translations
+        windeployqt-qt6.exe build/qucs-suite/bin/qucs-sspar-viewer.exe  --no-translations
+          
+    - name: Add ngspice to release
+      run: |
+        curl -sL --retry 3 --retry-delay 5 -o ngspice.7z ${{ env.NGSPICE_URL }}
+        7z x ngspice.7z -ongspice
+        mkdir -p build/qucs-suite/lib/ngspice
+        cp -rf ngspice/Spice64/bin/ build/qucs-suite
+        cp -rf ngspice/Spice64/lib/ build/qucs-suite
+            
+    - name: Create zip archive for release
+      run: |
+        mkdir -p build/qucs-suite/misc
+        cp -rf contrib/InnoSetup/misc build/qucs-suite/
+        cd build/qucs-suite
+        zip -r ../../${{ env.APP_NAME }}-${{ env.VERSION }}-win64.zip ./bin ./share ./lib ./misc
+        cd ../..
+
+    - name: Compile .ISS to .EXE Installer
+      uses: Minionguyjpro/Inno-Setup-Action@v1.2.4
+      with:
+        path: contrib/InnoSetup/qucs.iss
+        options: /Qp /O"${{github.workspace}}" /DAPPNAME=${{ env.APP_NAME }} /DRELEASE="${{ env.VERSION }}"
+        
+    - name: Upload build artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: ${{ env.APP_NAME }}-${{ env.VERSION }}-win64
+        path: ${{ env.APP_NAME }}-${{ env.VERSION }}-win64.zip
+
+    - name: Upload exe artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: ${{ env.APP_NAME }}-${{ env.VERSION }}-setup
+        path: ${{ env.APP_NAME }}-${{ env.VERSION }}-setup.exe
+    
   create-release:
     runs-on: ubuntu-latest
     if: github.event_name != 'pull_request'
