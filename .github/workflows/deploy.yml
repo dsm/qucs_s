@@ -461,15 +461,18 @@ jobs:
         arch: 'win64_mingw'
         install-deps: 'true'
         modules: 'qtcharts'
+        tools: 'tools_mingw1310'
+        add-tools-to-path: 'true'
 
     - uses: MinoruSekine/setup-scoop@v4.0.1
       with:
           buckets: extras versions
-          apps: ninja mingw-winlibs-ucrt
+          apps: ninja
         
     - name: Build project with CMake
       run: |
-        cmake.exe -B build/ -G "Ninja" -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DWITH_QT6=ON -DCI_VERSION="${{env.VERSION}}"
+        set PATH=${{ github.workspace }}\Tools\mingw1310_64\bin;${{ github.workspace }}\Qt\6.8.0\mingw_64\bin;%PATH%
+        qt-cmake.exe -B build/ -G "Ninja" -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DWITH_QT6=ON -DCI_VERSION="${{env.VERSION}}"
         cmake.exe --build build/ --parallel --config ${{env.BUILD_TYPE}}
 
     - name: Make install
