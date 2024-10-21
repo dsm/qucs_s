@@ -461,7 +461,7 @@ jobs:
         arch: 'win64_mingw'
         install-deps: 'true'
         modules: 'qtcharts'
-        tools: 'tools_mingw1310'
+        tools: 'tools_mingw90'
         add-tools-to-path: 'true'
 
     - uses: MinoruSekine/setup-scoop@v4.0.1
