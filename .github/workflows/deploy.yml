@@ -471,7 +471,6 @@ jobs:
         
     - name: Build project with CMake
       run: |
-        set PATH=${{ github.workspace }}\Tools\mingw1310_64\bin;${{ github.workspace }}\Qt\6.8.0\mingw_64\bin;%PATH%
         qt-cmake.exe -B build/ -G "Ninja" -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DWITH_QT6=ON -DCI_VERSION="${{env.VERSION}}"
         cmake.exe --build build/ --parallel --config ${{env.BUILD_TYPE}}
 
