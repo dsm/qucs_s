@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.10)
 PROJECT(qucs-suite CXX)
 
-set(QUCS_NAME "qucs-s")
+set(QUCS_NAME "qucs-s" CACHE STRING "Name of the application")
 
 # Prohibit in-source builds
 if("${CMAKE_BINARY_DIR}" STREQUAL "${CMAKE_SOURCE_DIR}")
@@ -52,6 +52,14 @@ if(NOT CMAKE_BUILD_TYPE STREQUAL "Debug")
 endif()
 
 enable_testing()
+
+if(APPLE)
+    set(DEPLOY_BIN_DIR "${CMAKE_INSTALL_PREFIX}/qucs-s.app/Contents/MacOS/bin" CACHE PATH "Deployment binary directory")
+    set(DEPLOY_FILES_DIR "${CMAKE_INSTALL_PREFIX}/qucs-s.app/Contents/MacOS/share" CACHE PATH "Deployment files directory")
+else()
+    set(DEPLOY_BIN_DIR "bin" CACHE PATH "Deployment binary directory")
+    set(DEPLOY_FILES_DIR "share" CACHE PATH "Deployment files directory")
+endif()
 
 add_subdirectory( qucs )
 #add_subdirectory( converter )
