@@ -1,0 +1,24 @@
+name: code-scan
+
+on:
+  push:
+    branches: [ "master", "current", "release/*" ]
+    tags:
+        - '[0-9]+.[0-9]+.[0-9]+*'
+  pull_request:
+    branches: [ "master", "current", "release/*" ]
+  workflow_dispatch:
+  workflow_call:
+
+jobs:
+  sonarqube:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        # Disabling shallow clones is recommended for improving the relevancy of reporting
+        fetch-depth: 0
+    - name: SonarQube Scan
+      uses: SonarSource/sonarqube-scan-action@v5.2.0 # Ex: v4.1.0, See the latest version at https://github.com/marketplace/actions/official-sonarqube-scan
+      env:
+        SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
