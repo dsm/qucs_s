@@ -267,15 +267,6 @@ TARGET_LINK_LIBRARIES( ${QUCS_NAME}
     Qt6::Core  Qt6::Gui  Qt6::Widgets Qt6::Svg  Qt6::SvgWidgets Qt6::Xml  Qt6::PrintSupport )
 SET_TARGET_PROPERTIES(${QUCS_NAME} PROPERTIES POSITION_INDEPENDENT_CODE TRUE)
 
-if(APPLE)
-    set(DEPLOY_BIN_DIR "${CMAKE_INSTALL_PREFIX}/qucs-s.app/Contents/MacOS/bin" CACHE PATH "Deployment binary directory")
-    set(DEPLOY_FILES_DIR "${CMAKE_INSTALL_PREFIX}/qucs-s.app/Contents/MacOS/share" CACHE PATH "Deployment files directory")
-else()
-    set(DEPLOY_BIN_DIR "bin" CACHE PATH "Deployment binary directory")
-    set(DEPLOY_FILES_DIR "share" CACHE PATH "Deployment files directory")
-endif()
-
-
 INSTALL(TARGETS ${QUCS_NAME}
     BUNDLE DESTINATION ${DEPLOY_BIN_DIR} COMPONENT Runtime
     RUNTIME DESTINATION ${DEPLOY_BIN_DIR} COMPONENT Runtime
