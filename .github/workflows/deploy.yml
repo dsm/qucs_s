@@ -221,6 +221,8 @@ jobs:
           macdeployqt ${{ env.QUCS_MACOS_BIN }}/qucs-spowercombining.app
           macdeployqt ${{ env.QUCS_MACOS_BIN }}/qucs-sspar-viewer.app
           macdeployqt ${{ env.QUCS_MACOS_BIN }}/qucs-strans.app
+          cp -pR ${{ github.workspace }}/build/bin/qucsator_rf ${{ env.QUCS_MACOS_BIN }}
+          cp -pR ${{ github.workspace }}/build/bin/qucsconv_rf ${{ env.QUCS_MACOS_BIN }}
           strip ${{ env.QUCS_MACOS_BIN }}/qucsator_rf
           strip ${{ env.QUCS_MACOS_BIN }}/qucsconv_rf
           codesign --force --deep --sign - ${{ github.workspace }}/build/deploy/qucs-s.app
