@@ -86,7 +86,7 @@ QT6_ADD_RESOURCES(RESOURCES_SRCS ${RESOURCES})
 
 IF(APPLE)
   # set information on Info.plist file
-	SET(MACOSX_BUNDLE_INFO_STRING "${PROJECT_NAME} ${PROJECT_VERSION}")
+  SET(MACOSX_BUNDLE_INFO_STRING "${PROJECT_NAME} ${PROJECT_VERSION}")
   SET(MACOSX_BUNDLE_BUNDLE_VERSION "${PROJECT_NAME} ${PROJECT_VERSION}")
   SET(MACOSX_BUNDLE_LONG_VERSION_STRING "${PROJECT_NAME} ${PROJECT_VERSION}")
   SET(MACOSX_BUNDLE_SHORT_VERSION_STRING "${PROJECT_VERSION}")
@@ -109,72 +109,9 @@ ADD_EXECUTABLE( ${QUCS_NAME}attenuator MACOSX_BUNDLE WIN32
 
 TARGET_LINK_LIBRARIES( ${QUCS_NAME}attenuator Qt6::Core Qt6::Gui Qt6::Widgets )
 SET_TARGET_PROPERTIES(${QUCS_NAME}attenuator PROPERTIES POSITION_INDEPENDENT_CODE TRUE)
-#INSTALL (TARGETS ${QUCS_NAME}attenuator DESTINATION bin)
-#
-# Prepare the installation
-#
-SET(plugin_dest_dir bin)
-SET(qtconf_dest_dir bin)
-SET(APPS "${CMAKE_INSTALL_PREFIX}/bin/${QUCS_NAME}attenuator")
-IF(APPLE)
-  SET(plugin_dest_dir ${QUCS_NAME}attenuator.app/Contents/MacOS)
-  SET(qtconf_dest_dir ${QUCS_NAME}attenuator.app/Contents/Resources)
-  SET(APPS "${CMAKE_INSTALL_PREFIX}/bin/${QUCS_NAME}attenuator.app")
-ENDIF(APPLE)
 
-IF(WIN32)
-  SET(APPS "${CMAKE_INSTALL_PREFIX}/bin/${QUCS_NAME}attenuator.exe")
-ENDIF(WIN32)
-
-#
-# Install the Qucs application, on Apple, the bundle is
-# installed as on other platforms it'll go into the bin directory.
-#
 INSTALL(TARGETS ${QUCS_NAME}attenuator
-    BUNDLE DESTINATION bin COMPONENT Runtime
-    RUNTIME DESTINATION bin COMPONENT Runtime
+    BUNDLE DESTINATION ${DEPLOY_FILES_DIR} COMPONENT Runtime
+    RUNTIME DESTINATION ${DEPLOY_FILES_DIR} COMPONENT Runtime
     )
-
-
-#
-# Install needed Qt plugins by copying directories from the qt installation
-# One can cull what gets copied by using 'REGEX "..." EXCLUDE'
-#
-IF(APPLE AND QT_PLUGINS_DIR)
-  INSTALL(DIRECTORY "${QT_PLUGINS_DIR}/imageformats" DESTINATION bin/${plugin_dest_dir}/plugins COMPONENT Runtime)
-ENDIF()
-#
-# install a qt.conf file
-# this inserts some cmake code into the install script to write the file
-#
-IF(APPLE)
-INSTALL(CODE "
-    file(WRITE \"\${CMAKE_INSTALL_PREFIX}/bin/${qtconf_dest_dir}/qt.conf\" \"\")
-    " COMPONENT Runtime)
-ENDIF()
-
-#--------------------------------------------------------------------------------
-# Use BundleUtilities to get all other dependencies for the application to work.
-# It takes a bundle or executable along with possible plugins and inspects it
-# for dependencies.  If they are not system dependencies, they are copied.
-
-# directories to look for dependencies
-IF(APPLE)
-  SET(DIRS ${QT_LIBRARY_DIRS})
-ENDIF()
-
-# Now the work of copying dependencies into the bundle/package
-# The quotes are escaped and variables to use at install time have their $ escaped
-# An alternative is the do a configure_file() on a script and use install(SCRIPT  ...).
-# Note that the image plugins depend on QtSvg and QtXml, and it got those copied
-# over.
-IF(APPLE)
-INSTALL(CODE "
-    file(GLOB_RECURSE QTPLUGINS
-      \"\${CMAKE_INSTALL_PREFIX}/bin/${plugin_dest_dir}/plugins/*${CMAKE_SHARED_LIBRARY_SUFFIX}\")
-    include(BundleUtilities)
-    fixup_bundle(\"${APPS}\" \"\${QTPLUGINS}\" \"${DIRS}\")
-    " COMPONENT Runtime)
-ENDIF()
-
 
