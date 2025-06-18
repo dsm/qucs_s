@@ -266,75 +266,23 @@ TARGET_LINK_LIBRARIES( ${QUCS_NAME}
     components diagrams dialogs geometry paintings extsimkernels spicecomponents magnetics qt3_compat
     Qt6::Core  Qt6::Gui  Qt6::Widgets Qt6::Svg  Qt6::SvgWidgets Qt6::Xml  Qt6::PrintSupport )
 SET_TARGET_PROPERTIES(${QUCS_NAME} PROPERTIES POSITION_INDEPENDENT_CODE TRUE)
-#
-# Prepare the installation
-#
-SET(plugin_dest_dir bin)
-SET(qtconf_dest_dir bin)
-SET(APPS "${CMAKE_INSTALL_PREFIX}/bin/${PROJECT_NAME}")
-IF(APPLE)
-  SET(plugin_dest_dir ${PROJECT_NAME}.app/Contents/MacOS)
-  SET(qtconf_dest_dir ${PROJECT_NAME}.app/Contents/Resources)
-  SET(APPS "${CMAKE_INSTALL_PREFIX}/bin/${PROJECT_NAME}.app")
-ENDIF(APPLE)
 
-IF(WIN32)
-  SET(APPS "${CMAKE_INSTALL_PREFIX}/bin/${PROJECT_NAME}.exe")
-ENDIF(WIN32)
+if(APPLE)
+SET(DEPLOY_BIN_DIR ${CMAKE_INSTALL_PREFIX}/qucs-s.app/Contents/MacOS/bin)
+SET(DEPLOY_FILES_DIR ${CMAKE_INSTALL_PREFIX}/qucs-s.app/Contents/MacOS/share/qucs-s)
+else()
+SET(DEPLOY_BIN_DIR bin)
+SET(DEPLOY_FILES_DIR share)
+ENDIF()
 
-#
-# Install the Qucs application, on Apple, the bundle is
-# installed as on other platforms it'll go into the bin directory.
-#
 INSTALL(TARGETS ${QUCS_NAME}
-    BUNDLE DESTINATION bin COMPONENT Runtime
-    RUNTIME DESTINATION bin COMPONENT Runtime
+    BUNDLE DESTINATION ${DEPLOY_BIN_DIR} COMPONENT Runtime
+    RUNTIME DESTINATION ${DEPLOY_BIN_DIR} COMPONENT Runtime
     )
 
-#
-# Install needed Qt plugins by copying directories from the qt installation
-# One can cull what gets copied by using 'REGEX "..." EXCLUDE'
-#
-IF(APPLE AND QT_PLUGINS_DIR)
-  INSTALL(DIRECTORY "${QT_PLUGINS_DIR}/imageformats" DESTINATION bin/${plugin_dest_dir}/plugins COMPONENT Runtime)
-ENDIF()
-#
-# install a qt.conf file
-# this inserts some cmake code into the install script to write the file
-#
-IF(APPLE)
-INSTALL(CODE "
-    file(WRITE \"\${CMAKE_INSTALL_PREFIX}/bin/${qtconf_dest_dir}/qt.conf\" \"\")
-    " COMPONENT Runtime)
-ENDIF()
+INSTALL( FILES ${SCRIPTS} DESTINATION ${DEPLOY_BIN_DIR} )
 
-#--------------------------------------------------------------------------------
-# Use BundleUtilities to get all other dependencies for the application to work.
-# It takes a bundle or executable along with possible plugins and inspects it
-# for dependencies.  If they are not system dependencies, they are copied.
-
-# directories to look for dependencies
-IF(APPLE)
-  SET(DIRS ${QT_LIBRARY_DIRS})
-ENDIF()
-
-# Now the work of copying dependencies into the bundle/package
-# The quotes are escaped and variables to use at install time have their $ escaped
-# An alternative is the do a configure_file() on a script and use install(SCRIPT  ...).
-# Note that the image plugins depend on QtSvg and QtXml, and it got those copied
-# over.
-IF(APPLE)
-INSTALL(CODE "
-    file(GLOB_RECURSE QTPLUGINS
-      \"\${CMAKE_INSTALL_PREFIX}/bin/${plugin_dest_dir}/plugins/*${CMAKE_SHARED_LIBRARY_SUFFIX}\")
-    include(BundleUtilities)
-    fixup_bundle(\"${APPS}\" \"\${QTPLUGINS}\" \"${DIRS}\")
-    " COMPONENT Runtime)
-ENDIF()
-
-INSTALL( FILES ${SCRIPTS} DESTINATION bin/ )
-
-INSTALL( FILES ${QUCS_NAME}.1 DESTINATION share/man/man1 )
+INSTALL( FILES ${QUCS_NAME}.1 DESTINATION ${DEPLOY_FILES_DIR}/man/man1 )
 
 # Install wrapper scripts
 IF(WIN32)
@@ -343,14 +291,5 @@ ELSE()
   SET(SCRIPTS qucs_run_hdl qucs_run_verilog qucs_mkdigilib)
 ENDIF()
 INSTALL( FILES ${SCRIPTS} PERMISSIONS OWNER_EXECUTE OWNER_WRITE OWNER_READ
-    GROUP_EXECUTE GROUP_READ WORLD_EXECUTE WORLD_READ DESTINATION bin/ )
-
-
-# To Create a package, one can run "cpack -G DragNDrop CPackConfig.cmake" on Mac OS X
-# where CPackConfig.cmake is created by including CPack
-# And then there's ways to customize this as well
-#set(CPACK_BINARY_DRAGNDROP ON)
-#include(CPack)
-
-
+    GROUP_EXECUTE GROUP_READ WORLD_EXECUTE WORLD_READ DESTINATION ${DEPLOY_BIN_DIR} )
 
