@@ -59,5 +59,5 @@ jobs:
         gh pr create \
           --title "Apply clang-format to Qucs-S sources" \
           --body "This PR was automatically created by a GitHub Action that formats the codebase using clang-format." \
-          --base develop \
+          --base current \
           --head ${{ env.branch_name }}
