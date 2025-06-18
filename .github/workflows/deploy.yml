@@ -14,9 +14,9 @@ env:
   EXECUTABLE_NAME: "qucs-s"
   PUBLISHER_NAME: "The Qucs-S Team"
   BUILD_TYPE: Release
-  QT_VERSION: 6.9.0
-  QUCS_MACOS_BIN: ${{github.workspace}}/build/qucs/qucs-s.app/Contents/MacOS/bin
-  QUCS_MACOS_RESOURCES: ${{github.workspace}}/build/qucs/qucs-s.app/Contents/MacOS/share/qucs-s
+  QT_VERSION: 6.9.1
+  QUCS_MACOS_BIN: ${{github.workspace}}/build/deploy/qucs-s.app/Contents/MacOS/bin
+  QUCS_MACOS_RESOURCES: ${{github.workspace}}/build/deploy/qucs-s.app/Contents/MacOS/share/qucs-s
   NGSPICE_URL: https://downloads.sourceforge.net/project/ngspice/ng-spice-rework/44.2/ngspice-44.2_64.7z
 
 jobs:
@@ -204,33 +204,17 @@ jobs:
             -DCMAKE_BUILD_TYPE=${{ env.BUILD_TYPE }} \
             -DCMAKE_OSX_DEPLOYMENT_TARGET=${{ matrix.deployment_target }} \
             -DCMAKE_OSX_ARCHITECTURES="${{ matrix.cmake_arch }}" \
+            -DCMAKE_INSTALL_PREFIX=${{github.workspace}}/build/deploy \
             -DCI_VERSION="${{ env.VERSION }}"
 
       - name: 'Build Qucs-s'
         run: |
-          cmake --build ${{ github.workspace }}/build --parallel --config=${{ env.BUILD_TYPE }}
+          cmake --build ${{ github.workspace }}/build --parallel --config ${{ env.BUILD_TYPE }}
+          cmake --build build --target install --config Release
 
       - name: 'Package App Bundle'
         run: |
-          mkdir -p ${{ env.QUCS_MACOS_BIN }}
-          mkdir -p ${{ env.QUCS_MACOS_RESOURCES }}/examples
-          mkdir -p ${{ env.QUCS_MACOS_RESOURCES }}/library
-          mkdir -p ${{ env.QUCS_MACOS_RESOURCES }}/symbols
-          mkdir -p ${{ env.QUCS_MACOS_RESOURCES }}/lang
-          cp -pR ${{ github.workspace }}/build/qucs-activefilter/qucs-sactivefilter.app ${{ env.QUCS_MACOS_BIN }}
-          cp -pR ${{ github.workspace }}/build/qucs-attenuator/qucs-sattenuator.app ${{ env.QUCS_MACOS_BIN }}
-          cp -pR ${{ github.workspace }}/build/qucs-filter/qucs-sfilter.app ${{ env.QUCS_MACOS_BIN }}
-          cp -pR ${{ github.workspace }}/build/qucs-powercombining/qucs-spowercombining.app ${{ env.QUCS_MACOS_BIN }}
-          cp -pR ${{ github.workspace }}/build/qucs-s-spar-viewer/qucs-sspar-viewer.app ${{ env.QUCS_MACOS_BIN }}
-          cp -pR ${{ github.workspace }}/build/qucs-transcalc/qucs-strans.app ${{ env.QUCS_MACOS_BIN }}
-          cp -pR ${{ github.workspace }}/build/qucsator_rf/src/qucsator_rf ${{ env.QUCS_MACOS_BIN }}
-          cp -pR ${{ github.workspace }}/build/qucsator_rf/src/converter/qucsconv_rf ${{ env.QUCS_MACOS_BIN }}
-          cp -pR ${{ github.workspace }}/examples/* ${{ env.QUCS_MACOS_RESOURCES }}/examples
-          cp -pR ${{ github.workspace }}/library/*.lib ${{ env.QUCS_MACOS_RESOURCES }}/library
-          cp -pR ${{ github.workspace }}/library/*.blacklist ${{ env.QUCS_MACOS_RESOURCES }}/library
-          cp -pR ${{ github.workspace }}/library/symbols/* ${{ env.QUCS_MACOS_RESOURCES }}/symbols
-          cp -pR ${{ github.workspace }}/build/translations/*.qm ${{ env.QUCS_MACOS_RESOURCES }}/lang
-          macdeployqt ${{ github.workspace }}/build/qucs/qucs-s.app
+          macdeployqt ${{ github.workspace }}/build/deploy/qucs-s.app
           macdeployqt ${{ env.QUCS_MACOS_BIN }}/qucs-sactivefilter.app
           macdeployqt ${{ env.QUCS_MACOS_BIN }}/qucs-sattenuator.app
           macdeployqt ${{ env.QUCS_MACOS_BIN }}/qucs-sfilter.app
@@ -239,10 +223,10 @@ jobs:
           macdeployqt ${{ env.QUCS_MACOS_BIN }}/qucs-strans.app
           strip ${{ env.QUCS_MACOS_BIN }}/qucsator_rf
           strip ${{ env.QUCS_MACOS_BIN }}/qucsconv_rf
-          codesign --force --deep --sign - ${{ github.workspace }}/build/qucs/qucs-s.app
+          codesign --force --deep --sign - ${{ github.workspace }}/build/deploy/qucs-s.app
           npm install --global create-dmg
-          create-dmg ${{ github.workspace }}/build/qucs/qucs-s.app ${{ github.workspace }}/build/qucs/ || true
-          cp -pR ${{ github.workspace }}/build/qucs/qucs-*.dmg ${{ github.workspace }}/${{ env.APP_NAME }}-${{ env.VERSION }}-${{ matrix.dmg_suffix }}.dmg
+          create-dmg ${{ github.workspace }}/build/deploy/qucs-s.app ${{ github.workspace }}/build/deploy/ || true
+          cp -pR ${{ github.workspace }}/build/deploy/qucs-*.dmg ${{ github.workspace }}/${{ env.APP_NAME }}-${{ env.VERSION }}-${{ matrix.dmg_suffix }}.dmg
 
       - name: 'Upload build artifacts'
         uses: actions/upload-artifact@v4
