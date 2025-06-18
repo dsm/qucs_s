@@ -7,5 +7,5 @@ cstrip_kj_1.trc
 cstrip_kj_2.trc)
 
 # installation of transmission lines
-INSTALL( FILES ${EXAMPLES} DESTINATION ${DEPLOY_FILES_DIR}/qucs-s/tline )
+INSTALL( FILES ${EXAMPLES} DESTINATION ${DEPLOY_FILES_DIR}/${QUCS_NAME}/tline )
 
