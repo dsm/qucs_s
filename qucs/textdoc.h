@@ -18,8 +18,8 @@ Copyright (C) 2014 by Guilherme Brondani Torri <guitorri@gmail.com>
 #ifndef TEXTDOC_H
 #define TEXTDOC_H
 
-#include <QPlainTextEdit>
 #include <QFont>
+#include <QPlainTextEdit>
 
 #include "qucsdoc.h"
 
@@ -32,14 +32,14 @@ class SyntaxHighlighter;
 class QString;
 
 // device type flags
-#define DEV_BJT      0x0001
-#define DEV_MOS      0x0002
+#define DEV_BJT 0x0001
+#define DEV_MOS 0x0002
 #define DEV_MASK_DEV 0x00FF
-#define DEV_DIG      0x0100
-#define DEV_ANA      0x0200
-#define DEV_ALL      0x0300
+#define DEV_DIG 0x0100
+#define DEV_ANA 0x0200
+#define DEV_ALL 0x0300
 #define DEV_MASK_TYP 0xFF00
-#define DEV_DEF      0x0200 // default value
+#define DEV_DEF 0x0200 // default value
 
 /*!
  * \brief The TextDoc class definition
@@ -47,21 +47,21 @@ class QString;
 class TextDoc : public QPlainTextEdit, public QucsDoc {
   Q_OBJECT
 public:
-  TextDoc (QucsApp *, const QString&);
- ~TextDoc ();
+  TextDoc(QucsApp*, const QString&);
+  ~TextDoc();
 
-  void  setName (const QString&);
-  bool  load ();
-  int   save ();
-  virtual double zoomBy (double zoom) override;
-  virtual void showNoZoom () override;
-  void  becomeCurrent (bool);
-  bool  loadSimulationTime (QString&);
-  void  commentSelected ();
-  void  insertSkeleton ();
-  void  setLanguage (int);
-  void  setLanguage (const QString&);
-  QString getModuleName (void);
+  void setName(const QString&);
+  bool load();
+  int save();
+  virtual double zoomBy(double zoom) override;
+  virtual void showNoZoom() override;
+  void becomeCurrent(bool);
+  bool loadSimulationTime(QString&);
+  void commentSelected();
+  void insertSkeleton();
+  void setLanguage(int);
+  void setLanguage(const QString&);
+  QString getModuleName(void);
 
   virtual void wheelEvent(QWheelEvent* event) override;
 
@@ -77,8 +77,8 @@ public:
   bool SetChanged;
   int language;
 
-  bool loadSettings (void);
-  bool saveSettings (void);
+  bool loadSettings(void);
+  bool saveSettings(void);
   void refreshLanguage(void);
 
   QMenu* createStandardContextMenu();
@@ -90,18 +90,19 @@ signals:
   void signalRedoState(bool);
 
 public slots:
-  void search(const QString &str, bool CaseSensitive, bool wordOnly, bool backward);
-  void replace(const QString &str, const QString &str2, bool needConfirmed,
+  void search(const QString& str, bool CaseSensitive, bool wordOnly,
+              bool backward);
+  void replace(const QString& str, const QString& str2, bool needConfirmed,
                bool CaseSensitive, bool wordOnly, bool backward);
-  void slotCursorPosChanged ();
-  void slotSetChanged ();
+  void slotCursorPosChanged();
+  void slotSetChanged();
 
 private:
-  SyntaxHighlighter * syntaxHighlight;
+  SyntaxHighlighter* syntaxHighlight;
 
 private slots:
   void highlightCurrentLine();
-  bool baseSearch(const QString &, bool, bool, bool);
+  bool baseSearch(const QString&, bool, bool, bool);
 };
 
 #endif

@@ -32,15 +32,15 @@ public:
   TL_Filter();
 
 protected:
-  static void calcMicrostrip(tSubstrate*, double, double, double&, double&l);
+  static void calcMicrostrip(tSubstrate*, double, double, double&, double& l);
   static void getMicrostrip(double, double, tSubstrate*, double&, double&);
   static double getMicrostripOpen(double Wh, double er, double er_eff);
 
   static double dispersionKirschning(double, double, double, double&, double&);
-  static void getCoupledMicrostrip
-        (double, double, double, tSubstrate*, double&, double&, double&, double&);
-  static void sythesizeCoupledMicrostrip
-        (double, double, double, tSubstrate*, double&, double&, double&);
+  static void getCoupledMicrostrip(double, double, double, tSubstrate*, double&,
+                                   double&, double&, double&);
+  static void sythesizeCoupledMicrostrip(double, double, double, tSubstrate*,
+                                         double&, double&, double&);
 };
 
 #endif

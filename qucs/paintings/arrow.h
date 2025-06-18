@@ -22,8 +22,7 @@
 
 #include <QPen>
 
-
-class Arrow : public Painting  {
+class Arrow : public Painting {
 public:
   Arrow();
 
@@ -31,7 +30,7 @@ public:
   void paintScheme(Schematic*) override;
 
   Painting* newOne() override;
-  static Element* info(QString&, char* &, bool getNewOne=false);
+  static Element* info(QString&, char*&, bool getNewOne = false);
 
   bool load(const QString&) override;
   QString save() override;
@@ -41,19 +40,20 @@ public:
   bool getSelected(const QPoint& click, int tolerance) override;
   bool resizeTouched(const QPoint& click, int tolerance) override;
 
-  void MouseMoving(const QPoint& onGrid, Schematic* sch, const QPoint& cursor) override;
-  bool MousePressing(Schematic *sch = nullptr) override;
+  void MouseMoving(const QPoint& onGrid, Schematic* sch,
+                   const QPoint& cursor) override;
+  bool MousePressing(Schematic* sch = nullptr) override;
   void MouseResizeMoving(int, int, Schematic*) override;
 
-  bool  rotate() noexcept override;
-  bool  rotate(int, int) noexcept override;
-  bool  mirrorX() noexcept override;
-  bool  mirrorY() noexcept override;
+  bool rotate() noexcept override;
+  bool rotate(int, int) noexcept override;
+  bool mirrorX() noexcept override;
+  bool mirrorY() noexcept override;
 
   bool Dialog(QWidget* parent = nullptr) override;
 
 private:
-  QPen   pen;
+  QPen pen;
 
   enum ArrowHeadStyle { empty = 0, filled };
   ArrowHeadStyle headStyle;

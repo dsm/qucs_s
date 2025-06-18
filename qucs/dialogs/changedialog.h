@@ -19,9 +19,9 @@
 #define CHANGEDIALOG_H
 
 #include <QDialog>
+#include <QGridLayout>
 #include <QRegularExpression>
 #include <QRegularExpressionValidator>
-#include <QGridLayout>
 
 class Schematic;
 class QLineEdit;
@@ -29,12 +29,11 @@ class QComboBox;
 class QGridLayout;
 class QRegExpValidator;
 
-
 class ChangeDialog : public QDialog {
-   Q_OBJECT
+  Q_OBJECT
 public:
   ChangeDialog(Schematic*);
- ~ChangeDialog();
+  ~ChangeDialog();
 
 private slots:
   void slotButtReplace();
@@ -42,12 +41,12 @@ private slots:
 private:
   bool matches(const QString&);
 
-  Schematic *Doc;
-  QGridLayout *all;   // the mother of all widgets
-  QRegularExpressionValidator  *Validator, *ValRestrict;
-  QRegularExpression     Expr;
-  QLineEdit   *CompNameEdit, *NewValueEdit;
-  QComboBox   *CompTypeEdit, *PropNameEdit;
+  Schematic* Doc;
+  QGridLayout* all; // the mother of all widgets
+  QRegularExpressionValidator *Validator, *ValRestrict;
+  QRegularExpression Expr;
+  QLineEdit *CompNameEdit, *NewValueEdit;
+  QComboBox *CompTypeEdit, *PropNameEdit;
 };
 
 #endif

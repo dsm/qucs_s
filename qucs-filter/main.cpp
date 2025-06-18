@@ -16,60 +16,60 @@
  ***************************************************************************/
 
 #ifdef HAVE_CONFIG_H
-# include <config.h>
+#include <config.h>
 #endif
 
 #include <stdlib.h>
 
 #include <QApplication>
-#include <QString>
-#include <QTranslator>
-#include <QFile>
-#include <QTextStream>
-#include <QMessageBox>
 #include <QDir>
+#include <QFile>
 #include <QFont>
+#include <QMessageBox>
 #include <QSettings>
+#include <QString>
+#include <QTextStream>
+#include <QTranslator>
 
-#include "qucsfilter.h"
 #include "../qucs/extsimkernels/spicecompat.h"
+#include "qucsfilter.h"
 
 struct tQucsSettings QucsSettings;
 
-
-
 // #########################################################################
 // Loads the settings file and stores the settings.
-bool loadSettings()
-{
-    QSettings settings("qucs","qucs_s");
-    settings.beginGroup("QucsFilter");
-    if(settings.contains("x"))QucsSettings.x=settings.value("x").toInt();
-    if(settings.contains("y"))QucsSettings.y=settings.value("y").toInt();
-    settings.endGroup();
-    if(settings.contains("Language"))QucsSettings.Language=settings.value("Language").toString();
-    if(settings.contains("DefaultSimulator"))
-        QucsSettings.DefaultSimulator = settings.value("DefaultSimulator").toInt();
-    else QucsSettings.DefaultSimulator = spicecompat::simNotSpecified;
+bool loadSettings() {
+  QSettings settings("qucs", "qucs_s");
+  settings.beginGroup("QucsFilter");
+  if (settings.contains("x")) {
+    QucsSettings.x = settings.value("x").toInt();
+  }
+  if (settings.contains("y")) {
+    QucsSettings.y = settings.value("y").toInt();
+  }
+  settings.endGroup();
+  if (settings.contains("Language")) {
+    QucsSettings.Language = settings.value("Language").toString();
+  }
+  if (settings.contains("DefaultSimulator")) {
+    QucsSettings.DefaultSimulator = settings.value("DefaultSimulator").toInt();
+  } else {
+    QucsSettings.DefaultSimulator = spicecompat::simNotSpecified;
+  }
 
   return true;
 }
-
 
 // #########################################################################
 // Saves the settings in the settings file.
-bool saveApplSettings(QucsFilter *qucs)
-{
-    QSettings settings ("qucs","qucs_s");
-    settings.beginGroup("QucsFilter");
-    settings.setValue("x", qucs->x());
-    settings.setValue("y", qucs->y());
-    settings.endGroup();
+bool saveApplSettings(QucsFilter* qucs) {
+  QSettings settings("qucs", "qucs_s");
+  settings.beginGroup("QucsFilter");
+  settings.setValue("x", qucs->x());
+  settings.setValue("y", qucs->y());
+  settings.endGroup();
   return true;
-
 }
-
-
 
 // #########################################################################
 // ##########                                                     ##########
@@ -77,8 +77,7 @@ bool saveApplSettings(QucsFilter *qucs)
 // ##########                                                     ##########
 // #########################################################################
 
-int main(int argc, char *argv[])
-{
+int main(int argc, char* argv[]) {
   QApplication a(argc, argv);
 
   // apply default settings
@@ -89,7 +88,7 @@ int main(int argc, char *argv[])
   QDir QucsDir;
   QString QucsApplicationPath = QCoreApplication::applicationDirPath();
 #ifdef __APPLE__
-  QucsDir = QDir(QucsApplicationPath.section("/bin",0,0));
+  QucsDir = QDir(QucsApplicationPath.section("/bin", 0, 0));
 #else
   QucsDir = QDir(QucsApplicationPath);
   QucsDir.cdUp();
@@ -98,16 +97,18 @@ int main(int argc, char *argv[])
 
   loadSettings();
 
-  QTranslator tor( 0 );
+  QTranslator tor(0);
   QString lang = QucsSettings.Language;
-  if(lang.isEmpty())
+  if (lang.isEmpty()) {
     lang = QString(QLocale::system().name());
-  static_cast<void>(tor.load( QStringLiteral("qucs_") + lang, QucsSettings.LangDir));
-  a.installTranslator( &tor );
+  }
+  static_cast<void>(
+      tor.load(QStringLiteral("qucs_") + lang, QucsSettings.LangDir));
+  a.installTranslator(&tor);
 
-  QucsFilter *qucs = new QucsFilter();
+  QucsFilter* qucs = new QucsFilter();
   qucs->raise();
-  qucs->move(QucsSettings.x, QucsSettings.y);  // position before "show" !!!
+  qucs->move(QucsSettings.x, QucsSettings.y); // position before "show" !!!
   qucs->show();
   int result = a.exec();
   saveApplSettings(qucs);

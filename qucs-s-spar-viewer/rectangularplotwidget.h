@@ -1,28 +1,23 @@
 #ifndef RECTANGULARPLOTWIDGET_H
 #define RECTANGULARPLOTWIDGET_H
 
+#include <QCheckBox> // Added for checkbox
+#include <QComboBox>
+#include <QDoubleSpinBox>
+#include <QGraphicsTextItem>
+#include <QGridLayout>
+#include <QLabel>
+#include <QMap>
+#include <QPen>
 #include <QWidget>
 #include <QtCharts/QChartView>
 #include <QtCharts/QLineSeries>
 #include <QtCharts/QScatterSeries>
 #include <QtCharts/QValueAxis>
-#include <QDoubleSpinBox>
-#include <QComboBox>
-#include <QGridLayout>
-#include <QLabel>
-#include <QMap>
-#include <QPen>
-#include <QGraphicsTextItem>
-#include <QCheckBox>  // Added for checkbox
 #include <complex>
 #include <limits>
 
-
-
-
-
-class RectangularPlotWidget : public QWidget
-{
+class RectangularPlotWidget : public QWidget {
   Q_OBJECT
 
 public:
@@ -43,10 +38,10 @@ public:
   };
 
   struct Limit {
-    double f1; // Start frequency
-    double f2; // End frequency
-    double y1; // Start y
-    double y2; // End y
+    double f1;  // Start frequency
+    double f2;  // End frequency
+    double y1;  // Start y
+    double y2;  // End y
     int y_axis; // 0: Left y-axis; 1: Right y-axis
     QPen pen;
   };
@@ -70,7 +65,7 @@ public:
     bool lockAxis;
   };
 
-  explicit RectangularPlotWidget(QWidget *parent = nullptr);
+  explicit RectangularPlotWidget(QWidget* parent = nullptr);
   ~RectangularPlotWidget();
 
   void addTrace(const QString& name, const Trace& trace);
@@ -102,7 +97,8 @@ public:
   void updatePlot();
   void set_y_autoscale(bool value);
 
-  bool areAxisSettingsLocked() const; // Public function to check whether the axes are locked or not
+  bool areAxisSettingsLocked()
+      const; // Public function to check whether the axes are locked or not
 
   void setRightYAxisEnabled(bool enabled);
   bool isRightYAxisEnabled() const;
@@ -114,22 +110,22 @@ public:
   void change_X_axis_title(QString title);
   void change_X_axis_label(QString title);
 
-  QLabel *xAxisLabel;
+  QLabel* xAxisLabel;
 
-  bool addMarker(const QString& markerId, double frequency, const QPen& pen = QPen(Qt::red, 2));
+  bool addMarker(const QString& markerId, double frequency,
+                 const QPen& pen = QPen(Qt::red, 2));
   bool removeMarker(const QString& markerId);
   bool updateMarkerFrequency(const QString& markerId, double newFrequency);
   void clearMarkers();
   QMap<QString, double> getMarkers() const;
 
-
-  bool addLimit(const QString& LimitId, const Limit & limit);
+  bool addLimit(const QString& LimitId, const Limit& limit);
   void removeLimit(const QString& LimitID);
   void clearLimits();
   QMap<QString, Limit> getLimits() const;
   bool updateLimit(const QString& limitId, const Limit& limit);
 
-  QChart *chart() const { return ChartWidget; }
+  QChart* chart() const { return ChartWidget; }
 
   // Exchange the settings with the main program
   AxisSettings getSettings() const;
@@ -144,32 +140,32 @@ private slots:
   void toggleLockAxisSettings(bool locked);
 
 private:
-  QChart *ChartWidget;
-  QChartView *chartView;
-  QValueAxis *xAxis;
-  QValueAxis *yAxis;
-  QValueAxis *y2Axis;
+  QChart* ChartWidget;
+  QChartView* chartView;
+  QValueAxis* xAxis;
+  QValueAxis* yAxis;
+  QValueAxis* y2Axis;
 
-  QDoubleSpinBox *xAxisMin;
-  QDoubleSpinBox *xAxisMax;
-  QDoubleSpinBox *xAxisDiv;
-  QComboBox *xAxisUnits;
+  QDoubleSpinBox* xAxisMin;
+  QDoubleSpinBox* xAxisMax;
+  QDoubleSpinBox* xAxisDiv;
+  QComboBox* xAxisUnits;
 
-  QDoubleSpinBox *yAxisMin;
-  QDoubleSpinBox *yAxisMax;
-  QDoubleSpinBox *yAxisDiv;
-  QLabel *yAxisUnits;
+  QDoubleSpinBox* yAxisMin;
+  QDoubleSpinBox* yAxisMax;
+  QDoubleSpinBox* yAxisDiv;
+  QLabel* yAxisUnits;
 
-  QDoubleSpinBox *y2AxisMin;
-  QDoubleSpinBox *y2AxisMax;
-  QDoubleSpinBox *y2AxisDiv;
-  QLabel *y2AxisUnits;
-  QLabel *y2AxisLabel;
+  QDoubleSpinBox* y2AxisMin;
+  QDoubleSpinBox* y2AxisMax;
+  QDoubleSpinBox* y2AxisDiv;
+  QLabel* y2AxisUnits;
+  QLabel* y2AxisLabel;
 
-  QCheckBox *showValuesCheckbox;  // Checkbox for showing values
-  bool showTraceValues;           // Flag to control value display
+  QCheckBox* showValuesCheckbox; // Checkbox for showing values
+  bool showTraceValues;          // Flag to control value display
 
-  QCheckBox *lockAxisCheckbox;    // Checkbox for locking the axis settings
+  QCheckBox* lockAxisCheckbox; // Checkbox for locking the axis settings
   bool axisSettingsLocked;
 
   QStringList frequencyUnits;

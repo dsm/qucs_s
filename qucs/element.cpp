@@ -19,38 +19,38 @@
 #include "misc.h"
 #include "one_point.h"
 
-#include <cmath>
 #include <QPainter>
+#include <cmath>
 
 namespace qucs {
 
 void Line::draw(QPainter* painter) const {
-    painter->drawLine(QPointF{x1, y1}, QPointF{x2, y2});
+  painter->drawLine(QPointF{x1, y1}, QPointF{x2, y2});
 }
 
 void Arc::draw(QPainter* painter) const {
-    painter->drawArc(QRectF{x, y, w, h}, angle, arclen);
+  painter->drawArc(QRectF{x, y, w, h}, angle, arclen);
 }
 
 void Rect::draw(QPainter* painter) const {
-    painter->drawRect(QRectF{x, y, w, h});
+  painter->drawRect(QRectF{x, y, w, h});
 }
 
 void Ellips::draw(QPainter* painter) const {
-    painter->drawEllipse(QRectF{x, y, w, h});
+  painter->drawEllipse(QRectF{x, y, w, h});
 }
 
 void Polyline::draw(QPainter* painter) const {
-    painter->drawPolyline(points.data(), points.size());
+  painter->drawPolyline(points.data(), points.size());
 }
 
 } // namespace qucs
 
-void Text::draw(QPainter *painter) const {
+void Text::draw(QPainter* painter) const {
   draw(painter, nullptr);
 }
 
-void Text::draw(QPainter *painter, QRectF* br) const {
+void Text::draw(QPainter* painter, QRectF* br) const {
   painter->save();
 
   painter->translate(x, y);
@@ -65,7 +65,7 @@ void Text::draw(QPainter *painter, QRectF* br) const {
 
   misc::draw_richtext(painter, 0, 0, s, br);
   if (br) {
-     br->moveTo(x, y);
+    br->moveTo(x, y);
   }
 
   painter->restore();
@@ -98,63 +98,54 @@ double Text::angle() const {
   return -degrees;
 }
 
-
-bool Element::moveCenterTo(int x, int y) noexcept
-{
+bool Element::moveCenterTo(int x, int y) noexcept {
   auto old_center = center();
   moveCenter(x - old_center.x(), y - old_center.y());
   return x != old_center.x() || y != old_center.y();
 }
 
-bool Element::moveCenterTo(const QPoint& p) noexcept
-{
+bool Element::moveCenterTo(const QPoint& p) noexcept {
   return moveCenterTo(p.x(), p.y());
 }
 
-bool Element::moveCenter(int dx, int dy) noexcept
-{
+bool Element::moveCenter(int dx, int dy) noexcept {
   cx += dx;
   cy += dy;
   return dx != 0 || dy != 0;
 }
 
-bool Element::rotate(int rcx, int rcy) noexcept
-{
+bool Element::rotate(int rcx, int rcy) noexcept {
   int ncx = cx;
   int ncy = cy;
   qucs_s::geom::rotate_point_ccw(ncx, ncy, rcx, rcy);
-  const bool has_moved = moveCenterTo(ncx, ncy);
+  const bool has_moved   = moveCenterTo(ncx, ncy);
   const bool has_rotated = rotate();
   return has_rotated || has_moved;
 }
 
-bool Element::rotate(const QPoint& center) noexcept
-{
+bool Element::rotate(const QPoint& center) noexcept {
   return rotate(center.x(), center.y());
 }
 
-bool Element::mirrorX(int axis) noexcept
-{
-  const bool has_moved = moveCenterTo(cx, qucs_s::geom::mirror_coordinate(cy, axis));
+bool Element::mirrorX(int axis) noexcept {
+  const bool has_moved =
+      moveCenterTo(cx, qucs_s::geom::mirror_coordinate(cy, axis));
   const bool has_mirrored = mirrorX();
   return has_mirrored || has_moved;
 }
 
-bool Element::mirrorY(int axis) noexcept
-{
-  const bool has_moved = moveCenterTo(qucs_s::geom::mirror_coordinate(cx, axis), cy);
+bool Element::mirrorY(int axis) noexcept {
+  const bool has_moved =
+      moveCenterTo(qucs_s::geom::mirror_coordinate(cx, axis), cy);
   const bool has_mirrored = mirrorY();
   return has_mirrored || has_moved;
 }
 
-QRect Element::boundingRect() const noexcept
-{
-  return QRect{QPoint{x1, y1}, QPoint{x2, y2}}
-    .normalized()
-    .translated(center());
+QRect Element::boundingRect() const noexcept {
+  return QRect{QPoint{x1, y1}, QPoint{x2, y2}}.normalized().translated(
+      center());
 }
 
-QPoint Element::center() const noexcept
-{
+QPoint Element::center() const noexcept {
   return {cx, cy};
 }

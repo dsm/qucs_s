@@ -21,7 +21,7 @@
 #include <array>
 
 typedef struct {
-  const char *Mnemonic;
+  const char* Mnemonic;
   unsigned short Unicode;
 } tSpecialChar;
 
@@ -89,7 +89,7 @@ std::array<tSpecialChar, 59> SpecialChars{{
 
 // This function replaces the LaTeX tags for special characters
 // into its unicode value.
-void encode_String(const QString &Input, QString &Output) {
+void encode_String(const QString& Input, QString& Output) {
   int Begin = 0, End = 0;
 
   Output = "";
@@ -97,7 +97,7 @@ void encode_String(const QString &Input, QString &Output) {
     Output += Input.mid(End, Begin - End);
     End = Begin++;
 
-    for (const auto &sc : SpecialChars) { // test all special characters
+    for (const auto& sc : SpecialChars) { // test all special characters
       if (Input.mid(Begin).startsWith(sc.Mnemonic)) {
         Output += QChar(sc.Unicode);
         End = Begin + strlen(sc.Mnemonic);
@@ -110,8 +110,8 @@ void encode_String(const QString &Input, QString &Output) {
 
 // This function replaces the unicode of special characters
 // by its LaTeX tags.
-void decode_String(QString &Output) {
-  for (const auto &sc : SpecialChars) {
+void decode_String(QString& Output) {
+  for (const auto& sc : SpecialChars) {
     Output.replace(QChar(sc.Unicode), "\\" + QString(sc.Mnemonic));
   }
 }

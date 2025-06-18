@@ -20,18 +20,18 @@
 
 #include "component.h"
 
-
-class D_FlipFlop : public Component  {
+class D_FlipFlop : public Component {
 public:
   D_FlipFlop();
- ~D_FlipFlop() {};
+  ~D_FlipFlop(){};
   Component* newOne();
-  static Element* info(QString&, char* &, bool getNewOne=false);
+  static Element* info(QString&, char*&, bool getNewOne = false);
 
 protected:
   QString vhdlCode(int);
   QString verilogCode(int);
-  QString spice_netlist(spicecompat::SpiceDialect dialect = spicecompat::SPICEDefault);
+  QString
+  spice_netlist(spicecompat::SpiceDialect dialect = spicecompat::SPICEDefault);
 };
 
 #endif

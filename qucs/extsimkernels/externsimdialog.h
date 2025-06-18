@@ -25,62 +25,59 @@
 
 class Schematic;
 
-class ExternSimDialog : public QDialog
-{
-    Q_OBJECT
+class ExternSimDialog : public QDialog {
+  Q_OBJECT
 
 private:
-    Schematic* a_schematic;
+  Schematic* a_schematic;
 
-    QPushButton *a_buttonStopSim;
-    QPushButton *a_buttonSaveNetlist;
-    QPushButton *a_buttonExit;
+  QPushButton* a_buttonStopSim;
+  QPushButton* a_buttonSaveNetlist;
+  QPushButton* a_buttonExit;
 
-    QPlainTextEdit *a_editSimConsole;
-    QListWidget *a_simStatusLog;
+  QPlainTextEdit* a_editSimConsole;
+  QListWidget* a_simStatusLog;
 
-    QProgressBar *a_simProgress;
+  QProgressBar* a_simProgress;
 
-    Ngspice *a_ngspice;
-    Xyce *a_xyce;
+  Ngspice* a_ngspice;
+  Xyce* a_xyce;
 
-    bool a_wasSimulated;
-    bool a_hasError;
-    bool a_netlist2Console;
+  bool a_wasSimulated;
+  bool a_hasError;
+  bool a_netlist2Console;
 
 public:
-    explicit ExternSimDialog(
-            Schematic* sch,
-            bool netlist2Console,
-            bool netlist_mode = false);
-    ~ExternSimDialog();
+  explicit ExternSimDialog(Schematic* sch, bool netlist2Console,
+                           bool netlist_mode = false);
+  ~ExternSimDialog();
 
-    bool wasSimulated() const { return a_wasSimulated; }
-    bool hasError() const { return a_hasError; }
+  bool wasSimulated() const { return a_wasSimulated; }
+  bool hasError() const { return a_hasError; }
 
 private:
-    void saveLog();
-    void addLogEntry(const QString&text, const QIcon &icon);
-    bool logContainsError(const QString &out);
-    bool logContainsWarning(const QString &out);
+  void saveLog();
+  void addLogEntry(const QString& text, const QIcon& icon);
+  bool logContainsError(const QString& out);
+  bool logContainsWarning(const QString& out);
 
 signals:
-    void simulated(ExternSimDialog *);
-    void warnings();
-    void success();
+  void simulated(ExternSimDialog*);
+  void warnings();
+  void success();
 
 public slots:
-    void slotSaveNetlist();
-    void slotStart();
+  void slotSaveNetlist();
+  void slotStart();
 
 private slots:
-    void slotProcessOutput();
-    //void slotProcessXyceOutput();
-    void slotNgspiceStarted();
-    void slotNgspiceStartError(QProcess::ProcessError err);
-    void slotStop();
-    void slotSetSimulator();
-    void slotExit();
+  void slotProcessOutput();
+  // void slotProcessXyceOutput();
+  void slotNgspiceStarted();
+  void slotNgspiceStartError(QProcess::ProcessError err);
+  void slotStop();
+  void slotSetSimulator();
+  void slotExit();
 };
 
 #endif // EXTERNSIMDIALOG_H

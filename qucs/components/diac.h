@@ -20,13 +20,12 @@
 
 #include "component.h"
 
-
-class Diac : public Component  {
+class Diac : public Component {
 public:
   Diac();
- ~Diac() {};
+  ~Diac(){};
   Component* newOne();
-  static Element* info(QString&, char* &, bool getNewOne=false);
+  static Element* info(QString&, char*&, bool getNewOne = false);
 };
 
 #endif

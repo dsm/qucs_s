@@ -7,8 +7,8 @@
 
 -----------------------------------------------------------------------------
     Update (2017)        : New impedance matching techniques: Single matching,
-                           double stub matching, real to real broadband transformers, 
-                           cascaded L-sections and lambda/8 + lambda/4 matching
+                           double stub matching, real to real broadband
+transformers, cascaded L-sections and lambda/8 + lambda/4 matching
 
                           Andres Martinez-Mera <andresmartinezmera@gmail.com>
                           Claudio Girardi      <claudio.girardi@virgilio.it>
@@ -55,7 +55,7 @@ struct tSubstrate {
   double minWidth, maxWidth;
 };
 
-static const double Z_FIELD = 376.73031346958504364963;
+static const double Z_FIELD        = 376.73031346958504364963;
 static const double SPEED_OF_LIGHT = 299792458.0;
 
 /*! coth function */
@@ -69,21 +69,25 @@ static inline double sech(const double x) {
 }
 
 /* sec function*/
-static inline double sec(const double x) { return 1 / cos(x); }
+static inline double sec(const double x) {
+  return 1 / cos(x);
+}
 
 /* sec function*/
-static inline double asec(const double x) { return acos(1 / x); }
+static inline double asec(const double x) {
+  return acos(1 / x);
+}
 
 class MatchDialog : public QDialog {
   Q_OBJECT
 public:
-  MatchDialog(QWidget *parent = 0);
+  MatchDialog(QWidget* parent = 0);
   ~MatchDialog();
 
-  static void c2p(double &, double &);
-  static void p2c(double &, double &);
-  static void r2z(double &, double &, double);
-  static void z2r(double &, double &, double);
+  static void c2p(double&, double&);
+  static void p2c(double&, double&);
+  static void r2z(double&, double&, double);
+  static void z2r(double&, double&, double);
 
   bool calcMatchingCircuit(double, double, double, double, bool, bool, bool,
                            tSubstrate, int, double, bool);
@@ -111,11 +115,11 @@ public:
                       double, double, bool, bool, bool, tSubstrate, int, double,
                       bool);
 
-  void SchematicParser(QString, int &, double, tSubstrate,
+  void SchematicParser(QString, int&, double, tSubstrate,
                        bool); // This function convert the circuit description
                               // code into a Qucs schematic
 
-  void getMicrostrip(double, double, tSubstrate *, double &, double &);
+  void getMicrostrip(double, double, tSubstrate*, double&, double&);
   void setFrequency(double);
   void setTwoPortMatch(bool on) {
     TwoCheck->setChecked(on);
@@ -124,8 +128,8 @@ public:
 
 public slots:
   void slotButtCreate();
-  void slotImpedanceChanged(const QString &);
-  void slotReflexionChanged(const QString &);
+  void slotImpedanceChanged(const QString&);
+  void slotReflexionChanged(const QString&);
   void slotSetTwoPort(bool);
   void slotChangeMode(int);
   void setS11LineEdits(double, double);
@@ -137,9 +141,9 @@ public slots:
   void slotChebyCheck();
 
 private:
-  QHBoxLayout *all; // the mother of all widgets
-  QVBoxLayout *MethodLayout;
-  QDoubleValidator *DoubleVal;
+  QHBoxLayout* all; // the mother of all widgets
+  QVBoxLayout* MethodLayout;
+  QDoubleValidator* DoubleVal;
   QLabel *Port1Label, *Port2Label, *Ohm1Label, *Ohm2Label, *FormatLabel,
       *FrequencyLabel, *TopoLabel, *OrderLabel, *RelPermLabel, *S11Label,
       *S11sLabel, *S11uLabel, *S21Label, *S21sLabel, *S21uLabel, *S12Label,

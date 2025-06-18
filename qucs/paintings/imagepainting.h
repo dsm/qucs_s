@@ -17,22 +17,22 @@
 #define IMAGEPAINTING_H
 
 #include "rectangle.h"
+#include <QApplication>
+#include <QCheckBox>
 #include <QColor>
-#include <QPen>
-#include <QPixmap>
+#include <QComboBox>
+#include <QDebug>
+#include <QDialogButtonBox>
 #include <QFileDialog>
-#include <QVBoxLayout>
 #include <QHBoxLayout>
 #include <QLabel>
 #include <QLineEdit>
-#include <QPushButton>
-#include <QDialogButtonBox>
-#include <QDebug>
-#include <QPainter>
 #include <QObject>
-#include <QComboBox>
-#include <QCheckBox>
-#include <QApplication>
+#include <QPainter>
+#include <QPen>
+#include <QPixmap>
+#include <QPushButton>
+#include <QVBoxLayout>
 
 class ImagePainting : public QObject, public qucs::Rectangle {
   Q_OBJECT
@@ -45,7 +45,8 @@ public:
   QString saveCpp() override;
   QString saveJSON() override;
   bool Dialog(QWidget* parent = nullptr) override;
-  static Element* info(QString& Name, char* &BitmapFile, bool getNewOne = false);
+  static Element* info(QString& Name, char*& BitmapFile,
+                       bool getNewOne = false);
 
   void setImageFromPixmap(const QPixmap& pixmap);
   void setImageFromPath(const QString& path);
@@ -54,7 +55,8 @@ public:
   // Override selection and interaction methods
   bool getSelected(const QPoint& click, int tolerance) override;
   bool resizeTouched(const QPoint& click, int tolerance) override;
-  void MouseMoving(const QPoint& onGrid, Schematic* sch, const QPoint& cursor) override;
+  void MouseMoving(const QPoint& onGrid, Schematic* sch,
+                   const QPoint& cursor) override;
   bool MousePressing(Schematic* sch = nullptr) override;
   void MouseResizeMoving(int x, int y, Schematic* p) override;
   bool rotate() noexcept override;

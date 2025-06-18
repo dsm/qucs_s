@@ -43,12 +43,10 @@ class QListWidgetItem;
 class QTableWidget;
 class QListWidget;
 
-
-class DiagramDialog : public QDialog  {
-Q_OBJECT
+class DiagramDialog : public QDialog {
+  Q_OBJECT
 public:
-  DiagramDialog(Diagram *d, QWidget *parent=0,
-		Graph *currentGraph=0);
+  DiagramDialog(Diagram* d, QWidget* parent = 0, Graph* currentGraph = 0);
   ~DiagramDialog();
 
   bool loadVarData(const QString&);
@@ -57,8 +55,8 @@ public:
 private slots:
   void slotReadVars(int);
   void slotReadVarsAndSetSimulator(int);
-  void slotTakeVar(QTableWidgetItem *item);
-//  void slotSelectGraph(int index);
+  void slotTakeVar(QTableWidgetItem* item);
+  //  void slotSelectGraph(int index);
   void slotSelectGraph(QListWidgetItem*);
   void slotNewGraph();
   void slotDeleteGraph();
@@ -90,46 +88,46 @@ private slots:
   void slotPlotVs(int);
 
 protected slots:
-    void reject();
+  void reject();
 
 private:
   void SelectGraph(Graph*);
   void updateXVar();
 
-  Diagram *Diag;
+  Diagram* Diag;
   QString defaultDataSet;
 
   QRegularExpression Expr;
-  QDoubleValidator *ValDouble;
-  QIntValidator    *ValInteger;
-  QRegularExpressionValidator *Validator;
+  QDoubleValidator* ValDouble;
+  QIntValidator* ValInteger;
+  QRegularExpressionValidator* Validator;
 
-  QLabel *lblSim;
-  QLabel *lblPlotVs;
-  QComboBox *ChooseData;
-  QComboBox *ChooseSimulator;
-  QComboBox *ChooseXVar;
-  QComboBox *LogUnitsY;
-  QComboBox *LogUnitsZ;
-  QTableWidget *ChooseVars;
-  QListWidget  *GraphList;
+  QLabel* lblSim;
+  QLabel* lblPlotVs;
+  QComboBox* ChooseData;
+  QComboBox* ChooseSimulator;
+  QComboBox* ChooseXVar;
+  QComboBox* LogUnitsY;
+  QComboBox* LogUnitsZ;
+  QTableWidget* ChooseVars;
+  QListWidget* GraphList;
 
-  QVBoxLayout *all;   // the mother of all widgets
-  QLineEdit   *GraphInput, *Property2, *xLabel, *ylLabel, *yrLabel;
-  QCheckBox   *GridOn, *GridLogX, *GridLogY, *GridLogZ;
-  QCheckBox   *manualX, *manualY, *manualZ, *hideInvisible;
-  QLineEdit   *startX, *stepX, *stopX;
-  QLineEdit   *startY, *stepY, *stopY;
-  QLineEdit   *startZ, *stepZ, *stopZ;
-  QLineEdit   *rotationX, *rotationY, *rotationZ;
-  QLabel      *GridLabel1, *GridLabel2, *Label1, *Label2, *Label3, *Label4,
-              *NotationLabel;
-  QComboBox   *PropertyBox, *GridStyleBox, *yAxisBox, *NotationBox;
+  QVBoxLayout* all; // the mother of all widgets
+  QLineEdit *GraphInput, *Property2, *xLabel, *ylLabel, *yrLabel;
+  QCheckBox *GridOn, *GridLogX, *GridLogY, *GridLogZ;
+  QCheckBox *manualX, *manualY, *manualZ, *hideInvisible;
+  QLineEdit *startX, *stepX, *stopX;
+  QLineEdit *startY, *stepY, *stopY;
+  QLineEdit *startZ, *stepZ, *stopZ;
+  QLineEdit *rotationX, *rotationY, *rotationZ;
+  QLabel *GridLabel1, *GridLabel2, *Label1, *Label2, *Label3, *Label4,
+      *NotationLabel;
+  QComboBox *PropertyBox, *GridStyleBox, *yAxisBox, *NotationBox;
   QPushButton *ColorButt, *GridColorButt;
-  QSlider     *SliderRotX, *SliderRotY, *SliderRotZ;
-  Cross3D     *DiagCross;
+  QSlider *SliderRotX, *SliderRotY, *SliderRotZ;
+  Cross3D* DiagCross;
   bool changed, transfer, toTake;
-  std::vector<std::unique_ptr<Graph>>  Graphs;
+  std::vector<std::unique_ptr<Graph>> Graphs;
 };
 
 #endif

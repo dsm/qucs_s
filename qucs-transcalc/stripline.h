@@ -2,7 +2,7 @@
  * stripline.h - stripline class definition
  *
  * Copyright (C) 2016 Andres Martinez-Mera <andresmartinezmera@gmail.com>
- * 
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
@@ -16,7 +16,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this package; see the file COPYING.  If not, write to
  * the Free Software Foundation, Inc., 51 Franklin Street - Fifth Floor,
- * Boston, MA 02110-1301, USA.  
+ * Boston, MA 02110-1301, USA.
  *
  */
 
@@ -25,16 +25,16 @@
 
 /*
 Reference:
-[1] Analysis Methods for RF, Microwave and Milimeter-Wave Planar Transmission Line Structures,
-Cam Nguyen. John Wiley and Sons Inc., 2001, Pages 76 - 78
+[1] Analysis Methods for RF, Microwave and Milimeter-Wave Planar Transmission
+Line Structures, Cam Nguyen. John Wiley and Sons Inc., 2001, Pages 76 - 78
 */
 
 class stripline : public transline {
- public:
+public:
   stripline();
   ~stripline();
 
- private:
+private:
   double er;               /* dielectric constant */
   double tand;             /* Dielectric Loss Tangent */
   double t;                /* Thickness */
@@ -48,11 +48,11 @@ class stripline : public transline {
   double atten_cond;       /* Loss in conductors (dB) */
   double lambda_0;         /* Wavelength */
 
- public:
-  void analyze ();
-  int synthesize ();
+public:
+  void analyze();
+  int synthesize();
 
- private:
+private:
   void get_stripline_sub();
   void get_stripline_comp();
   void get_stripline_phys();

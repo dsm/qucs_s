@@ -20,13 +20,12 @@
 
 #include "component.h"
 
-
-class RFedd2P : public MultiViewComponent  {
+class RFedd2P : public MultiViewComponent {
 public:
   RFedd2P();
- ~RFedd2P() {};
+  ~RFedd2P(){};
   Component* newOne();
-  static Element* info(QString&, char* &, bool getNewOne=false);
+  static Element* info(QString&, char*&, bool getNewOne = false);
 
 protected:
   QString netlist();

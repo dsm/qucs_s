@@ -18,7 +18,7 @@
  *   (at your option) any later version.                                   *
  *                                                                         *
  ***************************************************************************/
- #ifndef IPWL_H
+#ifndef IPWL_H
 #define IPWL_H
 
 #include "components/component.h"
@@ -28,10 +28,12 @@ public:
   iPWL();
   ~iPWL();
   Component* newOne();
-  static Element* info(QString&, char* &, bool getNewOne=false);
+  static Element* info(QString&, char*&, bool getNewOne = false);
+
 protected:
   QString netlist();
-  QString spice_netlist(spicecompat::SpiceDialect dialect = spicecompat::SPICEDefault);
+  QString
+  spice_netlist(spicecompat::SpiceDialect dialect = spicecompat::SPICEDefault);
 };
 
 #endif // IPWL_H

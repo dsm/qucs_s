@@ -53,37 +53,34 @@
     with widget flags \a f.
 */
 Q3Frame::Q3Frame(QWidget* parent, const char* name, Qt::WindowFlags f)
-    :QFrame(parent, f), marg(0)
-{
-    if (name)
-        setObjectName(QLatin1String(name));
-    setAttribute(Qt::WA_LayoutOnEntireRect);
+    : QFrame(parent, f), marg(0) {
+  if (name) {
+    setObjectName(QLatin1String(name));
+  }
+  setAttribute(Qt::WA_LayoutOnEntireRect);
 }
 
 /*!
     Destructs the frame.
 */
-Q3Frame::~Q3Frame()
-{
-}
+Q3Frame::~Q3Frame() {}
 
 /*!
     Paints the frame (or part of the frame) that's necessary,
     depending on the \a event.
 */
-void Q3Frame::paintEvent(QPaintEvent * event)
-{
-    QPainter paint(this);
-    if (!contentsRect().contains(event->rect())) {
-        paint.save();
-        paint.setClipRegion(event->region().intersected(frameRect()));
-        drawFrame(&paint);
-        paint.restore();
-    }
-    if (event->rect().intersects(contentsRect())) {
-        paint.setClipRegion(event->region().intersected(contentsRect()));
-        drawContents(&paint);
-    }
+void Q3Frame::paintEvent(QPaintEvent* event) {
+  QPainter paint(this);
+  if (!contentsRect().contains(event->rect())) {
+    paint.save();
+    paint.setClipRegion(event->region().intersected(frameRect()));
+    drawFrame(&paint);
+    paint.restore();
+  }
+  if (event->rect().intersects(contentsRect())) {
+    paint.setClipRegion(event->region().intersected(contentsRect()));
+    drawContents(&paint);
+  }
 }
 
 /*!
@@ -106,9 +103,7 @@ void Q3Frame::paintEvent(QPaintEvent * event)
     \sa contentsRect(), QPainter::setClipRect()
 */
 
-void Q3Frame::drawContents(QPainter *)
-{
-}
+void Q3Frame::drawContents(QPainter*) {}
 
 /*!
     Draws the frame using the painter \a p and the current frame
@@ -122,9 +117,8 @@ void Q3Frame::drawContents(QPainter *)
     \sa frameRect(), contentsRect(), drawContents(), frameStyle(), setPalette()
 */
 
-void Q3Frame::drawFrame(QPainter *p)
-{
-    QFrame::drawFrame(p);
+void Q3Frame::drawFrame(QPainter* p) {
+  QFrame::drawFrame(p);
 }
 
 /*!
@@ -133,10 +127,10 @@ void Q3Frame::drawFrame(QPainter *p)
     This just calls frameChanged(); it does not make use of the \a
     event itself.
 */
-void Q3Frame::resizeEvent(QResizeEvent *e)
-{
-    if (e->size() == e->oldSize())
-        frameChanged();
+void Q3Frame::resizeEvent(QResizeEvent* e) {
+  if (e->size() == e->oldSize()) {
+    frameChanged();
+  }
 }
 
 /*!
@@ -147,10 +141,7 @@ void Q3Frame::resizeEvent(QResizeEvent *e)
     when the frame attributes change.
 */
 
-void Q3Frame::frameChanged()
-{
-}
-
+void Q3Frame::frameChanged() {}
 
 /*!
     \property Q3Frame::margin
@@ -167,31 +158,28 @@ void Q3Frame::frameChanged()
     \sa lineWidth(), frameWidth()
 */
 
-void Q3Frame::setMargin(int w)
-{
-    if (marg == w)
-        return;
-    marg = w;
-    update();
-    frameChanged();
+void Q3Frame::setMargin(int w) {
+  if (marg == w) {
+    return;
+  }
+  marg = w;
+  update();
+  frameChanged();
 }
 
 /*!
     \property Q3Frame::contentsRect
     \brief the frame's contents rectangle (including the margins)
 */
-QRect Q3Frame::contentsRect() const
-{
-    QRect cr(QFrame::contentsRect());
-    cr.adjust(marg, marg, -marg, -marg);
-    return cr;
+QRect Q3Frame::contentsRect() const {
+  QRect cr(QFrame::contentsRect());
+  cr.adjust(marg, marg, -marg, -marg);
+  return cr;
 }
 
 /*!
     Returns the width of the frame (including the margin).
 */
-int Q3Frame::frameWidth() const
-{
-    return QFrame::frameWidth() + marg;
+int Q3Frame::frameWidth() const {
+  return QFrame::frameWidth() + marg;
 }
-

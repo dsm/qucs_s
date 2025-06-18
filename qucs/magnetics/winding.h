@@ -23,16 +23,18 @@
 
 #include "components/component.h"
 
-class Winding: public Component {
+class Winding : public Component {
 public:
   Winding();
   ~Winding();
   Component* newOne();
-  static Element* info(QString&, char* &, bool getNewOne=false);
+  static Element* info(QString&, char*&, bool getNewOne = false);
   QString getSpiceLibrary();
+
 protected:
   QString netlist();
-  QString spice_netlist(spicecompat::SpiceDialect dialect = spicecompat::SPICEDefault);
+  QString
+  spice_netlist(spicecompat::SpiceDialect dialect = spicecompat::SPICEDefault);
 };
 
 #endif // Icouple

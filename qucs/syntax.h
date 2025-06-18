@@ -19,8 +19,8 @@
 #define SYNTAX_H
 
 #include "textdoc.h"
-#include <QSyntaxHighlighter>
 #include <QRegularExpression>
+#include <QSyntaxHighlighter>
 
 enum language_type {
   LANG_NONE = 0,
@@ -31,28 +31,27 @@ enum language_type {
 };
 
 enum textstate_type {
-  STATE_NONE = 0,
+  STATE_NONE    = 0,
   STATE_COMMENT = 100,
 };
 
 class SyntaxHighlighter : public QSyntaxHighlighter {
 public:
- SyntaxHighlighter(TextDoc*);
- virtual ~SyntaxHighlighter();
+  SyntaxHighlighter(TextDoc*);
+  virtual ~SyntaxHighlighter();
 
- void setLanguage(int);
- void highlightBlock(const QString&);
+  void setLanguage(int);
+  void highlightBlock(const QString&);
 
 private:
   int language;
-  TextDoc *Doc;
+  TextDoc* Doc;
 
-  struct HighlightingRule
-     {
-         QRegularExpression pattern;
-         QTextCharFormat format;
-     };
-  
+  struct HighlightingRule {
+    QRegularExpression pattern;
+    QTextCharFormat format;
+  };
+
   QVector<HighlightingRule> highlightingRules;
 
   QTextCharFormat reservedWordFormat;
@@ -61,7 +60,6 @@ private:
   QTextCharFormat directiveFormat;
   QTextCharFormat functionFormat;
   QTextCharFormat commentFormat;
-
 };
 
 #endif

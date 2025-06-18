@@ -20,27 +20,28 @@
 
 #include "painting.h"
 
-
 struct SubParameter {
   SubParameter(bool display_, const QString& name_, const QString& description_,
-	       const QString& type_ = "")
-     : display(display_), name(name_), description(description_), type(type_) {};
+               const QString& type_ = "")
+      : display(display_), name(name_), description(description_),
+        type(type_){};
 
   bool display;
   QString name, description, type;
 };
 
-
-class ID_Text : public Painting  {
+class ID_Text : public Painting {
 public:
   ID_Text(int x1 = 0, int y1 = 0);
 
-  Painting* newOne() override { /* required by interface but unused */ return nullptr; }
+  Painting* newOne() override { /* required by interface but unused */
+    return nullptr;
+  }
 
   void paint(QPainter* painter) override;
   void paintScheme(Schematic*) override;
 
-  bool    load(const QString&) override;
+  bool load(const QString&) override;
   QString save() override;
   QString saveCpp() override;
   QString saveJSON() override;

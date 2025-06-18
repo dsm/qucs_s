@@ -17,35 +17,32 @@
 
 #include "logical_nand.h"
 
-Logical_NAND::Logical_NAND()
-{
+Logical_NAND::Logical_NAND() {
   Description = QObject::tr("logical NAND");
-  Model = "NAND";
-  SpiceModel = "A";
+  Model       = "NAND";
+  SpiceModel  = "A";
 
   createSymbol();
-  tx = x1+4;
-  ty = y2+4;
+  tx = x1 + 4;
+  ty = y2 + 4;
 }
 
-Logical_NAND::~Logical_NAND()
-{
-}
+Logical_NAND::~Logical_NAND() {}
 
-Component* Logical_NAND::newOne()
-{
-  Logical_NAND* p = new Logical_NAND();
+Component* Logical_NAND::newOne() {
+  Logical_NAND* p         = new Logical_NAND();
   p->Props.front()->Value = Props.front()->Value;
-  p->Props.back()->Value = Props.back()->Value;
+  p->Props.back()->Value  = Props.back()->Value;
   p->recreate();
   return p;
 }
 
-Element* Logical_NAND::info(QString& Name, char* &BitmapFile, bool getNewOne)
-{
-  Name = QObject::tr("n-port NAND");
-  BitmapFile = (char *) "nand";
+Element* Logical_NAND::info(QString& Name, char*& BitmapFile, bool getNewOne) {
+  Name       = QObject::tr("n-port NAND");
+  BitmapFile = (char*)"nand";
 
-  if(getNewOne)  return new Logical_NAND();
+  if (getNewOne) {
+    return new Logical_NAND();
+  }
   return 0;
 }

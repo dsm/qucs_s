@@ -20,14 +20,14 @@
 
 #include "simulation.h"
 
-
 class TR_Sim : public qucs::component::SimulationComponent {
 public:
   TR_Sim();
   ~TR_Sim();
   Component* newOne();
-  static Element* info(QString&, char* &, bool getNewOne=false);
-  QString spice_netlist(spicecompat::SpiceDialect dialect = spicecompat::SPICEDefault);
+  static Element* info(QString&, char*&, bool getNewOne = false);
+  QString
+  spice_netlist(spicecompat::SpiceDialect dialect = spicecompat::SPICEDefault);
   void recreate();
 };
 

@@ -20,17 +20,16 @@
 
 #include "component.h"
 
-
-class CoaxialLine : public Component  {
+class CoaxialLine : public Component {
 public:
   CoaxialLine();
- ~CoaxialLine();
+  ~CoaxialLine();
   Component* newOne();
-  static Element* info(QString&, char* &, bool getNewOne=false);
+  static Element* info(QString&, char*&, bool getNewOne = false);
+
 protected:
   QString spice_netlist(spicecompat::SpiceDialect dialect);
   QString getSpiceLibrary();
-
 };
 
 #endif

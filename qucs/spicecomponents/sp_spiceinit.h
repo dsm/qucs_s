@@ -17,13 +17,12 @@
 
 #include "components/component.h"
 
-
-class SpiceSpiceinit : public Component  {
+class SpiceSpiceinit : public Component {
 public:
   SpiceSpiceinit();
   ~SpiceSpiceinit();
   Component* newOne();
-  static Element* info(QString&, char* &, bool getNewOne=false);
+  static Element* info(QString&, char*&, bool getNewOne = false);
 
   QString getSpiceinit();
 };
