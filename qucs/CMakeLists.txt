@@ -268,12 +268,13 @@ TARGET_LINK_LIBRARIES( ${QUCS_NAME}
 SET_TARGET_PROPERTIES(${QUCS_NAME} PROPERTIES POSITION_INDEPENDENT_CODE TRUE)
 
 if(APPLE)
-SET(DEPLOY_BIN_DIR ${CMAKE_INSTALL_PREFIX}/qucs-s.app/Contents/MacOS/bin)
-SET(DEPLOY_FILES_DIR ${CMAKE_INSTALL_PREFIX}/qucs-s.app/Contents/MacOS/share)
+    set(DEPLOY_BIN_DIR "${CMAKE_INSTALL_PREFIX}/qucs-s.app/Contents/MacOS/bin" CACHE PATH "Deployment binary directory")
+    set(DEPLOY_FILES_DIR "${CMAKE_INSTALL_PREFIX}/qucs-s.app/Contents/MacOS/share" CACHE PATH "Deployment files directory")
 else()
-SET(DEPLOY_BIN_DIR bin)
-SET(DEPLOY_FILES_DIR share)
-ENDIF()
+    set(DEPLOY_BIN_DIR "bin" CACHE PATH "Deployment binary directory")
+    set(DEPLOY_FILES_DIR "share" CACHE PATH "Deployment files directory")
+endif()
+
 
 INSTALL(TARGETS ${QUCS_NAME}
     BUNDLE DESTINATION ${DEPLOY_BIN_DIR} COMPONENT Runtime
