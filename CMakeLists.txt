@@ -70,15 +70,16 @@ else()
     message("Qucsator RF submodule not found. Please update submodules")
 endif()
 
-IF (UPDATE_TRANSLATIONS)
+if (UPDATE_TRANSLATIONS)
   file(GLOB_RECURSE FILES_TO_TRANSLATE "*.cpp" "*.h" "*.ui")
-ENDIF (UPDATE_TRANSLATIONS)
+endif (UPDATE_TRANSLATIONS)
 add_subdirectory( translations )
 
-install(DIRECTORY "examples" DESTINATION "share/${QUCS_NAME}")
+install(DIRECTORY "examples" DESTINATION "${DEPLOY_FILES_DIR}/${QUCS_NAME}")
 
+if (LINUX)
 install(FILES contrib/io.github.ra3xdh.qucs_s.metainfo.xml DESTINATION ${CMAKE_INSTALL_PREFIX}/share/metainfo)
-
+endif (LINUX)
 #
 # Custom uninstall target
 #
