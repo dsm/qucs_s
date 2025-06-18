@@ -3,7 +3,7 @@
                    --------------------------------------
     begin                    : Fri Mar 27 2015
     copyright              : (C) by Mike Brinson (mbrin72043@yahoo.co.uk),
-														Vadim Kuznetsov (ra3xdh@gmail.com)
+                                                                                                                Vadim Kuznetsov (ra3xdh@gmail.com)
 
  ***************************************************************************/
 
@@ -15,7 +15,7 @@
  *   (at your option) any later version.                                   *
  *                                                                         *
  ***************************************************************************/
- #ifndef ENL_H
+#ifndef ENL_H
 #define ENL_H
 
 #include "components/component.h"
@@ -25,10 +25,12 @@ public:
   eNL();
   ~eNL();
   Component* newOne();
-  static Element* info(QString&, char* &, bool getNewOne=false);
+  static Element* info(QString&, char*&, bool getNewOne = false);
+
 protected:
   QString netlist();
-  QString spice_netlist(spicecompat::SpiceDialect dialect = spicecompat::SPICEDefault);
+  QString
+  spice_netlist(spicecompat::SpiceDialect dialect = spicecompat::SPICEDefault);
 };
 
 #endif // ENL_H

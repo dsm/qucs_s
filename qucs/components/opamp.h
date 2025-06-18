@@ -20,15 +20,16 @@
 
 #include "component.h"
 
-
-class OpAmp : public Component  {
+class OpAmp : public Component {
 public:
   OpAmp();
   ~OpAmp();
   Component* newOne();
-  static Element* info(QString&, char* &, bool getNewOne=false);
+  static Element* info(QString&, char*&, bool getNewOne = false);
+
 protected:
-  QString spice_netlist(spicecompat::SpiceDialect dialect = spicecompat::SPICEDefault);
+  QString
+  spice_netlist(spicecompat::SpiceDialect dialect = spicecompat::SPICEDefault);
 };
 
 #endif

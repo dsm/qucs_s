@@ -1,16 +1,15 @@
 #ifndef SPICELIBCOMPDIALOG_H
 #define SPICELIBCOMPDIALOG_H
 
-#include <QObject>
-#include <QWidget>
 #include <QDialog>
 #include <QMap>
+#include <QObject>
+#include <QWidget>
 #include <QtWidgets>
 
 class Component;
 class Schematic;
 class SymbolWidget;
-
 
 class SpiceLibCompDialog : public QDialog {
   Q_OBJECT
@@ -29,7 +28,7 @@ private:
   Component* a_comp;
   Schematic* a_Doc;
 
-  SymbolWidget *a_symbol;
+  SymbolWidget* a_symbol;
   QLineEdit* a_edtLibPath;
   QLineEdit* a_edtParams;
   QLineEdit* a_edtSymFile;
@@ -54,9 +53,9 @@ private:
   QMap<QString, QStringList> a_subcirPins;
   QMap<QString, QString> a_subcirSPICE;
 
-  enum SPICEparseError { noError=0, failedOpenFile = -1, noSUBCKT = -2 };
+  enum SPICEparseError { noError = 0, failedOpenFile = -1, noSUBCKT = -2 };
 
-  int parseLibFile(const QString &filename);
+  int parseLibFile(const QString& filename);
   bool setCompProps();
 
 private slots:
@@ -70,7 +69,7 @@ private slots:
   void slotChanged();
 
 public:
-  explicit SpiceLibCompDialog(Component *pc, Schematic *sch);
+  explicit SpiceLibCompDialog(Component* pc, Schematic* sch);
 
 public slots:
 

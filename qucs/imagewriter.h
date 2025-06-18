@@ -27,17 +27,17 @@
 
 class QWidget;
 
-class ImageWriter
-{
+class ImageWriter {
 public:
-  ImageWriter (QString lastfile);
-  virtual ~ImageWriter ();
-  int print(QWidget *);
-  void noGuiPrint(QWidget *, const QString& printFile, const QString& color);
+  ImageWriter(QString lastfile);
+  virtual ~ImageWriter();
+  int print(QWidget*);
+  void noGuiPrint(QWidget*, const QString& printFile, const QString& color);
 
   QString getLastSavedFile();
 
   void setDiagram(bool diagram) { onlyDiagram = diagram; };
+
 private:
   bool onlyDiagram;
   QString lastExportFilename;

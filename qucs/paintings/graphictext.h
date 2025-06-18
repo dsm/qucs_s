@@ -21,8 +21,7 @@
 #include "painting.h"
 #include <QFont>
 
-
-class GraphicText : public Painting  {
+class GraphicText : public Painting {
 public:
   GraphicText();
 
@@ -30,16 +29,17 @@ public:
   void paintScheme(Schematic*) override;
 
   Painting* newOne() override;
-  static Element* info(QString&, char* &, bool getNewOne=false);
+  static Element* info(QString&, char*&, bool getNewOne = false);
 
-  bool    load(const QString&) override;
+  bool load(const QString&) override;
   QString save() override;
   QString saveCpp() override;
   QString saveJSON() override;
 
   bool getSelected(const QPoint& click, int tolerance) override;
 
-  void MouseMoving(const QPoint& onGrid, Schematic* sch, const QPoint& cursor) override;
+  void MouseMoving(const QPoint& onGrid, Schematic* sch,
+                   const QPoint& cursor) override;
   bool MousePressing(Schematic* sch = nullptr) override;
 
   bool rotate() noexcept override;
@@ -50,11 +50,11 @@ public:
   bool Dialog(QWidget* parent = nullptr) override;
 
 private:
-  QColor   color;
-  QFont    font;
-  QString  text;
-  int      angle;
-  QRect    br;
+  QColor color;
+  QFont font;
+  QString text;
+  int angle;
+  QRect br;
 };
 
 #endif

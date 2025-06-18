@@ -20,15 +20,16 @@
 
 #include "component.h"
 
-
-class Gyrator : public Component  {
+class Gyrator : public Component {
 public:
   Gyrator();
   ~Gyrator();
   Component* newOne();
-  static Element* info(QString&, char* &, bool getNewOne=false);
+  static Element* info(QString&, char*&, bool getNewOne = false);
+
 protected:
-  QString spice_netlist(spicecompat::SpiceDialect dialect = spicecompat::SPICEDefault);
+  QString
+  spice_netlist(spicecompat::SpiceDialect dialect = spicecompat::SPICEDefault);
 };
 
 #endif

@@ -18,20 +18,22 @@
  *   (at your option) any later version.                                   *
  *                                                                         *
  ***************************************************************************/
- #ifndef SDTF_H
+#ifndef SDTF_H
 #define SDTF_H
 
 #include "components/component.h"
 
-class SDTF: public Component {
+class SDTF : public Component {
 public:
   SDTF();
   ~SDTF();
   Component* newOne();
-  static Element* info(QString&, char* &, bool getNewOne=false);
+  static Element* info(QString&, char*&, bool getNewOne = false);
+
 protected:
   QString netlist();
-  QString spice_netlist(spicecompat::SpiceDialect dialect = spicecompat::SPICEDefault);
+  QString
+  spice_netlist(spicecompat::SpiceDialect dialect = spicecompat::SPICEDefault);
 };
 
 #endif // SDTF_H

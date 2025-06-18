@@ -17,25 +17,24 @@
  *                                                                         *
  ***************************************************************************/
 
-
 #ifndef MUTUALX_H
 #define MUTUALX_H
 
 #include "component.h"
 
-
-class MutualX : public MultiViewComponent  {
+class MutualX : public MultiViewComponent {
 public:
   MutualX();
   ~MutualX() {}
 
   Component* newOne();
-  static Element* info(QString& Name, char* &BitmapFile, bool getNewOne);
+  static Element* info(QString& Name, char*& BitmapFile, bool getNewOne);
 
 protected:
   void createSymbol();
   QString netlist();
-  QString spice_netlist(spicecompat::SpiceDialect dialect = spicecompat::SPICEDefault);
+  QString
+  spice_netlist(spicecompat::SpiceDialect dialect = spicecompat::SPICEDefault);
 };
 
 #endif

@@ -16,49 +16,48 @@
  ***************************************************************************/
 #include "xyce_script.h"
 
-
-XyceScript::XyceScript()
-{
+XyceScript::XyceScript() {
   isSimulation = true;
-  Description = QObject::tr("XYCE script");
-  Simulator = spicecompat::simXyce;
+  Description  = QObject::tr("XYCE script");
+  Simulator    = spicecompat::simXyce;
   initSymbol(Description);
-  Model = ".XYCESCR";
-  Name  = "XYCESCR";
+  Model      = ".XYCESCR";
+  Name       = "XYCESCR";
   SpiceModel = "XYCESCR";
 
   // The index of the first 4 properties must not changed. Used in recreate().
-  Props.append(new Property("SpiceCode", "\n"
+  Props.append(new Property("SpiceCode",
+                            "\n"
                             ".AC LIN 2000 100 10MEG\n"
-                            ".PRINT AC format=raw file=ac.txt V(1)", true,
-                                         "Insert spice code here"));
-  Props.append(new Property("","",false,"Vars to plot"));
-  Props.append(new Property("Outputs","ac.txt",false,"Extra outputs to parse"));
-
+                            ".PRINT AC format=raw file=ac.txt V(1)",
+                            true, "Insert spice code here"));
+  Props.append(new Property("", "", false, "Vars to plot"));
+  Props.append(
+      new Property("Outputs", "ac.txt", false, "Extra outputs to parse"));
 }
 
-XyceScript::~XyceScript()
-{
-}
+XyceScript::~XyceScript() {}
 
-Component* XyceScript::newOne()
-{
+Component* XyceScript::newOne() {
   return new XyceScript();
 }
 
-Element* XyceScript::info(QString& Name, char* &BitmapFile, bool getNewOne)
-{
-  Name = QObject::tr("XYCE script");
-  BitmapFile = (char *) "xyce_script";
+Element* XyceScript::info(QString& Name, char*& BitmapFile, bool getNewOne) {
+  Name       = QObject::tr("XYCE script");
+  BitmapFile = (char*)"xyce_script";
 
-  if(getNewOne)  return new XyceScript();
+  if (getNewOne) {
+    return new XyceScript();
+  }
   return 0;
 }
 
-QString XyceScript::spice_netlist(spicecompat::SpiceDialect dialect /* = spicecompat::SPICEDefault */)
-{
-    QString s = "";
-    if (dialect != spicecompat::SPICEXyce) return s;
-    s = Props.at(0)->Value+"\n";
+QString XyceScript::spice_netlist(
+    spicecompat::SpiceDialect dialect /* = spicecompat::SPICEDefault */) {
+  QString s = "";
+  if (dialect != spicecompat::SPICEXyce) {
     return s;
+  }
+  s = Props.at(0)->Value + "\n";
+  return s;
 }

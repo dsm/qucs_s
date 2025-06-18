@@ -20,16 +20,16 @@
 
 #include "component.h"
 
-
-class Volt_ac : public Component  {
+class Volt_ac : public Component {
 public:
   Volt_ac();
   ~Volt_ac();
   Component* newOne();
-  static Element* info(QString&, char* &, bool getNewOne=false);
+  static Element* info(QString&, char*&, bool getNewOne = false);
 
 protected:
-  QString spice_netlist(spicecompat::SpiceDialect dialect = spicecompat::SPICEDefault);
+  QString
+  spice_netlist(spicecompat::SpiceDialect dialect = spicecompat::SPICEDefault);
   QString netlist();
 };
 

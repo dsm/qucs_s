@@ -20,23 +20,24 @@
 
 #include "simulation.h"
 
-
-class SP_Sim : public qucs::component::SimulationComponent  {
+class SP_Sim : public qucs::component::SimulationComponent {
 private:
-    QString xyce_netlist();
-    QString ngspice_netlist();
-    int getSPortsNumber();
-    QString getSweepString();
+  QString xyce_netlist();
+  QString ngspice_netlist();
+  int getSPortsNumber();
+  QString getSweepString();
 
-    QStringList getNgspiceExtraVariables();
-    QStringList getXyceExtraVariables();
+  QStringList getNgspiceExtraVariables();
+  QStringList getXyceExtraVariables();
+
 public:
   SP_Sim();
   ~SP_Sim();
   Component* newOne();
-  static Element* info(QString&, char* &, bool getNewOne=false);
+  static Element* info(QString&, char*&, bool getNewOne = false);
   void recreate();
-  QString spice_netlist(spicecompat::SpiceDialect dialect = spicecompat::SPICEDefault);
+  QString
+  spice_netlist(spicecompat::SpiceDialect dialect = spicecompat::SPICEDefault);
   QStringList getExtraVariables();
 };
 

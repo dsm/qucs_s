@@ -17,32 +17,30 @@
  *                                                                         *
  ***************************************************************************/
 
-
 #ifndef S2SPICE_H
 #define S2SPICE_H
 
 #include <QtCore>
 
-class S2Spice
-{
+class S2Spice {
 
 private:
-    double a_z0;
-    QString a_file;
-    QString a_device_name;
-    QString a_err_text;
+  double a_z0;
+  QString a_file;
+  QString a_device_name;
+  QString a_err_text;
 
 public:
-    void setZ0(double z0) { a_z0 = z0; }
-    void setFile(const QString& file) { a_file = file; }
-    void setDeviceName(const QString& name) {a_device_name = name; }
+  void setZ0(double z0) { a_z0 = z0; }
+  void setFile(const QString& file) { a_file = file; }
+  void setDeviceName(const QString& name) { a_device_name = name; }
 
-    QString getErrText() const { return a_err_text; }
+  QString getErrText() const { return a_err_text; }
 
-    bool convertTouchstone(QTextStream *stream);
+  bool convertTouchstone(QTextStream* stream);
 
-    S2Spice();
-    virtual ~S2Spice() {}
+  S2Spice();
+  virtual ~S2Spice() {}
 };
 
 #endif // S2SPICE_H

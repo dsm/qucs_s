@@ -20,13 +20,13 @@
 
 #include "component.h"
 
-
-class TLine : public Component  {
+class TLine : public Component {
 public:
   TLine();
   ~TLine();
   Component* newOne();
-  static Element* info(QString&, char* &, bool getNewOne=false);
+  static Element* info(QString&, char*&, bool getNewOne = false);
+
 protected:
   QString spice_netlist(spicecompat::SpiceDialect dialect);
 };

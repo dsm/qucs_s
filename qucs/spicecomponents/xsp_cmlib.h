@@ -20,20 +20,19 @@
 
 #include "components/component.h"
 
-
-class XSP_CMlib : public Component  {
+class XSP_CMlib : public Component {
 
 public:
   XSP_CMlib();
   ~XSP_CMlib();
   Component* newOne();
-  static Element* info(QString&, char* &, bool getNewOne=false);
+  static Element* info(QString&, char*&, bool getNewOne = false);
 
   QString getSpiceInit();
 
 protected:
-  QString spice_netlist(spicecompat::SpiceDialect dialect = spicecompat::SPICEDefault);
-
+  QString
+  spice_netlist(spicecompat::SpiceDialect dialect = spicecompat::SPICEDefault);
 };
 
 #endif

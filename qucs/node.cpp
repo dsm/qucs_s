@@ -20,8 +20,7 @@
 
 #include <QPainter>
 
-Node::Node(int x, int y)
-{
+Node::Node(int x, int y) {
   Type  = isNode;
   State = 0;
   DType = "";
@@ -33,40 +32,39 @@ Node::Node(int x, int y)
 void Node::paint(QPainter* painter) const {
   painter->save();
 
-  switch(connections.size()) {
-    case 1:
-      if (label()) {
-        painter->fillRect(cx-2, cy-2, 4, 4, Qt::darkBlue); // open but labeled
-      } else {
-        painter->setPen(QPen(Qt::red,1));  // node is open
-        painter->drawEllipse(cx-4, cy-4, 8, 8);
-      }
+  switch (connections.size()) {
+  case 1:
+    if (label()) {
+      painter->fillRect(cx - 2, cy - 2, 4, 4, Qt::darkBlue); // open but labeled
+    } else {
+      painter->setPen(QPen(Qt::red, 1)); // node is open
+      painter->drawEllipse(cx - 4, cy - 4, 8, 8);
+    }
+    painter->restore();
+    return;
+
+  case 2:
+    if (connections.front()->Type == isWire &&
+        connections.back()->Type == isWire) {
       painter->restore();
       return;
+    }
+    painter->fillRect(cx - 2, cy - 2, 4, 4, Qt::darkBlue);
+    break;
 
-    case 2:
-      if (connections.front()->Type == isWire && connections.back()->Type == isWire) {
-          painter->restore();
-          return;
-      }
-      painter->fillRect(cx-2, cy-2, 4, 4, Qt::darkBlue);
-      break;
-
-    default:
-        painter->setBrush(Qt::darkBlue);  // more than 2 connections
-	      painter->setPen(QPen(Qt::darkBlue,1));
-	      painter->drawEllipse(cx-3, cy-3, 6, 6);
+  default:
+    painter->setBrush(Qt::darkBlue); // more than 2 connections
+    painter->setPen(QPen(Qt::darkBlue, 1));
+    painter->drawEllipse(cx - 3, cy - 3, 6, 6);
   }
   painter->restore();
 }
 
-bool Node::getSelected(int x, int y)
-{
+bool Node::getSelected(int x, int y) {
   return cx - 3 <= x && x <= cx + 3 && cy - 3 <= y && y <= cy + 3;
 }
 
-void Node::setName(const QString& name, const QString& value, int x, int y)
-{
+void Node::setName(const QString& name, const QString& value, int x, int y) {
   // Passing two empty strings acted like a signal to remove the label
   // and later was superseded by dropLabel() method. This assertion is
   // just merely a guard against legacy usage, it may be freely removed
@@ -76,23 +74,20 @@ void Node::setName(const QString& name, const QString& value, int x, int y)
 
   if (!hasLabel()) {
     acquireLabel(new WireLabel(name, cx, cy, x, y));
-  }
-  else {
+  } else {
     label()->setName(name);
   }
   label()->initValue = value;
 }
 
-Element* Node::other_than(Element* elem) const
-{
-  auto other = std::find_if_not(connections.begin(), connections.end(), [elem](auto o){return o == elem;}
-  );
+Element* Node::other_than(Element* elem) const {
+  auto other = std::find_if_not(connections.begin(), connections.end(),
+                                [elem](auto o) { return o == elem; });
 
   return other == connections.end() ? nullptr : *other;
 }
 
-bool Node::moveCenter(int dx, int dy) noexcept
-{
+bool Node::moveCenter(int dx, int dy) noexcept {
   Element::moveCenter(dx, dy);
   if (hasLabel()) {
     label()->moveRoot(dx, dy);

@@ -17,136 +17,138 @@
 #ifndef TUNER_H
 #define TUNER_H
 
-#include <QWidget>
-#include "qucs.h"
 #include "components/component.h"
 #include "misc.h"
-#include <cmath>
 #include "mouseactions.h"
-
+#include "qucs.h"
 #include <QWidget>
-#include <QDialog>
-#include <QPushButton>
-#include <QGridLayout>
-#include <QLineEdit>
-#include <QString>
-#include <QSlider>
-#include <QLabel>
-#include <QToolButton>
+#include <cmath>
+
+#include <QAction>
 #include <QComboBox>
+#include <QDebug>
+#include <QDialog>
+#include <QGridLayout>
+#include <QLabel>
+#include <QLineEdit>
+#include <QMessageBox>
+#include <QProgressBar>
+#include <QPushButton>
+#include <QShortcut>
+#include <QSlider>
 #include <QSplitter>
 #include <QStatusBar>
-#include <QAction>
+#include <QString>
 #include <QTextEdit>
-#include <QMessageBox>
-#include <QDebug>
-#include <QShortcut>
-#include <QProgressBar>
+#include <QToolButton>
+#include <QWidget>
 
-extern QucsApp *QucsMain;  // the Qucs application itself
+extern QucsApp* QucsMain; // the Qucs application itself
 
 float getScale(int);
-QString SeparateMagnitudeFromSuffix(QString num, int &);
+QString SeparateMagnitudeFromSuffix(QString num, int&);
 bool isPropertyTunable(Component* propertyOwner, Property* property);
 
-class tunerElement : public QWidget
-{
-    Q_OBJECT
-    public:
-        tunerElement(QWidget *parent, Component*, Property *, int);
-        Property* getElementProperty();
-        void resetValue();
-        void updateProperty();
-        float getValue(bool &);
-        float getMaxValue(bool &);
-        float getMinValue(bool &);
-        float getStep(bool &);
-        QString originalValue;//OriginalValue and numValue need to be public since they need to be accessed by tunerDialog when checking if the initial value was modified
-        float numValue;
-        Component *c;
-        QString schematicName;
-
-        virtual ~tunerElement();
-    signals:
-        void elementValueUpdated();
-        void removeElement(tunerElement*);
-
-    protected:
-    private:
-        Property* prop;
-        QString unit;
-        QSlider *slider;
-        QLineEdit *maximum;
-        QLineEdit *minimum;
-        QLineEdit *value;
-        QLineEdit *step;
-        QComboBox *MaxUnitsCombobox;
-        QComboBox *MinUnitsCombobox;
-        QComboBox *ValueUnitsCombobox;
-        QComboBox *StepUnitsCombobox;
-        QWidget *Up_Down_Buttons_Widget;
-        QToolButton *up;
-        QToolButton *down;
-
-        float minValue;
-        float maxValue;
-        float stepValue;
-
-    private slots:
-
-        void slotMinValueChanged();
-        void slotMaxValueChanged();
-        void slotStepChanged();
-        void slotValueChanged(bool simulate = true);
-        void slotDelete();
-        void slotDownClicked();
-        void slotUpClicked();
-        void slotSliderChanged();
-        void updateSlider();
-};
-
-class TunerDialog : public QDialog
-{
-    Q_OBJECT
+class tunerElement : public QWidget {
+  Q_OBJECT
 public:
-    explicit TunerDialog(QWidget *_w = 0, QWidget *parent = 0);
-    virtual ~TunerDialog();
-    void addTunerElement(tunerElement *element);
-    bool containsProperty(Property *prop);
-    void SimulationEnded();
+  tunerElement(QWidget* parent, Component*, Property*, int);
+  Property* getElementProperty();
+  void resetValue();
+  void updateProperty();
+  float getValue(bool&);
+  float getMaxValue(bool&);
+  float getMinValue(bool&);
+  float getStep(bool&);
+  QString originalValue; // OriginalValue and numValue need to be public since
+                         // they need to be accessed by tunerDialog when
+                         // checking if the initial value was modified
+  float numValue;
+  Component* c;
+  QString schematicName;
 
+  virtual ~tunerElement();
 signals:
-    void addTunerElement(Element *e);
-public slots:
-    void slotResetTunerDialog();
-    void slotComponentDeleted(Component *);
+  void elementValueUpdated();
+  void removeElement(tunerElement*);
+
 protected:
-    virtual void showEvent(QShowEvent *);
-
 private:
-    QWidget *w; // widget holding the Qucs document to be tuned
-    QPushButton *closeButton;
-    QGridLayout *gbox;
-    QList<tunerElement*> currentElements;
-    QList<Property*> currentProps;
-    QStatusBar *info;
-    QSplitter *splitter;
-    QWidget *ButtonsPanel;
-    bool valuesUpdated;
-    QProgressBar *progressBar;
-    QPushButton *updateValues, *resetValues;//They're private in order to make enable or disable them
+  Property* prop;
+  QString unit;
+  QSlider* slider;
+  QLineEdit* maximum;
+  QLineEdit* minimum;
+  QLineEdit* value;
+  QLineEdit* step;
+  QComboBox* MaxUnitsCombobox;
+  QComboBox* MinUnitsCombobox;
+  QComboBox* ValueUnitsCombobox;
+  QComboBox* StepUnitsCombobox;
+  QWidget* Up_Down_Buttons_Widget;
+  QToolButton* up;
+  QToolButton* down;
 
-    void blockInput(bool enabled);
-    void closeEvent(QCloseEvent *event);
-    void infoMsg(const QString msg);
+  float minValue;
+  float maxValue;
+  float stepValue;
 
 private slots:
-    void slotElementValueUpdated();
-    void slotRemoveTunerElement(tunerElement*);
-    void slotUpdateValues();
-    void slotResetValues();
-    bool checkChanges();
-    void slotUpdateProgressBar(int);
+
+  void slotMinValueChanged();
+  void slotMaxValueChanged();
+  void slotStepChanged();
+  void slotValueChanged(bool simulate = true);
+  void slotDelete();
+  void slotDownClicked();
+  void slotUpClicked();
+  void slotSliderChanged();
+  void updateSlider();
+};
+
+class TunerDialog : public QDialog {
+  Q_OBJECT
+public:
+  explicit TunerDialog(QWidget* _w = 0, QWidget* parent = 0);
+  virtual ~TunerDialog();
+  void addTunerElement(tunerElement* element);
+  bool containsProperty(Property* prop);
+  void SimulationEnded();
+
+signals:
+  void addTunerElement(Element* e);
+public slots:
+  void slotResetTunerDialog();
+  void slotComponentDeleted(Component*);
+
+protected:
+  virtual void showEvent(QShowEvent*);
+
+private:
+  QWidget* w; // widget holding the Qucs document to be tuned
+  QPushButton* closeButton;
+  QGridLayout* gbox;
+  QList<tunerElement*> currentElements;
+  QList<Property*> currentProps;
+  QStatusBar* info;
+  QSplitter* splitter;
+  QWidget* ButtonsPanel;
+  bool valuesUpdated;
+  QProgressBar* progressBar;
+  QPushButton *updateValues,
+      *resetValues; // They're private in order to make enable or disable them
+
+  void blockInput(bool enabled);
+  void closeEvent(QCloseEvent* event);
+  void infoMsg(const QString msg);
+
+private slots:
+  void slotElementValueUpdated();
+  void slotRemoveTunerElement(tunerElement*);
+  void slotUpdateValues();
+  void slotResetValues();
+  bool checkChanges();
+  void slotUpdateProgressBar(int);
 };
 
 #endif // TUNER_H

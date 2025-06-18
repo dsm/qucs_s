@@ -21,7 +21,6 @@
 #include "element.h"
 #include <QAction>
 
-
 class Wire;
 class WireLabel;
 class Schematic;
@@ -31,8 +30,7 @@ class QMenu;
 class QMouseEvent;
 class QucsApp;
 
-extern QAction *formerAction;
-
+extern QAction* formerAction;
 
 class MouseActions {
 public:
@@ -44,16 +42,16 @@ public:
   void editElement(Schematic*, QMouseEvent*);
   void editLabel(Schematic*, WireLabel*);
 
-  Element *selElem;  // component/diagram/painting selected in IconView
-  Element *focusElement;
-  QMouseEvent *focusMEvent;
+  Element* selElem; // component/diagram/painting selected in IconView
+  Element* focusElement;
+  QMouseEvent* focusMEvent;
 
-  int  MAx1, MAy1,MAx2, MAy2, MAx3, MAy3;  // cache for mouse movements
+  int MAx1, MAy1, MAx2, MAy2, MAx3, MAy3; // cache for mouse movements
   std::list<Element*> movingElements;
   int movingRotated;
 
   // menu appearing by right mouse button click on component
-  QMenu *ComponentMenu;
+  QMenu* ComponentMenu;
 
 private:
   bool isMoveEqual;
@@ -89,7 +87,7 @@ public:
   void MMoveScrollBar(Schematic*, QMouseEvent*);
 
   void MPressSelect(Schematic*, QMouseEvent*, float, float);
-  void MPressTune(Schematic *Doc, QMouseEvent *Event, float fX, float fY);
+  void MPressTune(Schematic* Doc, QMouseEvent* Event, float fX, float fY);
   void MPressDelete(Schematic*, QMouseEvent*, float, float);
   void MPressActivate(Schematic*, QMouseEvent*, float, float);
   void MPressMirrorX(Schematic*, QMouseEvent*, float, float);

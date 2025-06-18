@@ -19,22 +19,22 @@
 #include "extsimkernels/spicecompat.h"
 #include "main.h"
 #include "misc.h"
-#include "schematic.h"
 #include "node.h"
+#include "schematic.h"
 
 #include <QFileInfo>
 #include <QMutex>
 #include <QTextStream>
 
 Subcircuit::Subcircuit() {
-  Type = isComponent; // both analog and digital
+  Type        = isComponent; // both analog and digital
   Description = QObject::tr("subcircuit");
 
   Props.append(new Property("File", "", false,
                             QObject::tr("name of qucs schematic file")));
 
-  Model = "Sub";
-  Name = "SUB";
+  Model      = "Sub";
+  Name       = "SUB";
   SpiceModel = "X";
 
   // Do NOT call createSymbol() here. But create port to let it rotate.
@@ -42,20 +42,20 @@ Subcircuit::Subcircuit() {
 }
 
 // ---------------------------------------------------------------------
-Component *Subcircuit::newOne() {
-  Subcircuit *p = new Subcircuit();
+Component* Subcircuit::newOne() {
+  Subcircuit* p           = new Subcircuit();
   p->Props.front()->Value = Props.front()->Value;
   p->recreate();
   return p;
 }
 
 // -------------------------------------------------------
-Element *Subcircuit::info(QString &Name, char *&BitmapFile, bool getNewOne) {
-  Name = QObject::tr("Subcircuit");
-  BitmapFile = (char *)"subcircuit";
+Element* Subcircuit::info(QString& Name, char*& BitmapFile, bool getNewOne) {
+  Name       = QObject::tr("Subcircuit");
+  BitmapFile = (char*)"subcircuit";
 
   if (getNewOne) {
-    Subcircuit *p = new Subcircuit();
+    Subcircuit* p = new Subcircuit();
     p->recreate(); // createSymbol() is NOT called in constructor !!!
     return p;
   }
@@ -73,13 +73,15 @@ void Subcircuit::createSymbol() {
   tx = INT_MIN;
   ty = INT_MIN;
   if (loadSymbol(FileName) > 0) { // try to load subcircuit symbol
-    if (tx == INT_MIN)
+    if (tx == INT_MIN) {
       tx = x1 + 4;
-    if (ty == INT_MIN)
+    }
+    if (ty == INT_MIN) {
       ty = y2 + 4;
+    }
     // remove unused ports
-    QMutableListIterator<Port *> ip(Ports);
-    Port *pp;
+    QMutableListIterator<Port*> ip(Ports);
+    Port* pp;
     while (ip.hasNext()) {
       pp = ip.next();
       if (!pp->avail) {
@@ -89,8 +91,9 @@ void Subcircuit::createSymbol() {
     }
   } else {
     No = Schematic::testFile(FileName);
-    if (No < 0)
+    if (No < 0) {
       No = 0;
+    }
 
     Ports.clear();
     remakeSymbol(No); // no symbol was found -> create standard symbol
@@ -113,8 +116,9 @@ void Subcircuit::remakeSymbol(int No) {
     Ports.append(new Port(-30, y));
     Texts.append(new Text(-25, y - 14, QString::number(i)));
 
-    if (i == No)
+    if (i == No) {
       break;
+    }
     i++;
     Lines.append(new qucs::Line(15, y, 30, y, QPen(Qt::darkBlue, 2)));
     Ports.append(new Port(30, y));
@@ -133,10 +137,11 @@ void Subcircuit::remakeSymbol(int No) {
 // ---------------------------------------------------------------------
 // Loads the symbol for the subcircuit from the schematic file and
 // returns the number of painting elements.
-int Subcircuit::loadSymbol(const QString &DocName) {
+int Subcircuit::loadSymbol(const QString& DocName) {
   QFile file(DocName);
-  if (!file.open(QIODevice::ReadOnly))
+  if (!file.open(QIODevice::ReadOnly)) {
     return -1;
+  }
 
   QString Line;
   // *****************************************************************
@@ -149,16 +154,18 @@ int Subcircuit::loadSymbol(const QString &DocName) {
 
   // read header **************************
   do {
-    if (stream.atEnd())
+    if (stream.atEnd()) {
       return -2;
+    }
     Line = stream.readLine();
     Line = Line.trimmed();
   } while (Line.isEmpty());
 
-  if (Line.left(16) != "<Qucs Schematic ") // wrong file type ?
+  if (Line.left(16) != "<Qucs Schematic ") { // wrong file type ?
     return -3;
+  }
 
-  Line = Line.mid(16, Line.length() - 17);
+  Line                         = Line.mid(16, Line.length() - 17);
   VersionTriplet SymbolVersion = VersionTriplet(Line);
   if (SymbolVersion > QucsVersion) { // wrong version number ?
     if (!QucsSettings.IgnoreFutureVersion) {
@@ -169,8 +176,9 @@ int Subcircuit::loadSymbol(const QString &DocName) {
   // read content *************************
   while (!stream.atEnd()) {
     Line = stream.readLine();
-    if (Line == "<Symbol>")
+    if (Line == "<Symbol>") {
       break;
+    }
   }
 
   x1 = y1 = INT_MAX;
@@ -188,14 +196,17 @@ int Subcircuit::loadSymbol(const QString &DocName) {
     }
 
     Line = Line.trimmed();
-    if (Line.at(0) != '<')
+    if (Line.at(0) != '<') {
       return -5;
-    if (Line.at(Line.length() - 1) != '>')
+    }
+    if (Line.at(Line.length() - 1) != '>') {
       return -6;
-    Line = Line.mid(1, Line.length() - 2); // cut off start and end character
+    }
+    Line   = Line.mid(1, Line.length() - 2); // cut off start and end character
     Result = analyseLine(Line, 1);
-    if (Result < 0)
+    if (Result < 0) {
       return -7; // line format error
+    }
     z += Result;
   }
 
@@ -207,30 +218,33 @@ QString Subcircuit::netlist() {
   QString s = Model + ":" + Name;
 
   // output all node names
-  for (Port *p1 : Ports)
+  for (Port* p1 : Ports) {
     s += " " + p1->Connection->Name; // node names
+  }
 
   // type for subcircuit
   QString f = misc::properFileName(Props.at(0)->Value);
   s += " Type=\"" + misc::properName(f) + "\"";
 
   // output all user defined properties
-  for (qsizetype i = 1; i < Props.size(); i++)
+  for (qsizetype i = 1; i < Props.size(); i++) {
     s += " " + Props.at(i)->Name + "=\"" + Props.at(i)->Value + "\"";
+  }
   return s + '\n';
 }
 
-QString Subcircuit::spice_netlist(spicecompat::SpiceDialect dialect /* = spicecompat::SPICEDefault */)
-{
+QString Subcircuit::spice_netlist(
+    spicecompat::SpiceDialect dialect /* = spicecompat::SPICEDefault */) {
   Q_UNUSED(dialect);
 
   QString s;
   QString f = misc::properFileName(Props.at(0)->Value);
   s += spicecompat::check_refdes(Name, SpiceModel);
-  for (Port *p1 : Ports) {
+  for (Port* p1 : Ports) {
     QString nam = p1->Connection->Name;
-    if (nam == "gnd")
+    if (nam == "gnd") {
       nam = "0";
+    }
     s += " " + nam; // node names
   }
   s += " " + misc::properName(f);
@@ -242,9 +256,8 @@ QString Subcircuit::spice_netlist(spicecompat::SpiceDialect dialect /* = spiceco
   return s;
 }
 
-QString Subcircuit::cdl_netlist()
-{
-    return spice_netlist(spicecompat::CDL);
+QString Subcircuit::cdl_netlist() {
+  return spice_netlist(spicecompat::CDL);
 }
 
 // -------------------------------------------------------
@@ -264,10 +277,11 @@ QString Subcircuit::vhdlCode(int) {
 
   // output all node names
   s += " port map (";
-  QListIterator<Port *> iport(Ports);
-  Port *pp = iport.next();
-  if (pp)
+  QListIterator<Port*> iport(Ports);
+  Port* pp = iport.next();
+  if (pp) {
     s += pp->Connection->Name;
+  }
   while (iport.hasNext()) {
     pp = iport.next();
     s += ", " + pp->Connection->Name; // node names
@@ -286,17 +300,19 @@ QString Subcircuit::verilogCode(int) {
   if (Props.count() > 1) {
     s += " #(";
     s += misc::Verilog_Param(Props.at(1)->Value);
-    for (qsizetype i = 2; i < Props.size(); i++)
+    for (qsizetype i = 2; i < Props.size(); i++) {
       s += ", " + misc::Verilog_Param(Props.at(i)->Value);
+    }
     s += ")";
   }
 
   // output all node names
   s += " " + Name + " (";
-  QListIterator<Port *> iport(Ports);
-  Port *pp = iport.next();
-  if (pp)
+  QListIterator<Port*> iport(Ports);
+  Port* pp = iport.next();
+  if (pp) {
     s += pp->Connection->Name;
+  }
   while (iport.hasNext()) {
     pp = iport.next();
     s += ", " + pp->Connection->Name; // node names

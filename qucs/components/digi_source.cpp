@@ -15,131 +15,133 @@
  *                                                                         *
  ***************************************************************************/
 #include "digi_source.h"
-#include "node.h"
-#include "misc.h"
 #include "extsimkernels/spicecompat.h"
+#include "misc.h"
+#include "node.h"
 #include <QDebug>
 
-Digi_Source::Digi_Source()
-{
-  Type = isComponent;   // both analog and digital
+Digi_Source::Digi_Source() {
+  Type        = isComponent; // both analog and digital
   Description = QObject::tr("digital source");
 
-  Lines.append(new qucs::Line(-10,  0,  0,  0,QPen(Qt::darkGreen,2)));
+  Lines.append(new qucs::Line(-10, 0, 0, 0, QPen(Qt::darkGreen, 2)));
   Polylines.append(new qucs::Polyline(
-    std::vector<QPointF>{{-35, 10}, {-20, 10}, {-10, 0}, {-20, -10}, {-35, -10}}, QPen(Qt::darkGreen,2, Qt::SolidLine, Qt::SquareCap, Qt::MiterJoin)));
-  Lines.append(new qucs::Line(-35,-10,-35, 10,QPen(Qt::darkGreen,2)));
+      std::vector<QPointF>{
+          {-35, 10}, {-20, 10}, {-10, 0}, {-20, -10}, {-35, -10}},
+      QPen(Qt::darkGreen, 2, Qt::SolidLine, Qt::SquareCap, Qt::MiterJoin)));
+  Lines.append(new qucs::Line(-35, -10, -35, 10, QPen(Qt::darkGreen, 2)));
 
-  Lines.append(new qucs::Line(-32, 5,-28, 5,QPen(Qt::darkGreen,2)));
-  Lines.append(new qucs::Line(-28,-5,-24,-5,QPen(Qt::darkGreen,2)));
-  Lines.append(new qucs::Line(-24, 5,-20, 5,QPen(Qt::darkGreen,2)));
-  Lines.append(new qucs::Line(-28,-5,-28, 5,QPen(Qt::darkGreen,2)));
-  Lines.append(new qucs::Line(-24,-5,-24, 5,QPen(Qt::darkGreen,2)));
+  Lines.append(new qucs::Line(-32, 5, -28, 5, QPen(Qt::darkGreen, 2)));
+  Lines.append(new qucs::Line(-28, -5, -24, -5, QPen(Qt::darkGreen, 2)));
+  Lines.append(new qucs::Line(-24, 5, -20, 5, QPen(Qt::darkGreen, 2)));
+  Lines.append(new qucs::Line(-28, -5, -28, 5, QPen(Qt::darkGreen, 2)));
+  Lines.append(new qucs::Line(-24, -5, -24, 5, QPen(Qt::darkGreen, 2)));
 
-  Ports.append(new Port(  0,  0));
+  Ports.append(new Port(0, 0));
 
-  x1 = -39; y1 = -14;
-  x2 =   0; y2 =  14;
+  x1 = -39;
+  y1 = -14;
+  x2 = 0;
+  y2 = 14;
 
-  tx = x1+4;
-  ty = y2+2;
-  Model = "DigiSource";
-  Name  = "S";
+  tx         = x1 + 4;
+  ty         = y2 + 2;
+  Model      = "DigiSource";
+  Name       = "S";
   SpiceModel = "V";
 
   icon_dx = 6;
 
   // This property must stay in this order !
-  Props.append(new Property("Num", "1", true,
-		QObject::tr("number of the port")));
-  Props.append(new Property("init", "low", false,
-		QObject::tr("initial output value")+" [low, high]"));
-  Props.append(new Property("times", "1ns; 1ns", false,
-		QObject::tr("list of times for changing output value")));
-  Props.append(new Property("V", "1 V", false,
-		QObject::tr("voltage of high level")));
+  Props.append(
+      new Property("Num", "1", true, QObject::tr("number of the port")));
+  Props.append(
+      new Property("init", "low", false,
+                   QObject::tr("initial output value") + " [low, high]"));
+  Props.append(
+      new Property("times", "1ns; 1ns", false,
+                   QObject::tr("list of times for changing output value")));
+  Props.append(
+      new Property("V", "1 V", false, QObject::tr("voltage of high level")));
 }
 
 // -------------------------------------------------------
-Digi_Source::~Digi_Source()
-{
-}
+Digi_Source::~Digi_Source() {}
 
 // -------------------------------------------------------
-Component* Digi_Source::newOne()
-{
+Component* Digi_Source::newOne() {
   return new Digi_Source();
 }
 
 // -------------------------------------------------------
-Element* Digi_Source::info(QString& Name, char* &BitmapFile, bool getNewOne)
-{
-  Name = QObject::tr("digital source");
-  BitmapFile = (char *) "digi_source";
+Element* Digi_Source::info(QString& Name, char*& BitmapFile, bool getNewOne) {
+  Name       = QObject::tr("digital source");
+  BitmapFile = (char*)"digi_source";
 
-  if(getNewOne)  return new Digi_Source();
+  if (getNewOne) {
+    return new Digi_Source();
+  }
   return 0;
 }
 
 // -------------------------------------------------------
-QString Digi_Source::netlist()
-{
-  QString s = Model+":"+Name;
+QString Digi_Source::netlist() {
+  QString s = Model + ":" + Name;
 
   // output node names
-  s += " "+Ports.first()->Connection->Name;
+  s += " " + Ports.first()->Connection->Name;
 
   // output all properties
-     // first property not needed
+  // first property not needed
   auto pp = Props.begin();
   pp++;
-  s += " "+(*pp)->Name+"=\""+(*pp)->Value+"\"";
+  s += " " + (*pp)->Name + "=\"" + (*pp)->Value + "\"";
   pp++;
-  s += " "+(*pp)->Name+"=\"["+(*pp)->Value+"]\"";
+  s += " " + (*pp)->Name + "=\"[" + (*pp)->Value + "]\"";
   pp++;
-  s += " "+(*pp)->Name+"=\""+(*pp)->Value+"\"\n";
+  s += " " + (*pp)->Name + "=\"" + (*pp)->Value + "\"\n";
 
   return s;
 }
 
 // -------------------------------------------------------
-QString Digi_Source::vhdlCode(int NumPorts)
-{
+QString Digi_Source::vhdlCode(int NumPorts) {
   QString s, t;
   QString Out("    " + Ports.first()->Connection->Name + " <= '");
 
-  s  = "\n  " + Name + ":process\n  begin\n";
+  s = "\n  " + Name + ":process\n  begin\n";
 
   int z = 0;
   char State;
-  if(NumPorts <= 0) {  // time table simulation ?
-    if(Props.at(1)->Value == "low")
+  if (NumPorts <= 0) { // time table simulation ?
+    if (Props.at(1)->Value == "low") {
       State = '0';
-    else
+    } else {
       State = '1';
+    }
 
-    t = Props.at(2)->Value.section(';',z,z).trimmed();
-    while(!t.isEmpty()) {
-      s += Out + State + "';";    // next value for signal
+    t = Props.at(2)->Value.section(';', z, z).trimmed();
+    while (!t.isEmpty()) {
+      s += Out + State + "';"; // next value for signal
 
-      if(!misc::VHDL_Delay(t, Name))
-        return t;    // time has not VHDL format
+      if (!misc::VHDL_Delay(t, Name)) {
+        return t; // time has not VHDL format
+      }
 
-      s += t.replace("after","wait for") + ";\n";
+      s += t.replace("after", "wait for") + ";\n";
       State ^= 1;
       z++;
-      t = Props.at(2)->Value.section(';',z,z).trimmed();
+      t = Props.at(2)->Value.section(';', z, z).trimmed();
     }
-  }
-  else {  // truth table simulation
-    State = '0';
+  } else { // truth table simulation
+    State   = '0';
     int Num = Props.at(0)->Value.toInt() - 1;
 
-    s += Out + State + "';";    // first value for signal
-    s += "  wait for "+QString::number(1 << Num)+" ns;\n";
+    s += Out + State + "';"; // first value for signal
+    s += "  wait for " + QString::number(1 << Num) + " ns;\n";
     State ^= 1;
-    s += Out + State + "';";    // next value for signal
-    s += "  wait for "+QString::number(1 << Num)+" ns;\n";
+    s += Out + State + "';"; // next value for signal
+    s += "  wait for " + QString::number(1 << Num) + " ns;\n";
   }
 
   s += "  end process;\n";
@@ -147,8 +149,7 @@ QString Digi_Source::vhdlCode(int NumPorts)
 }
 
 // -------------------------------------------------------
-QString Digi_Source::verilogCode(int NumPorts)
-{
+QString Digi_Source::verilogCode(int NumPorts) {
   QString s, t, n, r;
 
   n = Ports.first()->Connection->Name;
@@ -159,44 +160,46 @@ QString Digi_Source::verilogCode(int NumPorts)
 
   int z = 0;
   char State;
-  if(NumPorts <= 0) {  // time table simulation ?
-    if(Props.at(1)->Value == "low")
+  if (NumPorts <= 0) { // time table simulation ?
+    if (Props.at(1)->Value == "low") {
       State = '0';
-    else
+    } else {
       State = '1';
+    }
     s += "  always begin\n";
 
     QString pv = Props.at(2)->Value;
-    t = pv.section(';',z,z).trimmed();
-    while(!t.isEmpty()) {
-      if(!misc::Verilog_Delay(t, Name))
-        return t;    // time has not VHDL format
+    t          = pv.section(';', z, z).trimmed();
+    while (!t.isEmpty()) {
+      if (!misc::Verilog_Delay(t, Name)) {
+        return t; // time has not VHDL format
+      }
       s += "    " + r + " = " + State + ";\n";
       s += "   " + t + ";\n";
       State ^= 1;
       z++;
-      t = pv.section(';',z,z).trimmed();
+      t = pv.section(';', z, z).trimmed();
     }
-  }
-  else {  // truth table simulation
+  } else { // truth table simulation
     int Num = Props.front()->Value.toInt() - 1;
     s += "  always begin\n";
     s += "    " + r + " = 0;\n";
-    s += "    #"+ QString::number(1 << Num) + ";\n";
+    s += "    #" + QString::number(1 << Num) + ";\n";
     s += "    " + r + " = !" + r + ";\n";
-    s += "    #"+ QString::number(1 << Num) + ";\n";
+    s += "    #" + QString::number(1 << Num) + ";\n";
   }
 
   s += "  end\n";
   return s;
 }
 
-QString Digi_Source::spice_netlist(spicecompat::SpiceDialect dialect /* = spicecompat::SPICEDefault */)
-{
+QString Digi_Source::spice_netlist(
+    spicecompat::SpiceDialect dialect /* = spicecompat::SPICEDefault */) {
   Q_UNUSED(dialect);
 
-  QString s    = SpiceModel + Name;
-  QString port = spicecompat::normalize_node_name(Ports.at(0)->Connection->Name);
+  QString s = SpiceModel + Name;
+  QString port =
+      spicecompat::normalize_node_name(Ports.at(0)->Connection->Name);
   s += " " + port + " 0 "; // node names
 
   QString V    = spicecompat::normalize_value(getProperty("V")->Value);
@@ -205,22 +208,22 @@ QString Digi_Source::spice_netlist(spicecompat::SpiceDialect dialect /* = spicec
   QString times = spicecompat::normalize_value(getProperty("times")->Value);
   QStringList timesList = times.split(";");
 
-  double time = 0;
+  double time        = 0;
   double fallingTime = 0;
-  double risingTime = 0;
+  double risingTime  = 0;
 
   double fac, timeValue;
   double changingTime;
   QString unit;
-  misc::str2num(timesList[0].toLower(),changingTime,unit,fac);
+  misc::str2num(timesList[0].toLower(), changingTime, unit, fac);
   changingTime *= fac / 100; // rise and fall times
 
   QString oddValue, evenValue;
   if (init == "{LOW}") {
-    oddValue = V;
+    oddValue  = V;
     evenValue = "0";
   } else {
-    oddValue = "0";
+    oddValue  = "0";
     evenValue = V;
   }
 
@@ -229,7 +232,7 @@ QString Digi_Source::spice_netlist(spicecompat::SpiceDialect dialect /* = spicec
 
   for (int i = 0; i < timesList.size(); i++) {
     QString timeStep = timesList[i].toLower();
-    misc::str2num(timeStep,timeValue,unit,fac);
+    misc::str2num(timeStep, timeValue, unit, fac);
     timeValue *= fac;
 
     if (i == 0) {
@@ -244,34 +247,34 @@ QString Digi_Source::spice_netlist(spicecompat::SpiceDialect dialect /* = spicec
         time += timeValue;
 
         s += QStringLiteral(" %1 %2 %3 %2")
-                      .arg(risingTime)
-                      .arg(oddValue)
-                      .arg(time)
-                      .toUpper();
+                 .arg(risingTime)
+                 .arg(oddValue)
+                 .arg(time)
+                 .toUpper();
         // last time step
         if (timeStep == timesList.last().toLower()) {
-            fallingTime = time + changingTime;
-            s += QStringLiteral(" %1 0 %2 0")
-                          .arg(fallingTime)
-                          .arg(fallingTime + changingTime)
-                          .toUpper();
+          fallingTime = time + changingTime;
+          s += QStringLiteral(" %1 0 %2 0")
+                   .arg(fallingTime)
+                   .arg(fallingTime + changingTime)
+                   .toUpper();
         }
       } else {
         // times of even time step
         fallingTime = time + changingTime;
         time += timeValue;
         s += QStringLiteral(" %1 %2 %3 %2")
-                      .arg(fallingTime)
-                      .arg(evenValue)
-                      .arg(time)
-                      .toUpper();
+                 .arg(fallingTime)
+                 .arg(evenValue)
+                 .arg(time)
+                 .toUpper();
         // last time step
         if (timeStep == timesList.last().toLower()) {
-            fallingTime = time + changingTime;
-            s += QStringLiteral(" %1 0 %2 0")
-                     .arg(fallingTime)
-                     .arg(fallingTime + changingTime)
-                     .toUpper();
+          fallingTime = time + changingTime;
+          s += QStringLiteral(" %1 0 %2 0")
+                   .arg(fallingTime)
+                   .arg(fallingTime + changingTime)
+                   .toUpper();
         }
       }
     }

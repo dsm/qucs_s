@@ -20,14 +20,14 @@
 
 #include "component.h"
 
-
-class symTrafo : public Component  {
+class symTrafo : public Component {
 public:
   symTrafo();
   ~symTrafo();
   Component* newOne();
-  static Element* info(QString&, char* &, bool getNewOne=false);
+  static Element* info(QString&, char*&, bool getNewOne = false);
   QString getSpiceLibrary();
+
 protected:
   QString spice_netlist(spicecompat::SpiceDialect dialect);
 };

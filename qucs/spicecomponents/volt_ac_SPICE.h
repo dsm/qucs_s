@@ -20,15 +20,16 @@
 
 #include "components/component.h"
 
-
-class Vac_SPICE : public Component  {
+class Vac_SPICE : public Component {
 public:
   Vac_SPICE();
   ~Vac_SPICE();
   Component* newOne();
-  static Element* info(QString&, char* &, bool getNewOne=false);
+  static Element* info(QString&, char*&, bool getNewOne = false);
+
 protected:
-  QString spice_netlist(spicecompat::SpiceDialect dialect = spicecompat::SPICEDefault);
+  QString
+  spice_netlist(spicecompat::SpiceDialect dialect = spicecompat::SPICEDefault);
 };
 
 #endif

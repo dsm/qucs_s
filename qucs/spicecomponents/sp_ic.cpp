@@ -20,64 +20,64 @@
 #include <QFontInfo>
 #include <QFontMetrics>
 
-SpiceIC::SpiceIC()
-{
-  isEquation = true;
-  Type = isComponent; // Analogue and digital component.
+SpiceIC::SpiceIC() {
+  isEquation  = true;
+  Type        = isComponent; // Analogue and digital component.
   Description = QObject::tr(".IC section");
-  Simulator = spicecompat::simSpice;
+  Simulator   = spicecompat::simSpice;
 
   QFont f = QucsSettings.font;
   f.setWeight(QFont::Light);
   f.setPointSizeF(12.0);
-  QFontMetrics  metrics(f, 0);  // use the the screen-compatible metric
+  QFontMetrics metrics(f, 0); // use the the screen-compatible metric
   QSize r = metrics.size(0, QObject::tr(".IC"));
-  int xb = r.width()  >> 1;
-  int yb = r.height() >> 1;
+  int xb  = r.width() >> 1;
+  int yb  = r.height() >> 1;
 
-  Lines.append(new qucs::Line(-xb, -yb, -xb,  yb,QPen(Qt::darkRed,2)));
-  Lines.append(new qucs::Line(-xb,  yb,  xb+3,yb,QPen(Qt::darkRed,2)));
-  Texts.append(new Text(-xb+4,  -yb-3, QObject::tr(".IC"),
-			QColor(0,0,0), QFontInfo(f).pixelSize()));
+  Lines.append(new qucs::Line(-xb, -yb, -xb, yb, QPen(Qt::darkRed, 2)));
+  Lines.append(new qucs::Line(-xb, yb, xb + 3, yb, QPen(Qt::darkRed, 2)));
+  Texts.append(new Text(-xb + 4, -yb - 3, QObject::tr(".IC"), QColor(0, 0, 0),
+                        QFontInfo(f).pixelSize()));
 
-  x1 = -xb-3;  y1 = -yb-5;
-  x2 =  xb+9; y2 =  yb+3;
+  x1 = -xb - 3;
+  y1 = -yb - 5;
+  x2 = xb + 9;
+  y2 = yb + 3;
 
-  tx = x1+4;
-  ty = y2+4;
+  tx    = x1 + 4;
+  ty    = y2 + 4;
   Model = "SpiceIC";
   Name  = "SpiceIC";
 
   Props.append(new Property("v(node1)", "1", true));
 }
 
-SpiceIC::~SpiceIC()
-{
-}
+SpiceIC::~SpiceIC() {}
 
-Component* SpiceIC::newOne()
-{
+Component* SpiceIC::newOne() {
   return new SpiceIC();
 }
 
-Element* SpiceIC::info(QString& Name, char* &BitmapFile, bool getNewOne)
-{
-  Name = QObject::tr(".IC Section");
-  BitmapFile = (char *) "sp_ic";
+Element* SpiceIC::info(QString& Name, char*& BitmapFile, bool getNewOne) {
+  Name       = QObject::tr(".IC Section");
+  BitmapFile = (char*)"sp_ic";
 
-  if(getNewOne)  return new SpiceIC();
+  if (getNewOne) {
+    return new SpiceIC();
+  }
   return 0;
 }
 
-QString SpiceIC::getExpression(spicecompat::SpiceDialect dialect /* = spicecompat::SPICEDefault */)
-{
-    if (isActive != COMP_IS_ACTIVE || dialect == spicecompat::CDL) return QString();
+QString SpiceIC::getExpression(
+    spicecompat::SpiceDialect dialect /* = spicecompat::SPICEDefault */) {
+  if (isActive != COMP_IS_ACTIVE || dialect == spicecompat::CDL) {
+    return QString();
+  }
 
-    QString s;
-    s.clear();
-    for (Property *pp : Props) {
-        s += QStringLiteral(".IC %1 = %2\n").arg(pp->Name).arg(pp->Value);
-    }
-    return s;
+  QString s;
+  s.clear();
+  for (Property* pp : Props) {
+    s += QStringLiteral(".IC %1 = %2\n").arg(pp->Name).arg(pp->Value);
+  }
+  return s;
 }
-

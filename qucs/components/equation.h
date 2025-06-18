@@ -20,22 +20,22 @@
 
 #include "component.h"
 
-
-class Equation : public Component  {
+class Equation : public Component {
 
 public:
   Equation();
   ~Equation();
   Component* newOne();
-  static Element* info(QString&, char* &, bool getNewOne=false);
-  QString getExpression(spicecompat::SpiceDialect dialect = spicecompat::SPICEDefault);
-  QString getEquations(QString sim, QStringList &dep_vars);
+  static Element* info(QString&, char*&, bool getNewOne = false);
+  QString
+  getExpression(spicecompat::SpiceDialect dialect = spicecompat::SPICEDefault);
+  QString getEquations(QString sim, QStringList& dep_vars);
   QString getVAvariables();
   QString getVAExpressions();
   QString getNgspiceScript();
 
 private:
-  void getNgnutmegVars(QStringList &vars,QStringList &sims);
+  void getNgnutmegVars(QStringList& vars, QStringList& sims);
 
 protected:
   QString vhdlCode(int);

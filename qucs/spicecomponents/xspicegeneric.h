@@ -19,17 +19,16 @@
 #define XSPICEGENERIC_H
 #include "components/component.h"
 
-
 class QProcess;
 class QTextStream;
 class QString;
 
-class XspiceGeneric : public MultiViewComponent  {
+class XspiceGeneric : public MultiViewComponent {
 public:
   XspiceGeneric();
- ~XspiceGeneric() {};
+  ~XspiceGeneric(){};
   Component* newOne();
-  static Element* info(QString&, char* &, bool getNewOne=false);
+  static Element* info(QString&, char*&, bool getNewOne = false);
 
 private:
   bool changed;
@@ -37,8 +36,8 @@ private:
 protected:
   QString netlist();
   void createSymbol();
-  QString spice_netlist(spicecompat::SpiceDialect dialect = spicecompat::SPICEDefault);
-
+  QString
+  spice_netlist(spicecompat::SpiceDialect dialect = spicecompat::SPICEDefault);
 };
 
 #endif

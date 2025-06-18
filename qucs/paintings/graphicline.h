@@ -20,8 +20,7 @@
 
 #include "painting.h"
 
-
-class GraphicLine : public Painting  {
+class GraphicLine : public Painting {
 public:
   GraphicLine(int ax = 0, int ay = 0, int bx = 0, int by = 0,
               QPen pen = QPen(QColor()));
@@ -30,9 +29,9 @@ public:
   void paintScheme(Schematic*) override;
 
   Painting* newOne() override;
-  static Element* info(QString&, char* &, bool getNewOne=false);
+  static Element* info(QString&, char*&, bool getNewOne = false);
 
-  bool    load(const QString&) override;
+  bool load(const QString&) override;
   QString save() override;
   QString saveCpp() override;
   QString saveJSON() override;
@@ -40,7 +39,8 @@ public:
   bool getSelected(const QPoint& click, int tolerance) override;
   bool resizeTouched(const QPoint& click, int tolerance) override;
 
-  void MouseMoving(const QPoint& onGrid, Schematic* sch, const QPoint& cursor) override;
+  void MouseMoving(const QPoint& onGrid, Schematic* sch,
+                   const QPoint& cursor) override;
   bool MousePressing(Schematic* sch = nullptr) override;
   void MouseResizeMoving(int, int, Schematic*) override;
 

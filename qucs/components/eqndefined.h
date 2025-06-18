@@ -20,23 +20,23 @@
 
 #include "component.h"
 
-
-class EqnDefined : public MultiViewComponent  {
+class EqnDefined : public MultiViewComponent {
 private:
-  void subsVoltages(QStringList &tokens, int Nbranch);
-  void findCurrents(QStringList &tokens, QList<int> &branches);
-  void subsCurrents(QStringList &tokens);
+  void subsVoltages(QStringList& tokens, int Nbranch);
+  void findCurrents(QStringList& tokens, QList<int>& branches);
+  void subsCurrents(QStringList& tokens);
 
 public:
   EqnDefined();
- ~EqnDefined() {};
+  ~EqnDefined(){};
   Component* newOne();
-  static Element* info(QString&, char* &, bool getNewOne=false);
+  static Element* info(QString&, char*&, bool getNewOne = false);
 
 protected:
   QString netlist();
   void createSymbol();
-  QString spice_netlist(spicecompat::SpiceDialect dialect = spicecompat::SPICEDefault);
+  QString
+  spice_netlist(spicecompat::SpiceDialect dialect = spicecompat::SPICEDefault);
   QString va_code();
 };
 

@@ -20,13 +20,12 @@
 
 #include "component.h"
 
-
-class TwistedPair : public Component  {
+class TwistedPair : public Component {
 public:
   TwistedPair();
- ~TwistedPair();
+  ~TwistedPair();
   Component* newOne();
-  static Element* info(QString&, char* &, bool getNewOne=false);
+  static Element* info(QString&, char*&, bool getNewOne = false);
 };
 
 #endif

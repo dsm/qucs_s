@@ -20,13 +20,12 @@
 
 #include "component.h"
 
-
-class MScross : public MultiViewComponent  {
+class MScross : public MultiViewComponent {
 public:
   MScross();
- ~MScross();
+  ~MScross();
   Component* newOne();
-  static Element* info(QString&, char* &, bool getNewOne=false);
+  static Element* info(QString&, char*&, bool getNewOne = false);
 
 protected:
   void createSymbol();

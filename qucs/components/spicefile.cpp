@@ -16,170 +16,179 @@
  ***************************************************************************/
 
 #if HAVE_UNISTD_H
-# include <unistd.h>
+#include <unistd.h>
 #endif
-#include <QRegularExpression>
+#include <QDebug>
+#include <QDir>
+#include <QFile>
+#include <QFileInfo>
+#include <QMessageBox>
+#include <QMutex>
 #include <QProcess>
+#include <QRegularExpression>
+#include <QStatusBar>
 #include <QString>
 #include <QStringList>
-#include <QMessageBox>
 #include <QTextStream>
-#include <QFile>
-#include <QDir>
-#include <QFileInfo>
-#include <QMutex>
-#include <QDebug>
-#include <QStatusBar>
 
-#include "spicefile.h"
+#include "extsimkernels/spicecompat.h"
 #include "main.h"
+#include "misc.h"
 #include "node.h"
 #include "qucs.h"
-#include "misc.h"
-#include "extsimkernels/spicecompat.h"
+#include "spicefile.h"
 
-
-SpiceFile::SpiceFile()
-{
+SpiceFile::SpiceFile() {
   Description = QObject::tr("SPICE netlist file");
   // Property descriptions not needed, but must not be empty !
   Props.append(new Property("File", "", true, QStringLiteral("x")));
   Props.append(new Property("Ports", "", false, QStringLiteral("x")));
   Props.append(new Property("Sim", "yes", false, QStringLiteral("x")));
-  Props.append(new Property("Preprocessor", "none", false, QStringLiteral("x")));
+  Props.append(
+      new Property("Preprocessor", "none", false, QStringLiteral("x")));
   Props.append(new Property("Params", "", false, QStringLiteral("x")));
   withSim = false;
 
-  Model = "SPICE";
+  Model      = "SPICE";
   SpiceModel = "X";
-  Name  = "X";
-  changed = false;
+  Name       = "X";
+  changed    = false;
 
   // Do NOT call createSymbol() here. But create port to let it rotate.
   Ports.append(new Port(0, 0));
 }
 
 // -------------------------------------------------------
-Component* SpiceFile::newOne()
-{
-  SpiceFile *p = new SpiceFile();
-  p->recreate();   // createSymbol() is NOT called in constructor !!!
+Component* SpiceFile::newOne() {
+  SpiceFile* p = new SpiceFile();
+  p->recreate(); // createSymbol() is NOT called in constructor !!!
   return p;
 }
 
 // -------------------------------------------------------
-Element* SpiceFile::info(QString& Name, char* &BitmapFile, bool getNewOne)
-{
-  Name = QObject::tr("SPICE netlist");
-  BitmapFile = (char *) "spicefile";
+Element* SpiceFile::info(QString& Name, char*& BitmapFile, bool getNewOne) {
+  Name       = QObject::tr("SPICE netlist");
+  BitmapFile = (char*)"spicefile";
 
-  if(getNewOne) {
-    SpiceFile *p = new SpiceFile();
-    p->recreate();   // createSymbol() is NOT called in constructor !!!
+  if (getNewOne) {
+    SpiceFile* p = new SpiceFile();
+    p->recreate(); // createSymbol() is NOT called in constructor !!!
     return p;
   }
   return 0;
 }
 
 // -------------------------------------------------------
-void SpiceFile::createSymbol()
-{
+void SpiceFile::createSymbol() {
   QFont f = QucsSettings.font; // get the basic font
   // symbol text is smaller (10 pt default)
   f.setPointSize(10);
   // use the screen-compatible metric
-  QFontMetrics  smallmetrics(f, 0);   // get size of text
+  QFontMetrics smallmetrics(f, 0); // get size of text
   int fHeight = smallmetrics.lineSpacing();
 
   int No = 0;
   QString tmp, PortNames = Props.at(1)->Value;
-  if(!PortNames.isEmpty())  No = PortNames.count(',') + 1;
-  
-  // draw symbol outline
-  #define HALFWIDTH  17
-  int h = 30*((No-1)/2) + 15;
-  Lines.append(new qucs::Line(-HALFWIDTH, -h, HALFWIDTH, -h,QPen(Qt::darkBlue,2)));
-  Lines.append(new qucs::Line( HALFWIDTH, -h, HALFWIDTH,  h,QPen(Qt::darkBlue,2)));
-  Lines.append(new qucs::Line(-HALFWIDTH,  h, HALFWIDTH,  h,QPen(Qt::darkBlue,2)));
-  Lines.append(new qucs::Line(-HALFWIDTH, -h,-HALFWIDTH,  h,QPen(Qt::darkBlue,2)));
+  if (!PortNames.isEmpty()) {
+    No = PortNames.count(',') + 1;
+  }
 
-  int w, i = fHeight/2;
-  if(withSim) {
-    i = fHeight - 2;
+// draw symbol outline
+#define HALFWIDTH 17
+  int h = 30 * ((No - 1) / 2) + 15;
+  Lines.append(
+      new qucs::Line(-HALFWIDTH, -h, HALFWIDTH, -h, QPen(Qt::darkBlue, 2)));
+  Lines.append(
+      new qucs::Line(HALFWIDTH, -h, HALFWIDTH, h, QPen(Qt::darkBlue, 2)));
+  Lines.append(
+      new qucs::Line(-HALFWIDTH, h, HALFWIDTH, h, QPen(Qt::darkBlue, 2)));
+  Lines.append(
+      new qucs::Line(-HALFWIDTH, -h, -HALFWIDTH, h, QPen(Qt::darkBlue, 2)));
+
+  int w, i = fHeight / 2;
+  if (withSim) {
+    i   = fHeight - 2;
     tmp = QObject::tr("sim");
-    w = smallmetrics.boundingRect(tmp).width();
-    Texts.append(new Text(w/-2, 0, tmp, Qt::red));
+    w   = smallmetrics.boundingRect(tmp).width();
+    Texts.append(new Text(w / -2, 0, tmp, Qt::red));
   }
   tmp = QObject::tr("spice");
-  w = smallmetrics.boundingRect(tmp).width();
-  Texts.append(new Text(w/-2, -i, tmp));
+  w   = smallmetrics.boundingRect(tmp).width();
+  Texts.append(new Text(w / -2, -i, tmp));
 
-  i = 0;
-  int y = 15-h;
-  while(i<No) { // add ports lines and numbers
-    Lines.append(new qucs::Line(-30,  y,-HALFWIDTH,  y,QPen(Qt::darkBlue,2)));
-    Ports.append(new Port(-30,  y));
+  i     = 0;
+  int y = 15 - h;
+  while (i < No) { // add ports lines and numbers
+    Lines.append(new qucs::Line(-30, y, -HALFWIDTH, y, QPen(Qt::darkBlue, 2)));
+    Ports.append(new Port(-30, y));
     tmp = PortNames.section(',', i, i).mid(4);
-    w = smallmetrics.boundingRect(tmp).width();
-    Texts.append(new Text(-20-w, y-fHeight-2, tmp)); // text right-aligned
+    w   = smallmetrics.boundingRect(tmp).width();
+    Texts.append(new Text(-20 - w, y - fHeight - 2, tmp)); // text right-aligned
     i++;
 
-    if(i == No) break; // if odd number of ports there will be one port less on the right side
-    Lines.append(new qucs::Line(HALFWIDTH,  y, 30,  y,QPen(Qt::darkBlue,2)));
-    Ports.append(new Port( 30,  y));
+    if (i == No) {
+      break; // if odd number of ports there will be one port less on the right
+             // side
+    }
+    Lines.append(new qucs::Line(HALFWIDTH, y, 30, y, QPen(Qt::darkBlue, 2)));
+    Ports.append(new Port(30, y));
     tmp = PortNames.section(',', i, i).mid(4);
-    Texts.append(new Text( 20, y-fHeight-2, tmp)); // text left-aligned
+    Texts.append(new Text(20, y - fHeight - 2, tmp)); // text left-aligned
     y += 60;
     i++;
   }
 
-  if(No > 0) {
-    Lines.append(new qucs::Line( 0, h, 0,h+15,QPen(Qt::darkBlue,2)));
-    Texts.append(new Text( 4, h,"Ref"));
-    Ports.append(new Port( 0, h+15));    // 'Ref' port
+  if (No > 0) {
+    Lines.append(new qucs::Line(0, h, 0, h + 15, QPen(Qt::darkBlue, 2)));
+    Texts.append(new Text(4, h, "Ref"));
+    Ports.append(new Port(0, h + 15)); // 'Ref' port
   }
 
-  x1 = -30; y1 = -h-2;
-  x2 =  30; y2 =  h+15;
+  x1 = -30;
+  y1 = -h - 2;
+  x2 = 30;
+  y2 = h + 15;
 
   // compute component name text position - normal size font
-  QFontMetrics  metrics(QucsSettings.font, 0);   // use the screen-compatible metric
+  QFontMetrics metrics(QucsSettings.font,
+                       0); // use the screen-compatible metric
   fHeight = metrics.lineSpacing();
-  tx = x1+4;
-  ty = y1 - fHeight - 4;
-  if(Props.first()->display) ty -= fHeight;
+  tx      = x1 + 4;
+  ty      = y1 - fHeight - 4;
+  if (Props.first()->display) {
+    ty -= fHeight;
+  }
   changed = true;
 }
 
 // ---------------------------------------------------
-QString SpiceFile::netlist()
-{
-  if(Props.at(1)->Value.isEmpty())
-    return QString();  // no ports, no subcircuit instance
+QString SpiceFile::netlist() {
+  if (Props.at(1)->Value.isEmpty()) {
+    return QString(); // no ports, no subcircuit instance
+  }
 
-  QString s = "Sub:"+Name;   // SPICE netlist is subcircuit
-  for (Port *pp : Ports)
-    s += " "+pp->Connection->Name;   // output all node names
+  QString s = "Sub:" + Name; // SPICE netlist is subcircuit
+  for (Port* pp : Ports) {
+    s += " " + pp->Connection->Name; // output all node names
+  }
 
   QString f = misc::properFileName(Props.first()->Value);
-  s += " Type=\""+misc::properName(f)+"\"\n";
+  s += " Type=\"" + misc::properName(f) + "\"\n";
   return s;
 }
 
 // -------------------------------------------------------
-QString SpiceFile::getSubcircuitFile()
-{
+QString SpiceFile::getSubcircuitFile() {
   return misc::properAbsFileName(Props.front()->Value, containingSchematic);
 }
 
 // -------------------------------------------------------------------------
-bool SpiceFile::createSubNetlist(QTextStream *stream)
-{
+bool SpiceFile::createSubNetlist(QTextStream* stream) {
   // check file name
   QString FileName = Props.first()->Value;
-  if(FileName.isEmpty()) {
-    ErrText += QObject::tr("ERROR: No file name in SPICE component \"%1\".").
-      arg(Name);
+  if (FileName.isEmpty()) {
+    ErrText +=
+        QObject::tr("ERROR: No file name in SPICE component \"%1\".").arg(Name);
     return false;
   }
 
@@ -187,9 +196,9 @@ bool SpiceFile::createSubNetlist(QTextStream *stream)
   QFile SpiceFile, ConvFile;
   FileName = getSubcircuitFile();
   SpiceFile.setFileName(FileName);
-  if(!SpiceFile.open(QIODevice::ReadOnly)) {
-    ErrText += QObject::tr("ERROR: Cannot open SPICE file \"%1\".").
-      arg(FileName);
+  if (!SpiceFile.open(QIODevice::ReadOnly)) {
+    ErrText +=
+        QObject::tr("ERROR: Cannot open SPICE file \"%1\".").arg(FileName);
     return false;
   }
   SpiceFile.close();
@@ -198,26 +207,26 @@ bool SpiceFile::createSubNetlist(QTextStream *stream)
   QFileInfo Info(ConvName);
 
   // re-create converted file if necessary
-  if(changed || !ConvFile.exists() ||
-     (lastLoaded.isValid() && lastLoaded < Info.lastModified())) {
-    if(!ConvFile.open(QIODevice::WriteOnly)) {
-      ErrText += QObject::tr("ERROR: Cannot save converted SPICE file \"%1\".").
-                          arg(FileName + ".lst");
+  if (changed || !ConvFile.exists() ||
+      (lastLoaded.isValid() && lastLoaded < Info.lastModified())) {
+    if (!ConvFile.open(QIODevice::WriteOnly)) {
+      ErrText += QObject::tr("ERROR: Cannot save converted SPICE file \"%1\".")
+                     .arg(FileName + ".lst");
       return false;
     }
-    outstream = stream;
-    filstream = new QTextStream(&ConvFile);
+    outstream         = stream;
+    filstream         = new QTextStream(&ConvFile);
     QString SpiceName = SpiceFile.fileName();
-    bool ret = recreateSubNetlist(&SpiceName, &FileName);
+    bool ret          = recreateSubNetlist(&SpiceName, &FileName);
     ConvFile.close();
     delete filstream;
     return ret;
   }
 
   // load old file and stuff into stream
-  if(!ConvFile.open(QIODevice::ReadOnly)) {
-    ErrText += QObject::tr("ERROR: Cannot open converted SPICE file \"%1\".").
-                        arg(FileName + ".lst");
+  if (!ConvFile.open(QIODevice::ReadOnly)) {
+    ErrText += QObject::tr("ERROR: Cannot open converted SPICE file \"%1\".")
+                   .arg(FileName + ".lst");
     return false;
   }
   QByteArray FileContent = ConvFile.readAll();
@@ -227,23 +236,20 @@ bool SpiceFile::createSubNetlist(QTextStream *stream)
   return true;
 }
 
-
-bool SpiceFile::createSpiceSubckt(QTextStream *stream)
-{
-    (*stream)<<"\n";
-    QFile sub_file(getSubcircuitFile());
-    if (sub_file.open(QIODevice::ReadOnly|QFile::Text)) {
-        QTextStream ts(&sub_file);
-        (*stream)<<ts.readAll().remove(QChar(0x1A));
-        sub_file.close();
-    }
-    (*stream)<<"\n";
-    return true;
+bool SpiceFile::createSpiceSubckt(QTextStream* stream) {
+  (*stream) << "\n";
+  QFile sub_file(getSubcircuitFile());
+  if (sub_file.open(QIODevice::ReadOnly | QFile::Text)) {
+    QTextStream ts(&sub_file);
+    (*stream) << ts.readAll().remove(QChar(0x1A));
+    sub_file.close();
+  }
+  (*stream) << "\n";
+  return true;
 }
 
 // -------------------------------------------------------------------------
-bool SpiceFile::recreateSubNetlist(QString *SpiceFile, QString *FileName)
-{
+bool SpiceFile::recreateSubNetlist(QString* SpiceFile, QString* FileName) {
   // initialize collectors
   ErrText = "";
   NetText = "";
@@ -251,14 +257,16 @@ bool SpiceFile::recreateSubNetlist(QString *SpiceFile, QString *FileName)
   NetLine = "";
 
   // evaluate properties
-  if(Props.at(1)->Value != "")
+  if (Props.at(1)->Value != "") {
     makeSubcircuit = true;
-  else
+  } else {
     makeSubcircuit = false;
-  if(Props.at(2)->Value == "yes")
+  }
+  if (Props.at(2)->Value == "yes") {
     insertSim = true;
-  else
+  } else {
     insertSim = false;
+  }
 
   // preprocessor run if necessary
   QString preprocessor = Props.at(3)->Value;
@@ -288,52 +296,55 @@ bool SpiceFile::recreateSubNetlist(QString *SpiceFile, QString *FileName)
 
     if (!piping) {
       script << PrepName;
-      connect(SpicePrep, SIGNAL(readyReadStandardOutput()), SLOT(slotSkipOut()));
-      connect(SpicePrep, SIGNAL(readyReadStandardError()), SLOT(slotGetPrepErr()));
+      connect(SpicePrep, SIGNAL(readyReadStandardOutput()),
+              SLOT(slotSkipOut()));
+      connect(SpicePrep, SIGNAL(readyReadStandardError()),
+              SLOT(slotGetPrepErr()));
     } else {
-      connect(SpicePrep, SIGNAL(readyReadStandardOutput()), SLOT(slotGetPrepOut()));
-      connect(SpicePrep, SIGNAL(readyReadStandardError()), SLOT(slotGetPrepErr()));
+      connect(SpicePrep, SIGNAL(readyReadStandardOutput()),
+              SLOT(slotGetPrepOut()));
+      connect(SpicePrep, SIGNAL(readyReadStandardError()),
+              SLOT(slotGetPrepErr()));
     }
 
-    QMessageBox *MBox = 
-      new QMessageBox(QMessageBox::NoIcon,
-                      QObject::tr("Info"),
-                      QObject::tr("Preprocessing SPICE file \"%1\".").arg(*SpiceFile),
-                      QMessageBox::Abort);
+    QMessageBox* MBox = new QMessageBox(
+        QMessageBox::NoIcon, QObject::tr("Info"),
+        QObject::tr("Preprocessing SPICE file \"%1\".").arg(*SpiceFile),
+        QMessageBox::Abort);
     MBox->setAttribute(Qt::WA_DeleteOnClose);
     connect(SpicePrep, SIGNAL(finished(int)), MBox, SLOT(close()));
 
     if (piping) {
       PrepFile.setFileName(PrepName);
-      if(!PrepFile.open(QIODevice::WriteOnly)) {
+      if (!PrepFile.open(QIODevice::WriteOnly)) {
         ErrText +=
-          QObject::tr("ERROR: Cannot save preprocessed SPICE file \"%1\".").
-          arg(PrepName);
+            QObject::tr("ERROR: Cannot save preprocessed SPICE file \"%1\".")
+                .arg(PrepName);
         return false;
       }
       prestream = new QTextStream(&PrepFile);
     }
 
     QProcessEnvironment env = QProcessEnvironment::systemEnvironment();
-    env.insert("PATH", env.value("PATH") );
+    env.insert("PATH", env.value("PATH"));
     SpicePrep->setProcessEnvironment(env);
-    QString cmd = script.at(0);
+    QString cmd             = script.at(0);
     QStringList script_args = script;
     script_args.removeAt(0);
-    SpicePrep->start(cmd,script_args);
-    //QucsHelp->setCommunication(0);
+    SpicePrep->start(cmd, script_args);
+    // QucsHelp->setCommunication(0);
 
-    if(SpicePrep->state()!=QProcess::Running&&
-            SpicePrep->state()!=QProcess::Starting) {
-      ErrText += QObject::tr("ERROR: Cannot execute \"%1\".").
-              arg(interpreter + " " + script.join(" ") + "\".");
+    if (SpicePrep->state() != QProcess::Running &&
+        SpicePrep->state() != QProcess::Starting) {
+      ErrText += QObject::tr("ERROR: Cannot execute \"%1\".")
+                     .arg(interpreter + " " + script.join(" ") + "\".");
       if (piping) {
         PrepFile.close();
         delete prestream;
       }
       return false;
     }
-    //SpicePrep->closeStdin();
+    // SpicePrep->closeStdin();
 
     MBox->exec();
     delete SpicePrep;
@@ -347,41 +358,47 @@ bool SpiceFile::recreateSubNetlist(QString *SpiceFile, QString *FileName)
   // begin command line construction
   QString prog;
   QStringList com;
-  //prog =  QucsSettings.BinDir + "qucsconv"  + executableSuffix;
-  prog =  QucsSettings.Qucsconv;
+  // prog =  QucsSettings.BinDir + "qucsconv"  + executableSuffix;
+  prog = QucsSettings.Qucsconv;
 
-  if(makeSubcircuit) com << "-g" << "_ref";
+  if (makeSubcircuit) {
+    com << "-g" << "_ref";
+  }
   com << "-if" << "spice" << "-of" << "qucs";
   com << "-i" << *SpiceFile;
 
   // begin netlist text creation
-  if(makeSubcircuit) {
+  if (makeSubcircuit) {
     QString f = misc::properFileName(*FileName);
     NetText += "\n.Def:" + misc::properName(f) + " ";
     QString PortNames = Props.at(1)->Value;
     PortNames.replace(',', ' ');
     NetText += PortNames;
-    if(makeSubcircuit) NetText += " _ref";
+    if (makeSubcircuit) {
+      NetText += " _ref";
+    }
   }
   NetText += "\n";
 
   // startup SPICE conversion process
-  QucsConv = new QProcess(this);
+  QucsConv                = new QProcess(this);
   QProcessEnvironment env = QProcessEnvironment::systemEnvironment();
-  env.insert("PATH", env.value("PATH") );
+  env.insert("PATH", env.value("PATH"));
   QucsConv->setProcessEnvironment(env);
 
-  qDebug() << "SpiceFile::recreateSubNetlist :Command:" << prog << com.join(" ");
-//  QucsConv->start(com.join(" "));
+  qDebug() << "SpiceFile::recreateSubNetlist :Command:" << prog
+           << com.join(" ");
+  //  QucsConv->start(com.join(" "));
   QucsConv->start(prog, com);
 
   /// these slots might write into NetText, ErrText, outstream, filstream
   connect(QucsConv, SIGNAL(readyReadStandardOutput()), SLOT(slotGetNetlist()));
   connect(QucsConv, SIGNAL(readyReadStandardError()), SLOT(slotGetError()));
-  connect(QucsConv, SIGNAL(finished(int,QProcess::ExitStatus)), SLOT(slotExited()));
+  connect(QucsConv, SIGNAL(finished(int, QProcess::ExitStatus)),
+          SLOT(slotExited()));
 
-  if(QucsConv->state()!=QProcess::Running&&
-          QucsConv->state()!=QProcess::Starting) {
+  if (QucsConv->state() != QProcess::Running &&
+      QucsConv->state() != QProcess::Starting) {
     ErrText += QObject::tr("COMP ERROR: Cannot start QucsConv!");
     return false;
   }
@@ -390,10 +407,11 @@ bool SpiceFile::recreateSubNetlist(QString *SpiceFile, QString *FileName)
 
   // only interact with the GUI if it was launched
   if (QucsMain != nullptr) {
-    QucsMain->statusBar()->showMessage(tr("Converting SPICE file \"%1\".").arg(*SpiceFile), 2000);
-  }
-  else
+    QucsMain->statusBar()->showMessage(
+        tr("Converting SPICE file \"%1\".").arg(*SpiceFile), 2000);
+  } else {
     qDebug() << QObject::tr("Converting SPICE file \"%1\".").arg(*SpiceFile);
+  }
 
   // finish
   QucsConv->waitForFinished();
@@ -403,57 +421,53 @@ bool SpiceFile::recreateSubNetlist(QString *SpiceFile, QString *FileName)
 }
 
 // -------------------------------------------------------------------------
-void SpiceFile::slotSkipErr()
-{
+void SpiceFile::slotSkipErr() {
   SpicePrep->readAllStandardError();
 }
 
 // -------------------------------------------------------------------------
-void SpiceFile::slotSkipOut()
-{
-    SpicePrep->readAllStandardOutput();
+void SpiceFile::slotSkipOut() {
+  SpicePrep->readAllStandardOutput();
 }
 
 // -------------------------------------------------------------------------
-void SpiceFile::slotGetPrepErr()
-{
+void SpiceFile::slotGetPrepErr() {
   ErrText += QString(SpicePrep->readAllStandardError());
 }
 
 // -------------------------------------------------------------------------
-void SpiceFile::slotGetPrepOut()
-{
+void SpiceFile::slotGetPrepOut() {
   (*prestream) << QString(SpicePrep->readAllStandardOutput());
 }
 
 // -------------------------------------------------------------------------
-void SpiceFile::slotGetError()
-{
+void SpiceFile::slotGetError() {
   ErrText += QString(QucsConv->readAllStandardError());
 }
 
 // -------------------------------------------------------------------------
-void SpiceFile::slotGetNetlist()
-{
+void SpiceFile::slotGetNetlist() {
   int i;
   QString s;
   NetLine += QString(QucsConv->readAllStandardOutput());
 
-  while((i = NetLine.indexOf('\n')) >= 0) {
+  while ((i = NetLine.indexOf('\n')) >= 0) {
     s = NetLine.left(i);
-    NetLine.remove(0, i+1);
+    NetLine.remove(0, i + 1);
     s = s.trimmed();
-    if(s.size()>0&&s.at(0) == '#') {
+    if (s.size() > 0 && s.at(0) == '#') {
       continue;
-    } else if(s.isEmpty()) {
+    } else if (s.isEmpty()) {
       continue;
-    } else if(s.size()>0&&s.at(0) == '.') {
-      if(s.left(5) != ".Def:") {
-        if(insertSim) SimText += s + "\n";
+    } else if (s.size() > 0 && s.at(0) == '.') {
+      if (s.left(5) != ".Def:") {
+        if (insertSim) {
+          SimText += s + "\n";
+        }
         continue;
       }
     }
-    if(makeSubcircuit) {
+    if (makeSubcircuit) {
       (*outstream) << "  ";
       (*filstream) << "  ";
     }
@@ -463,56 +477,56 @@ void SpiceFile::slotGetNetlist()
 }
 
 // -------------------------------------------------------------------------
-void SpiceFile::slotExited()
-{
+void SpiceFile::slotExited() {
   if (QucsConv->exitStatus() != QProcess::NormalExit) {
     NetText = "";
-  }
-  else {
-    if(makeSubcircuit) {
+  } else {
+    if (makeSubcircuit) {
       (*outstream) << ".Def:End\n\n";
       (*filstream) << ".Def:End\n\n";
     }
-    if(!SimText.isEmpty()) {
+    if (!SimText.isEmpty()) {
       (*outstream) << SimText;
       (*filstream) << SimText;
     }
   }
 }
 
-QString SpiceFile::spice_netlist(spicecompat::SpiceDialect dialect /* = spicecompat::SPICEDefault */)
-{
-    Q_UNUSED(dialect);
+QString SpiceFile::spice_netlist(
+    spicecompat::SpiceDialect dialect /* = spicecompat::SPICEDefault */) {
+  Q_UNUSED(dialect);
 
-    QStringList ports_lst = Props.at(1)->Value.split(",");
-    for (auto & it : ports_lst) {
-        if (it.startsWith("_net")) it.remove(0,4);
+  QStringList ports_lst = Props.at(1)->Value.split(",");
+  for (auto& it : ports_lst) {
+    if (it.startsWith("_net")) {
+      it.remove(0, 4);
     }
-    QStringList nod_lst;
-    QString compname = spicecompat::getSubcktName(getSubcircuitFile());
-    spicecompat::getPins(getSubcircuitFile(),compname,nod_lst);
+  }
+  QStringList nod_lst;
+  QString compname = spicecompat::getSubcktName(getSubcircuitFile());
+  spicecompat::getPins(getSubcircuitFile(), compname, nod_lst);
 
-    QList<int> seq;
-    seq.clear();
-    for(int i=0;i<nod_lst.count();i++) {
-        int idx = ports_lst.indexOf(nod_lst.at(i));
-        if (idx >= 0)
-            seq.append(ports_lst.indexOf(nod_lst.at(i)));
+  QList<int> seq;
+  seq.clear();
+  for (int i = 0; i < nod_lst.count(); i++) {
+    int idx = ports_lst.indexOf(nod_lst.at(i));
+    if (idx >= 0) {
+      seq.append(ports_lst.indexOf(nod_lst.at(i)));
     }
+  }
 
-    QString s = spicecompat::check_refdes(Name,SpiceModel);
-    //foreach(Port *p1, Ports) {
-    for (int i : seq) {
-        s += " "+Ports.at(i)->Connection->Name;   // node names
-    }
+  QString s = spicecompat::check_refdes(Name, SpiceModel);
+  // foreach(Port *p1, Ports) {
+  for (int i : seq) {
+    s += " " + Ports.at(i)->Connection->Name; // node names
+  }
 
-    s += " " + spicecompat::getSubcktName(getSubcircuitFile());
-    s += " " + getProperty("Params")->Value;
-    s += "\n";
-    return s;
+  s += " " + spicecompat::getSubcktName(getSubcircuitFile());
+  s += " " + getProperty("Params")->Value;
+  s += "\n";
+  return s;
 }
 
-QString SpiceFile::cdl_netlist()
-{
-    return spice_netlist(spicecompat::CDL);
+QString SpiceFile::cdl_netlist() {
+  return spice_netlist(spicecompat::CDL);
 }

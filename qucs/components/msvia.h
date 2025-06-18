@@ -20,13 +20,12 @@
 
 #include "component.h"
 
-
-class MSvia : public Component  {
+class MSvia : public Component {
 public:
   MSvia();
   ~MSvia();
   Component* newOne();
-  static Element* info(QString&, char* &, bool getNewOne=false);
+  static Element* info(QString&, char*&, bool getNewOne = false);
 
 protected:
   QString netlist();

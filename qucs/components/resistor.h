@@ -20,17 +20,17 @@
 
 #include "component.h"
 
-
-class Resistor : public MultiViewComponent  {
+class Resistor : public MultiViewComponent {
 public:
-  Resistor(bool european=true);
- ~Resistor() {};
+  Resistor(bool european = true);
+  ~Resistor(){};
   Component* newOne();
-  static Element* info(QString&, char* &, bool getNewOne=false);
-  static Element* info_us(QString&, char* &, bool getNewOne=false);
+  static Element* info(QString&, char*&, bool getNewOne = false);
+  static Element* info_us(QString&, char*&, bool getNewOne = false);
 
 protected:
-  QString spice_netlist(spicecompat::SpiceDialect dialect = spicecompat::SPICEDefault);
+  QString
+  spice_netlist(spicecompat::SpiceDialect dialect = spicecompat::SPICEDefault);
   virtual QString cdl_netlist();
   QString va_code();
   void createSymbol();

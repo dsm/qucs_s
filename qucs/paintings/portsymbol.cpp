@@ -14,9 +14,9 @@
  *   (at your option) any later version.                                   *
  *                                                                         *
  ***************************************************************************/
+#include "portsymbol.h"
 #include "main.h"
 #include "one_point.h"
-#include "portsymbol.h"
 #include "schematic.h"
 
 #include <QInputDialog>
@@ -28,7 +28,6 @@ namespace helper {
 inline QSize textSize(const QString& text) {
   return QFontMetrics(QucsSettings.font, nullptr).size(0, text);
 }
-
 
 class TextHelper {
   static constexpr int c = 8; // Some inherited magic number
@@ -56,56 +55,48 @@ public:
     auto to = offset();
     switch (m_angle) {
     case 90:
-      return QRect{to.y(), to.x() + m_textSize.width() + 2 * c, m_textSize.height(),
-                   m_textSize.width()};
+      return QRect{to.y(), to.x() + m_textSize.width() + 2 * c,
+                   m_textSize.height(), m_textSize.width()};
     case 270:
-      return QRect{to.x() - m_textSize.height(), to.y() - m_textSize.width(), m_textSize.height(),
-                   m_textSize.width()};
+      return QRect{to.x() - m_textSize.height(), to.y() - m_textSize.width(),
+                   m_textSize.height(), m_textSize.width()};
     default:
       return QRect{to, m_textSize};
     }
   }
 };
 
-
 // Calculates the bounding of port symbol and offset of port name text
-std::pair<QRect, QPoint> boundingAndTextOffset(int angle, const QString& portName, int circleRadius) {
-  const QRect circle_br{
-    -QPoint{circleRadius, circleRadius},
-     QPoint{circleRadius, circleRadius}};
+std::pair<QRect, QPoint>
+boundingAndTextOffset(int angle, const QString& portName, int circleRadius) {
+  const QRect circle_br{-QPoint{circleRadius, circleRadius},
+                        QPoint{circleRadius, circleRadius}};
 
   const TextHelper th{angle, portName};
 
-  const auto total_br = circle_br
-    .united(th.bounds())
-    .normalized()
-    .marginsAdded(QMargins{2, 2, 2, 2});
+  const auto total_br = circle_br.united(th.bounds())
+                            .normalized()
+                            .marginsAdded(QMargins{2, 2, 2, 2});
 
   return {total_br, th.offset()};
 }
 } // namespace helper
 
-
-constexpr int portCircleRadius = 4;
+constexpr int portCircleRadius   = 4;
 constexpr int portCircleDiameter = 2 * portCircleRadius;
 
-
 PortSymbol::PortSymbol(int cx_, int cy_, const QString& numberStr_,
-                                         const QString& nameStr_)
-    : numberStr(numberStr_)
-    , nameStr(nameStr_)
-    , angle(0)
-{
-  Name = ".PortSym ";
+                       const QString& nameStr_)
+    : numberStr(numberStr_), nameStr(nameStr_), angle(0) {
+  Name       = ".PortSym ";
   isSelected = false;
-  cx = cx_;
-  cy = cy_;
+  cx         = cx_;
+  cy         = cy_;
 
   updateBounds();
 }
 
-void PortSymbol::paint(QPainter *painter)
-{
+void PortSymbol::paint(QPainter* painter) {
   // Little circle and port name
   {
     painter->save();
@@ -113,17 +104,21 @@ void PortSymbol::paint(QPainter *painter)
     painter->translate(center());
 
     // Little circle
-    const QRect circle_br{ -portCircleRadius, -portCircleRadius, portCircleDiameter, portCircleDiameter };
-    painter->setPen(QPen(Qt::red,1));  // like open node
+    const QRect circle_br{-portCircleRadius, -portCircleRadius,
+                          portCircleDiameter, portCircleDiameter};
+    painter->setPen(QPen(Qt::red, 1)); // like open node
     painter->drawEllipse(circle_br);
 
     // Port name
     painter->setPen(Qt::black);
-    if (angle == 90 || angle == 270) painter->rotate(-90.0);
-    painter->drawText(m_textOrigin.x(), m_textOrigin.y(), 1, 1, Qt::TextDontClip, nameStr.isEmpty() ? numberStr : nameStr);
+    if (angle == 90 || angle == 270) {
+      painter->rotate(-90.0);
+    }
+    painter->drawText(m_textOrigin.x(), m_textOrigin.y(), 1, 1,
+                      Qt::TextDontClip,
+                      nameStr.isEmpty() ? numberStr : nameStr);
     painter->restore();
   }
-
 
   // Rectangle and selection box
   {
@@ -135,82 +130,89 @@ void PortSymbol::paint(QPainter *painter)
 
     // Selection box
     if (isSelected) {
-      painter->setPen(QPen(Qt::darkGray,3));
-      painter->drawRoundedRect(boundingRect().marginsAdded(QMargins{3, 3, 3, 3}), 4, 4);
+      painter->setPen(QPen(Qt::darkGray, 3));
+      painter->drawRoundedRect(
+          boundingRect().marginsAdded(QMargins{3, 3, 3, 3}), 4, 4);
     }
 
     painter->restore();
   }
 }
 
-void PortSymbol::paintScheme(Schematic *p)
-{
-  p->PostPaintEvent(_Ellipse, cx - portCircleRadius, cy - portCircleRadius, portCircleDiameter, portCircleDiameter);
+void PortSymbol::paintScheme(Schematic* p) {
+  p->PostPaintEvent(_Ellipse, cx - portCircleRadius, cy - portCircleRadius,
+                    portCircleDiameter, portCircleDiameter);
   p->PostPaintEvent(_Rect, x1, y1, x2 - x1, y2 - y1);
 }
 
-bool PortSymbol::load(const QString& s)
-{
+bool PortSymbol::load(const QString& s) {
   bool ok;
 
   QString n;
-  n  = s.section(' ',1,1);    // cx
+  n  = s.section(' ', 1, 1); // cx
   cx = n.toInt(&ok);
-  if(!ok) return false;
+  if (!ok) {
+    return false;
+  }
 
-  n  = s.section(' ',2,2);    // cy
+  n  = s.section(' ', 2, 2); // cy
   cy = n.toInt(&ok);
-  if(!ok) return false;
+  if (!ok) {
+    return false;
+  }
 
-  numberStr  = s.section(' ',3,3);    // number
-  if(numberStr.isEmpty()) return false;
+  numberStr = s.section(' ', 3, 3); // number
+  if (numberStr.isEmpty()) {
+    return false;
+  }
 
-  n  = s.section(' ',4,4);      // Angel
-  if(n.isEmpty()) return true;  // be backward-compatible
+  n = s.section(' ', 4, 4); // Angel
+  if (n.isEmpty()) {
+    return true; // be backward-compatible
+  }
   angle = n.toInt(&ok);
-  if(!ok) return false;
+  if (!ok) {
+    return false;
+  }
 
   // name string
   n = s.section(' ', 5);
-  if (n.isEmpty()) return true;
+  if (n.isEmpty()) {
+    return true;
+  }
   nameStr = n;
 
   updateBounds();
   return true;
 }
 
-QString PortSymbol::save()
-{
-  QString s = Name+QString::number(cx)+" "+QString::number(cy)+" ";
-  s += numberStr+" "+QString::number(angle) + " " + nameStr;
+QString PortSymbol::save() {
+  QString s = Name + QString::number(cx) + " " + QString::number(cy) + " ";
+  s += numberStr + " " + QString::number(angle) + " " + nameStr;
   return s;
 }
 
-QString PortSymbol::saveCpp()
-{
-  QString s =
-    QString ("new Port (%1, %2)").
-    arg(cx).arg(cy);
-  s = "Ports.append (" + s + "); /* " + nameStr + " */";
+QString PortSymbol::saveCpp() {
+  QString s = QString("new Port (%1, %2)").arg(cx).arg(cy);
+  s         = "Ports.append (" + s + "); /* " + nameStr + " */";
   return s;
 }
 
-QString PortSymbol::saveJSON()
-{
-  QString s = QString ("{\"type\" : \"portsymbol\", "
-                       "\"x\" : %1, \"y\" : %2},").arg(cx).arg(cy);
+QString PortSymbol::saveJSON() {
+  QString s = QString("{\"type\" : \"portsymbol\", "
+                      "\"x\" : %1, \"y\" : %2},")
+                  .arg(cx)
+                  .arg(cy);
   return s;
 }
 
 // Checks if the coordinates x/y point to the painting.
-bool PortSymbol::getSelected(const QPoint& click, int /*tolerance*/)
-{
+bool PortSymbol::getSelected(const QPoint& click, int /*tolerance*/) {
   return QRect{QPoint{x1, y1}, QPoint{x2, y2}}.contains(click);
 }
 
 // Rotates around the center.
-inline bool PortSymbol::rotate() noexcept
-{
+inline bool PortSymbol::rotate() noexcept {
   if (angle < 270) {
     angle += 90;
   } else {
@@ -221,55 +223,52 @@ inline bool PortSymbol::rotate() noexcept
 }
 
 // Rotates around the center.
-inline bool PortSymbol::rotate(int x, int y) noexcept
-{
+inline bool PortSymbol::rotate(int x, int y) noexcept {
   qucs_s::geom::rotate_point_ccw(cx, cy, x, y);
   rotate();
   return true;
 }
 
 // Mirrors about connection node (not center line !).
-bool PortSymbol::mirrorX() noexcept
-{
+bool PortSymbol::mirrorX() noexcept {
   switch (angle) {
-    case 90:
-      angle = 270;
-      break;
-    case 270:
-      angle = 90;
-      break;
-    default:
-      break;
+  case 90:
+    angle = 270;
+    break;
+  case 270:
+    angle = 90;
+    break;
+  default:
+    break;
   };
   updateBounds();
   return true;
 }
 
 // Mirrors about connection node (not center line !).
-bool PortSymbol::mirrorY() noexcept
-{
+bool PortSymbol::mirrorY() noexcept {
   switch (angle) {
-    case 0:
-      angle = 180;
-      break;
-    case 180:
-      angle = 0;
-      break;
-    default:
-      break;
+  case 0:
+    angle = 180;
+    break;
+  case 180:
+    angle = 0;
+    break;
+  default:
+    break;
   };
   updateBounds();
   return true;
 }
 
-bool PortSymbol::MousePressing(Schematic *sch) {
+bool PortSymbol::MousePressing(Schematic* sch) {
   if (!sch->getIsSymbolOnly()) {
     return false;
   }
   QString text = QInputDialog::getText(nullptr, QObject::tr("Port name"),
-                                        QObject::tr("Input port name:"));
+                                       QObject::tr("Input port name:"));
   if (!text.isNull() && !text.isEmpty()) {
-    nameStr = text;
+    nameStr   = text;
     numberStr = "0"; // 0 indicates no number assigned
     updateBounds();
     return true;
@@ -278,7 +277,8 @@ bool PortSymbol::MousePressing(Schematic *sch) {
   return false;
 }
 
-void PortSymbol::MouseMoving(const QPoint& onGrid, Schematic* sch, const QPoint& /*cursor*/) {
+void PortSymbol::MouseMoving(const QPoint& onGrid, Schematic* sch,
+                             const QPoint& /*cursor*/) {
   moveCenterTo(onGrid.x(), onGrid.y());
   paintScheme(sch);
 }
@@ -290,10 +290,10 @@ Painting* PortSymbol::newOne() {
 // This function is called from double click handler, see mouseactions.cpp
 // Returned bool signal whether the object has changed as a result of
 // the invocation.
-bool PortSymbol::Dialog(QWidget* /*parent*/Doc) {
-  // Forbid manual editing, change port name on schematic to change it in the symbol
-  // Allow to edit ports only for SymbolOnly documents (*.sym).
-  Schematic *sch = (Schematic *) Doc;
+bool PortSymbol::Dialog(QWidget* /*parent*/ Doc) {
+  // Forbid manual editing, change port name on schematic to change it in the
+  // symbol Allow to edit ports only for SymbolOnly documents (*.sym).
+  Schematic* sch = (Schematic*)Doc;
   if (!sch->getIsSymbolOnly()) {
     return false;
   }
@@ -302,9 +302,8 @@ bool PortSymbol::Dialog(QWidget* /*parent*/Doc) {
   // a corresponding schematic. In that case allow to user to input
   // port name
   QString text = QInputDialog::getText(nullptr, QObject::tr("Port name"),
-                                        QObject::tr("Input port name:"),
-                                        QLineEdit::Normal,
-                                        nameStr);
+                                       QObject::tr("Input port name:"),
+                                       QLineEdit::Normal, nameStr);
   if (text.isNull() || text.isEmpty()) {
     return false;
   }
@@ -317,14 +316,13 @@ bool PortSymbol::Dialog(QWidget* /*parent*/Doc) {
   return true;
 }
 
-void PortSymbol::updateBounds()
-{
+void PortSymbol::updateBounds() {
   const QString& text = nameStr.isEmpty() ? numberStr : nameStr;
   auto [br, to] = helper::boundingAndTextOffset(angle, text, portCircleRadius);
 
   m_textOrigin = to;
-  x1 = cx + br.left();
-  y1 = cy + br.top();
-  x2 = cx + br.right();
-  y2 = cy + br.bottom();
+  x1           = cx + br.left();
+  y1           = cy + br.top();
+  x2           = cx + br.right();
+  y2           = cy + br.bottom();
 }
