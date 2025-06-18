@@ -16,19 +16,17 @@
  ***************************************************************************/
 #include <QDir>
 #include <QFile>
-#include <QTextStream>
 #include <QRegularExpression>
 #include <QString>
 #include <QStringList>
+#include <QTextStream>
 
-#include "opt_sim.h"
 #include "main.h"
+#include "opt_sim.h"
 
-
-Optimize_Sim::Optimize_Sim()
-{
+Optimize_Sim::Optimize_Sim() {
   Description = QObject::tr("Optimization");
-  Simulator = spicecompat::simQucsator;
+  Simulator   = spicecompat::simQucsator;
   initSymbol(Description);
   Model = ".Opt";
   Name  = "Opt";
@@ -37,27 +35,24 @@ Optimize_Sim::Optimize_Sim()
   Props.append(new Property("DE", "3|50|2|20|0.85|1|3|1e-6|10|100", false, ""));
 }
 
-Optimize_Sim::~Optimize_Sim()
-{
-}
+Optimize_Sim::~Optimize_Sim() {}
 
-Component* Optimize_Sim::newOne()
-{
+Component* Optimize_Sim::newOne() {
   return new Optimize_Sim();
 }
 
-Element* Optimize_Sim::info(QString& Name, char* &BitmapFile, bool getNewOne)
-{
-  Name = QObject::tr("optimization");
-  BitmapFile = (char *) "optimize";
+Element* Optimize_Sim::info(QString& Name, char*& BitmapFile, bool getNewOne) {
+  Name       = QObject::tr("optimization");
+  BitmapFile = (char*)"optimize";
 
-  if(getNewOne)  return new Optimize_Sim();
+  if (getNewOne) {
+    return new Optimize_Sim();
+  }
   return 0;
 }
 
 // -------------------------------------------------------
-QString Optimize_Sim::netlist()
-{
+QString Optimize_Sim::netlist() {
   QString s = "#\n";
   if (createASCOFiles()) {
     s += "# ASCO configuration file(s) created\n";
@@ -68,13 +63,11 @@ QString Optimize_Sim::netlist()
   return s;
 }
 
- 
 // -----------------------------------------------------------
-bool Optimize_Sim::createASCOFiles()
-{
+bool Optimize_Sim::createASCOFiles() {
 
   QFile afile(QucsSettings.tempFilesDir.filePath("asco_netlist.cfg"));
-  if(afile.open(QIODevice::WriteOnly)) {
+  if (afile.open(QIODevice::WriteOnly)) {
     QTextStream stream(&afile);
     stream << "*\n";
     stream << "* ASCO configuration file for '" << Name << "'\n";
@@ -90,63 +83,61 @@ bool Optimize_Sim::createASCOFiles()
     stream << "#DE#\n";
 
     QString val;
-    val = Props.at(1)->Value.section('|',0,0);
+    val = Props.at(1)->Value.section('|', 0, 0);
     stream << "choice of method:" << val << "\n";
-    val = Props.at(1)->Value.section('|',1,1);
+    val = Props.at(1)->Value.section('|', 1, 1);
     stream << "maximum no. of iterations:" << val << "\n";
-    val = Props.at(1)->Value.section('|',2,2);
+    val = Props.at(1)->Value.section('|', 2, 2);
     stream << "Output refresh cycle:" << val << "\n";
-    val = Props.at(1)->Value.section('|',3,3);
+    val = Props.at(1)->Value.section('|', 3, 3);
     stream << "No. of parents NP:" << val << "\n";
-    val= Props.at(1)->Value.section('|',4,4);
+    val = Props.at(1)->Value.section('|', 4, 4);
     stream << "Constant F:" << val << "\n";
-    val = Props.at(1)->Value.section('|',5,5);
+    val = Props.at(1)->Value.section('|', 5, 5);
     stream << "Crossing Over factor CR:" << val << "\n";
-    val = Props.at(1)->Value.section('|',6,6);
+    val = Props.at(1)->Value.section('|', 6, 6);
     stream << "Seed for pseudo random number generator:" << val << "\n";
-    val = Props.at(1)->Value.section('|',7,7);
+    val = Props.at(1)->Value.section('|', 7, 7);
     stream << "Minimum Cost Variance:" << val << "\n";
-    val = Props.at(1)->Value.section('|',8,8);
+    val = Props.at(1)->Value.section('|', 8, 8);
     stream << "Cost objectives:" << val << "\n";
-    val = Props.at(1)->Value.section('|',9,9);
+    val = Props.at(1)->Value.section('|', 9, 9);
     stream << "Cost constraints:" << val << "\n";
     stream << "#\n\n";
 
     stream << "# Parameters #\n";
 
-    for(int i= 2; i < Props.size();i++) {
-      if(Props.at(i)->Name == "Var") {
-        stream << "Parameter " << i-1 << ":";
-        val = Props.at(i)->Value.section('|',0,0);
-	stream << "#" << val << "#" << ":";
-        val = Props.at(i)->Value.section('|',2,2);
-	stream << val << ":";
-        val = Props.at(i)->Value.section('|',3,3);
-	stream << val << ":";
-        val = Props.at(i)->Value.section('|',4,4);
-	stream << val << ":";
-        val = Props.at(i)->Value.section('|',5,5);
-	stream << val << ":";
-        val = Props.at(i)->Value.section('|',1,1);
-	stream << ((val == "yes") ? "OPT" : "---") << "\n";
+    for (int i = 2; i < Props.size(); i++) {
+      if (Props.at(i)->Name == "Var") {
+        stream << "Parameter " << i - 1 << ":";
+        val = Props.at(i)->Value.section('|', 0, 0);
+        stream << "#" << val << "#" << ":";
+        val = Props.at(i)->Value.section('|', 2, 2);
+        stream << val << ":";
+        val = Props.at(i)->Value.section('|', 3, 3);
+        stream << val << ":";
+        val = Props.at(i)->Value.section('|', 4, 4);
+        stream << val << ":";
+        val = Props.at(i)->Value.section('|', 5, 5);
+        stream << val << ":";
+        val = Props.at(i)->Value.section('|', 1, 1);
+        stream << ((val == "yes") ? "OPT" : "---") << "\n";
       }
     }
     stream << "#\n\n";
 
     stream << "# Measurements #\n";
-    for(int i= 2; i < Props.size();i++) {
-      if(Props.at(i)->Name == "Goal") {
-        val = Props.at(i)->Value.section('|',1,1);
-	QString Type, Value;
-        Value = Props.at(i)->Value.section('|',2,2);
-	if (val == "MIN" || val == "MAX" || val == "MON") {
-	  Value = "---";
-	}
-	Type = val;
-        val = Props.at(i)->Value.section('|',0,0);
-	stream << val <<  ":"
-	       << "---" << ":"
-	       << Type << ":" << Value << "\n";
+    for (int i = 2; i < Props.size(); i++) {
+      if (Props.at(i)->Name == "Goal") {
+        val = Props.at(i)->Value.section('|', 1, 1);
+        QString Type, Value;
+        Value = Props.at(i)->Value.section('|', 2, 2);
+        if (val == "MIN" || val == "MAX" || val == "MON") {
+          Value = "---";
+        }
+        Type = val;
+        val  = Props.at(i)->Value.section('|', 0, 0);
+        stream << val << ":" << "---" << ":" << Type << ":" << Value << "\n";
       }
     }
     stream << "#\n\n";
@@ -155,33 +146,38 @@ bool Optimize_Sim::createASCOFiles()
     stream << "#\n\n";
 
     afile.close();
-  } else return false;
+  } else {
+    return false;
+  }
 
   QDir ExtractDir(QucsSettings.tempFilesDir);
-  if(!ExtractDir.cd("extract")) {
-    if(!ExtractDir.mkdir("extract"))
+  if (!ExtractDir.cd("extract")) {
+    if (!ExtractDir.mkdir("extract")) {
       return false;
-    if(!ExtractDir.cd("extract"))
+    }
+    if (!ExtractDir.cd("extract")) {
       return false;
-  }      
+    }
+  }
 
-  for(int i= 2; i < Props.size();i++) {
-    if(Props.at(i)->Name == "Goal") {
-      QString VarName = Props.at(i)->Value.section('|',0,0);
+  for (int i = 2; i < Props.size(); i++) {
+    if (Props.at(i)->Name == "Goal") {
+      QString VarName = Props.at(i)->Value.section('|', 0, 0);
       QFile efile(ExtractDir.filePath(VarName));
-      if(efile.open(QIODevice::WriteOnly)) {
-    QTextStream stream(&efile);
-	stream << "# Info #\n";
-	stream << "#\n\n";
-	stream << "# Commands #\n";
-	stream << "#\n\n";
-	stream << "# Post Processing #\n";
-	stream << "MEASURE_VAR:#SYMBOL#:SEARCH_FOR:'<indep " << VarName
-	       << " ':S_COL:01:P_LINE:01:P_COL:01:31" << "\n";
-	stream << "#\n\n";
-	efile.close();
+      if (efile.open(QIODevice::WriteOnly)) {
+        QTextStream stream(&efile);
+        stream << "# Info #\n";
+        stream << "#\n\n";
+        stream << "# Commands #\n";
+        stream << "#\n\n";
+        stream << "# Post Processing #\n";
+        stream << "MEASURE_VAR:#SYMBOL#:SEARCH_FOR:'<indep " << VarName
+               << " ':S_COL:01:P_LINE:01:P_COL:01:31" << "\n";
+        stream << "#\n\n";
+        efile.close();
+      } else {
+        return false;
       }
-      else return false;
     }
   }
   return true;
@@ -193,45 +189,45 @@ bool Optimize_Sim::createASCOFiles()
  *  input netlist.
  * \return true if asco_netlist.txt created, false otherwise
  */
-bool Optimize_Sim::createASCOnetlist()
-{
+bool Optimize_Sim::createASCOnetlist() {
   QStringList vars;
-  for(int i= 2; i < Props.size();i++) {
-    if(Props.at(i)->Name == "Var") {
-      vars += Props.at(i)->Value.section('|',0,0);
+  for (int i = 2; i < Props.size(); i++) {
+    if (Props.at(i)->Name == "Var") {
+      vars += Props.at(i)->Value.section('|', 0, 0);
     }
   }
 
   QFile infile(QucsSettings.tempFilesDir.filePath("netlist.txt"));
   QFile outfile(QucsSettings.tempFilesDir.filePath("asco_netlist.txt"));
-  if(!infile.open(QIODevice::ReadOnly)) return false;
-  if(!outfile.open(QIODevice::WriteOnly)) return false;
+  if (!infile.open(QIODevice::ReadOnly)) {
+    return false;
+  }
+  if (!outfile.open(QIODevice::WriteOnly)) {
+    return false;
+  }
   QTextStream instream(&infile);
   QTextStream outstream(&outfile);
   QString Line;
-  while(!instream.atEnd()) {
+  while (!instream.atEnd()) {
     Line = instream.readLine();
-    for(QStringList::Iterator it = vars.begin(); it != vars.end(); ++it ) {
-      if(Line.contains("Eqn:"))
-      {
-          QStringList splitLine = Line.split("\"");
+    for (QStringList::Iterator it = vars.begin(); it != vars.end(); ++it) {
+      if (Line.contains("Eqn:")) {
+        QStringList splitLine = Line.split("\"");
 
-          for(int i=1;i<splitLine.size()-3;i+=2)
+        for (int i = 1; i < splitLine.size() - 3; i += 2) {
+          if (splitLine[i].compare("yes") != 0 &&
+              splitLine[i].compare("no") !=
+                  0) // ignore last piece between quotes
           {
-              if(splitLine[i].compare("yes")!=0 && splitLine[i].compare("no")!=0) //ignore last piece between quotes
-              {
-                  splitLine[i].replace(*it, "#"+*it+"#");
-              }
+            splitLine[i].replace(*it, "#" + *it + "#");
           }
-          Line = splitLine.join("\"");
+        }
+        Line = splitLine.join("\"");
 
+      } else {
+        QRegularExpression reg = QRegularExpression("=\"(" + *it + ")\"");
+        Line.replace(reg, "=\"#\\1#\"");
       }
-      else
-      {
-          QRegularExpression reg = QRegularExpression("=\"(" + *it + ")\"");
-          Line.replace(reg, "=\"#\\1#\"");
-      }
-
     }
     outstream << Line << "\n";
   }
@@ -241,50 +237,53 @@ bool Optimize_Sim::createASCOnetlist()
 }
 
 // -----------------------------------------------------------
-bool Optimize_Sim::loadASCOout()
-{
+bool Optimize_Sim::loadASCOout() {
   bool changed = false;
   QStringList vars;
-  for(int i= 2; i < Props.size();i++) {
-    if(Props.at(i)->Name == "Var") {
-      vars += Props.at(i)->Value.section('|',0,0);
+  for (int i = 2; i < Props.size(); i++) {
+    if (Props.at(i)->Name == "Var") {
+      vars += Props.at(i)->Value.section('|', 0, 0);
     }
   }
 
   QFile infile(QucsSettings.tempFilesDir.filePath("asco_out.log"));
-  if(!infile.open(QIODevice::ReadOnly)) return false;
+  if (!infile.open(QIODevice::ReadOnly)) {
+    return false;
+  }
   QTextStream instream(&infile);
   QString Line;
   // we need just the last line with the final result
-  while(!instream.atEnd()) Line = instream.readLine();
+  while (!instream.atEnd()) {
+    Line = instream.readLine();
+  }
   infile.close();
 
   QStringList entries = Line.split(':');
   QStringList::Iterator it;
-  for(it = entries.begin(); it != entries.end(); ++it ) {
+  for (it = entries.begin(); it != entries.end(); ++it) {
     QString Name = *it;
-    Name = Name.trimmed();
-    if(vars.contains(Name)) {
-      for(int i= 2; i < Props.size();i++) {
-        if(Props.at(i)->Name == "Var") {
-	  QString val[6];
-          val[0] = Props.at(i)->Value.section('|',0,0); // variable name
-	  if(val[0]==Name) {
-            val[1] = Props.at(i)->Value.section('|',1,1);
-            val[2] = Props.at(i)->Value.section('|',2,2);
-            val[3] = Props.at(i)->Value.section('|',3,3);
-            val[4] = Props.at(i)->Value.section('|',4,4);
-            val[5] = Props.at(i)->Value.section('|',5,5);
-	    ++it; // field after variable name is its value
-	    QString Value = *it;
-	    Value = Value.trimmed();
-	    val[2] = Value;
+    Name         = Name.trimmed();
+    if (vars.contains(Name)) {
+      for (int i = 2; i < Props.size(); i++) {
+        if (Props.at(i)->Name == "Var") {
+          QString val[6];
+          val[0] = Props.at(i)->Value.section('|', 0, 0); // variable name
+          if (val[0] == Name) {
+            val[1] = Props.at(i)->Value.section('|', 1, 1);
+            val[2] = Props.at(i)->Value.section('|', 2, 2);
+            val[3] = Props.at(i)->Value.section('|', 3, 3);
+            val[4] = Props.at(i)->Value.section('|', 4, 4);
+            val[5] = Props.at(i)->Value.section('|', 5, 5);
+            ++it; // field after variable name is its value
+            QString Value      = *it;
+            Value              = Value.trimmed();
+            val[2]             = Value;
             Props.at(i)->Value = val[0] + "|" + val[1] + "|" + val[2] + "|" +
-	      val[3] + "|" + val[4] + "|" + val[5];
-	    changed = true;
-	    break;
-	  }
-	}
+                                 val[3] + "|" + val[4] + "|" + val[5];
+            changed = true;
+            break;
+          }
+        }
       }
     }
   }

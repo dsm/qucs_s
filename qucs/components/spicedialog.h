@@ -37,10 +37,10 @@ class QucsApp;
 class QTextStream;
 
 class SpiceDialog : public QDialog {
-   Q_OBJECT
+  Q_OBJECT
 public:
   SpiceDialog(QucsApp*, SpiceFile*, Schematic*);
- ~SpiceDialog();
+  ~SpiceDialog();
 
 private slots:
   void slotButtOK();
@@ -51,8 +51,8 @@ private slots:
 
   void slotButtAdd();
   void slotButtRemove();
-  void slotAddPort(QListWidgetItem *);
-  void slotRemovePort(QListWidgetItem *);
+  void slotAddPort(QListWidgetItem*);
+  void slotRemovePort(QListWidgetItem*);
 
   void slotGetNetlist();
   void slotGetError();
@@ -64,29 +64,29 @@ private slots:
   void slotPrepChanged(int);
 
 protected slots:
-    void reject();
+  void reject();
 
 private:
   bool loadSpiceNetList(const QString&);
 
-  QVBoxLayout *all;   // the mother of all widgets
+  QVBoxLayout* all; // the mother of all widgets
   QRegularExpressionValidator *Validator, *ValRestrict;
-  QRegularExpression    Expr;
+  QRegularExpression Expr;
   QListWidget *NodesList, *PortsList;
-  QCheckBox   *FileCheck, *SimCheck, *ParamCheck;
-  QLineEdit   *FileEdit, *CompNameEdit, *ParamsEdit;
-  QPushButton *ButtBrowse, *ButtEdit, *ButtAdd, *ButtRemove,
-              *ButtOK, *ButtApply, *ButtCancel;
-  QComboBox   *PrepCombo;
-  SpiceFile   *Comp;
-  Schematic   *Doc;
-  bool        changed;
-  int         currentPrep;
+  QCheckBox *FileCheck, *SimCheck, *ParamCheck;
+  QLineEdit *FileEdit, *CompNameEdit, *ParamsEdit;
+  QPushButton *ButtBrowse, *ButtEdit, *ButtAdd, *ButtRemove, *ButtOK,
+      *ButtApply, *ButtCancel;
+  QComboBox* PrepCombo;
+  SpiceFile* Comp;
+  Schematic* Doc;
+  bool changed;
+  int currentPrep;
 
-  QTextStream *prestream;
+  QTextStream* prestream;
   QProcess *QucsConv, *SpicePrep;
-  QString Line, Error;  // to store the text read from QucsConv
-  int textStatus; // to store with text data QucsConv will sent next
+  QString Line, Error; // to store the text read from QucsConv
+  int textStatus;      // to store with text data QucsConv will sent next
 
   QucsApp* App;
 };

@@ -20,14 +20,14 @@
 
 #include "components/component.h"
 
-
-class InclScript : public Component  {
+class InclScript : public Component {
 public:
   InclScript();
   ~InclScript();
   Component* newOne();
-  static Element* info(QString&, char* &, bool getNewOne=false);
-  QString getExpression(spicecompat::SpiceDialect dialect = spicecompat::SPICEDefault);
+  static Element* info(QString&, char*&, bool getNewOne = false);
+  QString
+  getExpression(spicecompat::SpiceDialect dialect = spicecompat::SPICEDefault);
 
 protected:
   QString vhdlCode(int) { return QString(); }

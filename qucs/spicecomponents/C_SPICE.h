@@ -18,23 +18,24 @@
  *   (at your option) any later version.                                   *
  *                                                                         *
  ***************************************************************************/
- #ifndef C_SPICE_H
+#ifndef C_SPICE_H
 #define C_SPICE_H
 
 #include "components/component.h"
 
-class C_SPICE: public MultiViewComponent {
+class C_SPICE : public MultiViewComponent {
 public:
   C_SPICE();
   ~C_SPICE();
   Component* newOne();
-  static Element* info(QString&, char* &, bool getNewOne=false);
-  static Element* info_C3(QString&, char* &, bool getNewOne=false);
+  static Element* info(QString&, char*&, bool getNewOne = false);
+  static Element* info_C3(QString&, char*&, bool getNewOne = false);
 
 protected:
   void createSymbol();
   QString netlist();
-  QString spice_netlist(spicecompat::SpiceDialect dialect = spicecompat::SPICEDefault);
+  QString
+  spice_netlist(spicecompat::SpiceDialect dialect = spicecompat::SPICEDefault);
   virtual QString cdl_netlist();
 };
 

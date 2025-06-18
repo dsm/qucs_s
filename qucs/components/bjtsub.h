@@ -20,23 +20,23 @@
 
 #include "component.h"
 
-
-class Basic_BJT : public MultiViewComponent  {
+class Basic_BJT : public MultiViewComponent {
 public:
   Basic_BJT();
- ~Basic_BJT() {};
+  ~Basic_BJT(){};
 };
 
-class BJTsub : public Basic_BJT  {
+class BJTsub : public Basic_BJT {
 public:
   BJTsub();
- ~BJTsub() {};
+  ~BJTsub(){};
   Component* newOne();
-  static Element* info(QString&, char* &, bool getNewOne=false);
-  static Element* info_pnp(QString&, char* &, bool getNewOne=false);
+  static Element* info(QString&, char*&, bool getNewOne = false);
+  static Element* info_pnp(QString&, char*&, bool getNewOne = false);
 
 protected:
-  QString spice_netlist(spicecompat::SpiceDialect dialect = spicecompat::SPICEDefault);
+  QString
+  spice_netlist(spicecompat::SpiceDialect dialect = spicecompat::SPICEDefault);
   virtual QString cdl_netlist();
   void createSymbol();
 };

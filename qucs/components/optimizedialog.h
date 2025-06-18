@@ -33,12 +33,11 @@ class QRegExpValidator;
 class QDoubleValidator;
 class QIntValidator;
 
-
-class OptimizeDialog : public QDialog  {
-Q_OBJECT
+class OptimizeDialog : public QDialog {
+  Q_OBJECT
 public:
   OptimizeDialog(Optimize_Sim*, Schematic*);
- ~OptimizeDialog();
+  ~OptimizeDialog();
 
 private slots:
   void slotOK();
@@ -66,25 +65,23 @@ private:
   void createASCOFiles();
 
 public:
-  Optimize_Sim *Comp;
-  Schematic *Doc;
+  Optimize_Sim* Comp;
+  Schematic* Doc;
   bool changed;
   int numPrec;
 
-  QVBoxLayout *all;
-  QLineEdit *NameEdit, *VarNameEdit,
-            *VarInitEdit, *VarMinEdit, *VarMaxEdit,
-            *IterEdit, *RefreshEdit, *ParentsEdit, *ConstEdit, *CrossEdit,
-            *SeedEdit, *CostVarEdit, *CostObjEdit, *CostConEdit,
-            *GoalNameEdit, *GoalNumEdit;
-  QCheckBox *VarActiveCheck;
+  QVBoxLayout* all;
+  QLineEdit *NameEdit, *VarNameEdit, *VarInitEdit, *VarMinEdit, *VarMaxEdit,
+      *IterEdit, *RefreshEdit, *ParentsEdit, *ConstEdit, *CrossEdit, *SeedEdit,
+      *CostVarEdit, *CostObjEdit, *CostConEdit, *GoalNameEdit, *GoalNumEdit;
+  QCheckBox* VarActiveCheck;
   QComboBox *SimEdit, *GoalTypeCombo, *MethodCombo, *VarTypeCombo;
   QTableWidget *VarTable, *GoalTable;
 
   QRegularExpression Expr;
-  QRegularExpressionValidator *Validator;
-  QDoubleValidator *numVal;
-  QIntValidator *intVal;
+  QRegularExpressionValidator* Validator;
+  QDoubleValidator* numVal;
+  QIntValidator* intVal;
 };
 
 #endif

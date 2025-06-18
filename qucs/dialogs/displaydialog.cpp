@@ -16,32 +16,29 @@
  ***************************************************************************/
 
 #ifdef HAVE_CONFIG_H
-# include <config.h>
+#include <config.h>
 #endif
 
 #include "displaydialog.h"
 
-//#include <QLayout>
+// #include <QLayout>
+#include <QGroupBox>
 #include <QPushButton>
 #include <QTextEdit>
-#include <QGroupBox>
 #include <QVBoxLayout>
 
-
-
-DisplayDialog::DisplayDialog(QWidget *parent, QString Text, QString SpiceText)
-                     // QDialog(parent, 0, false, Qt::WDestructiveClose)
-    : QDialog(parent)
-{
+DisplayDialog::DisplayDialog(QWidget* parent, QString Text, QString SpiceText)
+    // QDialog(parent, 0, false, Qt::WDestructiveClose)
+    : QDialog(parent) {
   vLayout = new QVBoxLayout(this);
-  vLayout->setContentsMargins(3,3,3,3);
+  vLayout->setContentsMargins(3, 3, 3, 3);
 
-  QGroupBox *Spice = new QGroupBox (tr("SPICE"), this);
-  QVBoxLayout *SpiceLayout = new QVBoxLayout();
+  QGroupBox* Spice         = new QGroupBox(tr("SPICE"), this);
+  QVBoxLayout* SpiceLayout = new QVBoxLayout();
 
   QSpice = new QTextEdit(Spice);
   QSpice->setText(SpiceText);
-  //QVHDLText->setTextFormat(Qt::PlainText);
+  // QVHDLText->setTextFormat(Qt::PlainText);
   QSpice->setReadOnly(true);
   QSpice->setMinimumSize(200, 80);
   QSpice->setLineWrapMode(QTextEdit::NoWrap);
@@ -51,12 +48,12 @@ DisplayDialog::DisplayDialog(QWidget *parent, QString Text, QString SpiceText)
 
   vLayout->addWidget(Spice);
 
-  QGroupBox *Analog = new QGroupBox (tr("Qucs"), this);
-  QVBoxLayout *AnalogLayout = new QVBoxLayout();
+  QGroupBox* Analog         = new QGroupBox(tr("Qucs"), this);
+  QVBoxLayout* AnalogLayout = new QVBoxLayout();
 
   QText = new QTextEdit();
   QText->setText(Text);
-  //QText->setTextFormat(Qt::PlainText);
+  // QText->setTextFormat(Qt::PlainText);
   QText->setReadOnly(true);
   QText->setMinimumSize(200, 80);
   QText->setLineWrapMode(QTextEdit::NoWrap);
@@ -66,36 +63,33 @@ DisplayDialog::DisplayDialog(QWidget *parent, QString Text, QString SpiceText)
 
   vLayout->addWidget(Analog);
 
-  QWidget *h = new QWidget(this);
-  //h->setStretchFactor(new QWidget(h),5); // stretchable placeholder
-  QHBoxLayout *hLayout = new QHBoxLayout();
+  QWidget* h = new QWidget(this);
+  // h->setStretchFactor(new QWidget(h),5); // stretchable placeholder
+  QHBoxLayout* hLayout = new QHBoxLayout();
 
-  QPushButton *ButtonClose = new QPushButton(tr("Close"));
+  QPushButton* ButtonClose = new QPushButton(tr("Close"));
   connect(ButtonClose, SIGNAL(clicked()), SLOT(slotClose()));
   ButtonClose->setFocus();
 
-  QWidget *dummy1 = new QWidget();
+  QWidget* dummy1 = new QWidget();
   hLayout->addWidget(dummy1);
 
   hLayout->addWidget(ButtonClose);
 
-  QWidget *dummy2 = new QWidget();
+  QWidget* dummy2 = new QWidget();
   hLayout->addWidget(dummy2);
   hLayout->setStretchFactor(dummy1, 5);
   hLayout->setStretchFactor(dummy2, 5);
   h->setLayout(hLayout);
 
   vLayout->addWidget(h);
-
 }
 
-DisplayDialog::~DisplayDialog()
-{
+DisplayDialog::~DisplayDialog() {
   delete vLayout;
 }
 
 // ************************************************************
-void DisplayDialog::slotClose()
-{
+void DisplayDialog::slotClose() {
   accept();
 }

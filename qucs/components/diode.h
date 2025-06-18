@@ -20,16 +20,16 @@
 
 #include "component.h"
 
-
-class Diode : public MultiViewComponent  {
+class Diode : public MultiViewComponent {
 public:
   Diode();
- ~Diode() {};
+  ~Diode(){};
   Component* newOne();
-  static Element* info(QString&, char* &, bool getNewOne=false);
+  static Element* info(QString&, char*&, bool getNewOne = false);
 
 protected:
-  QString spice_netlist(spicecompat::SpiceDialect dialect = spicecompat::SPICEDefault);
+  QString
+  spice_netlist(spicecompat::SpiceDialect dialect = spicecompat::SPICEDefault);
   virtual QString cdl_netlist();
   void createSymbol();
 };

@@ -20,14 +20,13 @@
 
 #include "components/component.h"
 
-
-class S4Q_Model : public Component  {
+class S4Q_Model : public Component {
 
 public:
   S4Q_Model();
   ~S4Q_Model();
   Component* newOne();
-  static Element* info(QString&, char* &, bool getNewOne=false);
+  static Element* info(QString&, char*&, bool getNewOne = false);
   QString getSpiceModel();
 
 protected:

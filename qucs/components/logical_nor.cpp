@@ -17,35 +17,32 @@
 
 #include "logical_nor.h"
 
-Logical_NOR::Logical_NOR()
-{
+Logical_NOR::Logical_NOR() {
   Description = QObject::tr("logical NOR");
-  Model = "NOR";
-  SpiceModel = "A";
+  Model       = "NOR";
+  SpiceModel  = "A";
 
   createSymbol();
-  tx = x1+4;
-  ty = y2+4;
+  tx = x1 + 4;
+  ty = y2 + 4;
 }
 
-Logical_NOR::~Logical_NOR()
-{
-}
+Logical_NOR::~Logical_NOR() {}
 
-Component* Logical_NOR::newOne()
-{
-  Logical_NOR* p = new Logical_NOR();
+Component* Logical_NOR::newOne() {
+  Logical_NOR* p          = new Logical_NOR();
   p->Props.front()->Value = Props.front()->Value;
-  p->Props.back()->Value = Props.back()->Value;
+  p->Props.back()->Value  = Props.back()->Value;
   p->recreate();
   return p;
 }
 
-Element* Logical_NOR::info(QString& Name, char* &BitmapFile, bool getNewOne)
-{
-  Name = QObject::tr("n-port NOR");
-  BitmapFile = (char *) "nor";
+Element* Logical_NOR::info(QString& Name, char*& BitmapFile, bool getNewOne) {
+  Name       = QObject::tr("n-port NOR");
+  BitmapFile = (char*)"nor";
 
-  if(getNewOne)  return new Logical_NOR();
+  if (getNewOne) {
+    return new Logical_NOR();
+  }
   return 0;
 }

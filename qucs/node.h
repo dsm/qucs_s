@@ -25,9 +25,9 @@ class Node : public Conductor {
 public:
   Node(int x, int y);
 
-  void  paint(QPainter* painter) const;
-  bool  getSelected(int, int);
-  void  setName(const QString&, const QString&, int x=0, int y=0);
+  void paint(QPainter* painter) const;
+  bool getSelected(int, int);
+  void setName(const QString&, const QString&, int x = 0, int y = 0);
 
   // Add an element to the node's connections.
   // No-op if element is already connected.
@@ -57,66 +57,64 @@ public:
 
   QString Name;  // node name used by creation of netlist
   QString DType; // type of node (used by digital files)
-  int State;	 // remember some things during some operations
+  int State;     // remember some things during some operations
 
   int x() const { return cx; }
   int y() const { return cy; }
 
 private:
   // Nodes usually have quite a few connections. In ideal case, when all wire
-  // placement optimizations work properly, there can be at most four connections
-  // to a single node because Qucs-S allows only orthogonal element placement.
+  // placement optimizations work properly, there can be at most four
+  // connections to a single node because Qucs-S allows only orthogonal element
+  // placement.
   //
   // Additions/deletions are frequent and made in random order. Considering
   // all that I think the doubly-linked list is a good choice here.
   //
-  // A node doesn't claim ownership of any connected object, storing raw pointers is OK.
+  // A node doesn't claim ownership of any connected object, storing raw
+  // pointers is OK.
   //
-  // Long-term TODO: refactor so that node will keep only pointers to *connectable*
-  //                 objects, i.e. components and wires. Paintings, graphs, wirelabels,
-  //                 etc., are Elements too, it's just wrong to use so generic type.
+  // Long-term TODO: refactor so that node will keep only pointers to
+  // *connectable*
+  //                 objects, i.e. components and wires. Paintings, graphs,
+  //                 wirelabels, etc., are Elements too, it's just wrong to use
+  //                 so generic type.
   std::list<Element*> connections;
 };
 
-// Calling this while iterating over the node's connections via Node::begin() and
-// Node::end() will cause segfault because of iterator invalidation
-inline void Node::connect(Element* connectable)
-{
+// Calling this while iterating over the node's connections via Node::begin()
+// and Node::end() will cause segfault because of iterator invalidation
+inline void Node::connect(Element* connectable) {
   if (is_connected(connectable)) {
     return;
   }
   connections.push_front(connectable);
 }
 
-// Calling this while iterating over the node's connections via Node::begin() and
-// Node::end() will cause segfault because of iterator invalidation
-inline void Node::disconnect(Element* connectable)
-{
+// Calling this while iterating over the node's connections via Node::begin()
+// and Node::end() will cause segfault because of iterator invalidation
+inline void Node::disconnect(Element* connectable) {
   connections.remove(connectable);
 }
 
-inline bool Node::is_connected(Element *connectable) const
-{
-  return std::find(connections.begin(), connections.end(), connectable) != connections.end();
+inline bool Node::is_connected(Element* connectable) const {
+  return std::find(connections.begin(), connections.end(), connectable) !=
+         connections.end();
 }
 
-inline std::size_t Node::conn_count() const
-{
+inline std::size_t Node::conn_count() const {
   return connections.size();
 }
 
-inline Node::const_iterator Node::begin() const
-{
+inline Node::const_iterator Node::begin() const {
   return connections.begin();
 }
 
-inline Node::const_iterator Node::end() const
-{
+inline Node::const_iterator Node::end() const {
   return connections.end();
 }
 
-inline Element* Node::any() const
-{
+inline Element* Node::any() const {
   return connections.empty() ? nullptr : connections.front();
 }
 

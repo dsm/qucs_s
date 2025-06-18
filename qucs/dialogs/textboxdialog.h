@@ -12,15 +12,12 @@
  *                                                                         *
  ***************************************************************************/
 
-
-
 #ifndef TEXTBOXDIALOG_H
 #define TEXTBOXDIALOG_H
 
 #include "components/component.h"
 #include <QtGui>
 #include <QtWidgets>
-
 
 /*!
   \file textboxdialog.h
@@ -31,30 +28,28 @@
  * \brief The TextBoxDialog class is responsible for editing a single
  *        text entry of a generic component.
  */
-class TextBoxDialog : public QDialog
-{
-    Q_OBJECT
+class TextBoxDialog : public QDialog {
+  Q_OBJECT
 
 private:
-
-    Component* comp;
-    QTextEdit* edtCode;
-    QPushButton *btnOK;
-    QPushButton *btnApply;
-    QPushButton *btnCancel;
+  Component* comp;
+  QTextEdit* edtCode;
+  QPushButton* btnOK;
+  QPushButton* btnApply;
+  QPushButton* btnCancel;
 
 public:
-    explicit TextBoxDialog(const char* window_title, Component *pc, QWidget *parent = 0);
+  explicit TextBoxDialog(const char* window_title, Component* pc,
+                         QWidget* parent = 0);
 
 signals:
 
 private slots:
-    void slotApply();
-    void slotOK();
-    void slotCancel();
+  void slotApply();
+  void slotOK();
+  void slotCancel();
 
 public slots:
-
 };
 
 #endif // CUSTOMSIMDIALOG_H

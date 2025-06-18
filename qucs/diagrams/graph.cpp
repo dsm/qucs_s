@@ -17,37 +17,33 @@
 #include "graph.h"
 #include "misc.h"
 
+#include <cmath>
 #include <cstdlib>
 #include <iostream>
-#include <cmath>
 
-#include <QPainter>
 #include <QDebug>
+#include <QPainter>
 #include <QPainterPath>
 #include <QtAlgorithms>
 
 class Diagram;
 
-Graph::Graph(Diagram const* d, const QString& _Line) :
-  Element(),
-  Style(GRAPHSTYLE_SOLID),
-  diagram(d)
-{
+Graph::Graph(Diagram const* d, const QString& _Line)
+    : Element(), Style(GRAPHSTYLE_SOLID), diagram(d) {
   Type = isGraph;
 
   Var    = _Line;
-  countY = 0;    // no points in graph
-  Thick  = numMode = 0;
-  Color  = 0x0000ff;   // blue
-  Precision  = 3;
-  isSelected = false;
-  yAxisNo = 0;   // left y axis
+  countY = 0; // no points in graph
+  Thick = numMode = 0;
+  Color           = 0x0000ff; // blue
+  Precision       = 3;
+  isSelected      = false;
+  yAxisNo         = 0; // left y axis
 
   cPointsY = 0;
 }
 
-Graph::~Graph()
-{
+Graph::~Graph() {
   if (cPointsY != nullptr) {
     delete[] cPointsY;
     cPointsY = nullptr;
@@ -57,9 +53,8 @@ Graph::~Graph()
 }
 
 // ---------------------------------------------------------------------
-void Graph::createMarkerText() const
-{
-  for(auto pm : Markers) {
+void Graph::createMarkerText() const {
+  for (auto pm : Markers) {
     pm->createText();
   }
 }
@@ -71,7 +66,7 @@ void Graph::paint(QPainter* painter) {
   painter->save();
 
   if (isSelected) {
-    painter->setPen(QPen(Qt::darkGray,Thick + 4));
+    painter->setPen(QPen(Qt::darkGray, Thick + 4));
     paintLines(painter);
 
     painter->setPen(QPen(Qt::white, Thick, Qt::SolidLine));
@@ -87,74 +82,93 @@ void Graph::paint(QPainter* painter) {
 }
 
 void Graph::paintLines(QPainter* painter) {
-  switch(Style) {
-    case GRAPHSTYLE_STAR:
-      drawStarSymbols(painter);
-      break;
-    case GRAPHSTYLE_CIRCLE:
-      drawCircleSymbols(painter);
-      break;
-    case GRAPHSTYLE_ARROW:
-      drawArrowSymbols(painter);
-      break;
-    default:
-      drawLines(painter);
+  switch (Style) {
+  case GRAPHSTYLE_STAR:
+    drawStarSymbols(painter);
+    break;
+  case GRAPHSTYLE_CIRCLE:
+    drawCircleSymbols(painter);
+    break;
+  case GRAPHSTYLE_ARROW:
+    drawArrowSymbols(painter);
+    break;
+  default:
+    drawLines(painter);
   }
 }
 
 // ---------------------------------------------------------------------
-QString Graph::save()
-{
-  QString s = "\t<\""+Var+"\" "+Color.name()+
-	      " "+QString::number(Thick)+" "+QString::number(Precision)+
-	      " "+QString::number(numMode)+" "+QString::number(Style)+
-	      " "+QString::number(yAxisNo)+">";
+QString Graph::save() {
+  QString s = "\t<\"" + Var + "\" " + Color.name() + " " +
+              QString::number(Thick) + " " + QString::number(Precision) + " " +
+              QString::number(numMode) + " " + QString::number(Style) + " " +
+              QString::number(yAxisNo) + ">";
 
-  for (Marker *pm : Markers)
-    s += "\n\t  "+pm->save();
+  for (Marker* pm : Markers) {
+    s += "\n\t  " + pm->save();
+  }
 
   return s;
 }
 
 // ---------------------------------------------------------------------
-bool Graph::load(const QString& _s)
-{
+bool Graph::load(const QString& _s) {
   bool ok;
   QString s = _s;
 
-  if(s.at(0) != '<') return false;
-  if(s.at(s.length()-1) != '>') return false;
-  s = s.mid(1, s.length()-2);   // cut off start and end character
+  if (s.at(0) != '<') {
+    return false;
+  }
+  if (s.at(s.length() - 1) != '>') {
+    return false;
+  }
+  s = s.mid(1, s.length() - 2); // cut off start and end character
 
-  Var = s.section('"',1,1);  // Var
+  Var = s.section('"', 1, 1); // Var
 
   QString n;
-  n  = s.section(' ',1,1);    // Color
+  n     = s.section(' ', 1, 1); // Color
   Color = misc::ColorFromString(n);
-  if(!Color.isValid()) return false;
+  if (!Color.isValid()) {
+    return false;
+  }
 
-  n  = s.section(' ',2,2);    // Thick
+  n     = s.section(' ', 2, 2); // Thick
   Thick = n.toInt(&ok);
-  if(!ok) return false;
+  if (!ok) {
+    return false;
+  }
 
-  n  = s.section(' ',3,3);    // Precision
+  n         = s.section(' ', 3, 3); // Precision
   Precision = n.toInt(&ok);
-  if(!ok) return false;
+  if (!ok) {
+    return false;
+  }
 
-  n  = s.section(' ',4,4);    // numMode
+  n       = s.section(' ', 4, 4); // numMode
   numMode = n.toInt(&ok);
-  if(!ok) return false;
+  if (!ok) {
+    return false;
+  }
 
-  n  = s.section(' ',5,5);    // Style
+  n      = s.section(' ', 5, 5); // Style
   int st = n.toInt(&ok);
-  if(!ok) return false;
+  if (!ok) {
+    return false;
+  }
   Style = toGraphStyle(st);
-  if(Style==GRAPHSTYLE_INVALID) return false;
+  if (Style == GRAPHSTYLE_INVALID) {
+    return false;
+  }
 
-  n  = s.section(' ',6,6);    // yAxisNo
-  if(n.isEmpty()) return true;   // backward compatible
+  n = s.section(' ', 6, 6); // yAxisNo
+  if (n.isEmpty()) {
+    return true; // backward compatible
+  }
   yAxisNo = n.toInt(&ok);
-  if(!ok) return false;
+  if (!ok) {
+    return false;
+  }
 
   return true;
 }
@@ -169,42 +183,56 @@ bool Graph::load(const QString& _s)
  *
  * FIXME: should return reference to hit sample point or some context.
  */
-int Graph::getSelected(int x, int y)
-{
+int Graph::getSelected(int x, int y) {
   auto pp = ScrPoints.begin();
-  if(pp == ScrPoints.end()) return -1;
+  if (pp == ScrPoints.end()) {
+    return -1;
+  }
 
-  int A, z=0;
+  int A, z = 0;
   int dx, dx2, x1;
   int dy, dy2, y1;
 
   int countX = cPointsX.at(0)->count;
-  if(pp->isStrokeEnd()) {
-    if(pp->isBranchEnd()) z++;
+  if (pp->isStrokeEnd()) {
+    if (pp->isBranchEnd()) {
+      z++;
+    }
     pp++;
-    if(pp->isBranchEnd()) {
-      if(pp->isGraphEnd())  return -1;   // not even one point ?
+    if (pp->isBranchEnd()) {
+      if (pp->isGraphEnd()) {
+        return -1; // not even one point ?
+      }
       z++;
       pp++;
-      if(pp->isGraphEnd())  return -1;   // not even one point ?
+      if (pp->isGraphEnd()) {
+        return -1; // not even one point ?
+      }
     }
   }
 
-  if(Style >= GRAPHSTYLE_STAR) {
+  if (Style >= GRAPHSTYLE_STAR) {
     // for graph symbols
-    while(!pp->isGraphEnd()) {
-      if(!pp->isStrokeEnd()) {
-        dx  = x - int((pp)->getScrX());
-        dy  = y - int((pp++)->getScrY());
+    while (!pp->isGraphEnd()) {
+      if (!pp->isStrokeEnd()) {
+        dx = x - int((pp)->getScrX());
+        dy = y - int((pp++)->getScrY());
 
-        if(dx < -5) continue;
-        if(dx >  5) continue;
-        if(dy < -5) continue;
-        if(dy >  5) continue;
-        return z*countX;   // points on graph symbol
-      }
-      else {
-        z++;   // next branch
+        if (dx < -5) {
+          continue;
+        }
+        if (dx > 5) {
+          continue;
+        }
+        if (dy < -5) {
+          continue;
+        }
+        if (dy > 5) {
+          continue;
+        }
+        return z * countX; // points on graph symbol
+      } else {
+        z++; // next branch
         pp++;
       }
     }
@@ -212,37 +240,62 @@ int Graph::getSelected(int x, int y)
   }
 
   // for graph lines
-  while(!pp->isGraphEnd()) {
-    while(!pp->isBranchEnd()) {
+  while (!pp->isGraphEnd()) {
+    while (!pp->isBranchEnd()) {
       x1 = int(pp->getScrX());
       y1 = int((pp++)->getScrY());
-      dx  = x - x1;
-      dy  = y - y1;
+      dx = x - x1;
+      dy = y - y1;
 
-      if(pp->isPt()){
+      if (pp->isPt()) {
         dx2 = int(pp->getScrX());
-      }else if(pp->isBranchEnd()) {
+      } else if (pp->isBranchEnd()) {
         break;
-      }else if(pp->isStrokeEnd()) {
+      } else if (pp->isStrokeEnd()) {
         pp++;
-        dx2 = int(pp->getScrX());  // go on as graph can also be selected between strokes
-        if(pp->isBranchEnd()) break;
+        dx2 = int(pp->getScrX()); // go on as graph can also be selected between
+                                  // strokes
+        if (pp->isBranchEnd()) {
+          break;
+        }
       }
-      if(dx < -5) { if(x < dx2-5) continue; } // point between x coordinates ?
-      else { if(x > 5) if(x > dx2+5) continue; }
+      if (dx < -5) {
+        if (x < dx2 - 5) {
+          continue;
+        }
+      } // point between x coordinates ?
+      else {
+        if (x > 5) {
+          if (x > dx2 + 5) {
+            continue;
+          }
+        }
+      }
 
       dy2 = int(pp->getScrY());
-      if(dy < -5) { if(y < dy2-5) continue; } // point between y coordinates ?
-      else { if(y > 5) if(y > dy2+5) continue; }
+      if (dy < -5) {
+        if (y < dy2 - 5) {
+          continue;
+        }
+      } // point between y coordinates ?
+      else {
+        if (y > 5) {
+          if (y > dy2 + 5) {
+            continue;
+          }
+        }
+      }
 
       dx2 -= x1;
       dy2 -= y1;
 
-      A  = dx2*dy - dx*dy2;    // calculate the rectangle area spanned
-      A *= A;                  // avoid the need for square root
-      A -= 25*(dx2*dx2 + dy2*dy2);  // substract selectable area
+      A = dx2 * dy - dx * dy2;           // calculate the rectangle area spanned
+      A *= A;                            // avoid the need for square root
+      A -= 25 * (dx2 * dx2 + dy2 * dy2); // substract selectable area
 
-      if(A <= 0)  return z*countX;  // lies x/y onto the graph line ?
+      if (A <= 0) {
+        return z * countX; // lies x/y onto the graph line ?
+      }
     }
     pp++;
     z++;
@@ -253,9 +306,8 @@ int Graph::getSelected(int x, int y)
 
 // -----------------------------------------------------------------------
 // Creates a new graph and copies all the properties into it.
-Graph* Graph::sameNewOne()
-{
-  Graph *pg = new Graph(diagram, Var);
+Graph* Graph::sameNewOne() {
+  Graph* pg = new Graph(diagram, Var);
 
   pg->Color = Color;
   pg->Thick = Thick;
@@ -265,8 +317,9 @@ Graph* Graph::sameNewOne()
   pg->numMode   = numMode;
   pg->yAxisNo   = yAxisNo;
 
-  for (Marker *pm : Markers)
+  for (Marker* pm : Markers) {
     pg->Markers.append(pm->sameNewOne(pg));
+  }
 
   return pg;
 }
@@ -274,18 +327,20 @@ Graph* Graph::sameNewOne()
 /*!
  * find a sample point close to VarPos, snap to it, and return data at VarPos
  */
-std::pair<double,double> Graph::findSample(std::vector<double>& VarPos) const
-{
+std::pair<double, double> Graph::findSample(std::vector<double>& VarPos) const {
   DataX const* pD;
-  unsigned nVarPos=0;
-  unsigned n=0;
-  unsigned m=1;
+  unsigned nVarPos = 0;
+  unsigned n       = 0;
+  unsigned m       = 1;
 
-  for(unsigned ii=0; (pD=axis(ii)); ++ii) {
+  for (unsigned ii = 0; (pD = axis(ii)); ++ii) {
     double* pp = pD->Points;
-    double v = VarPos[nVarPos];
-    for(unsigned i=pD->count; i>1; i--) {  // find appropriate marker position
-      if(fabs(v-(*pp)) < fabs(v-(*(pp+1)))) break;
+    double v   = VarPos[nVarPos];
+    for (unsigned i = pD->count; i > 1;
+         i--) { // find appropriate marker position
+      if (fabs(v - (*pp)) < fabs(v - (*(pp + 1)))) {
+        break;
+      }
       pp++;
       n += m;
     }
@@ -294,32 +349,37 @@ std::pair<double,double> Graph::findSample(std::vector<double>& VarPos) const
     VarPos[nVarPos++] = *pp;
   }
 
-  return std::pair<double,double>(cPointsY[2*n], cPointsY[2*n+1]);
+  return std::pair<double, double>(cPointsY[2 * n], cPointsY[2 * n + 1]);
 }
 
 // -----------------------------------------------------------------------
 // meaning of the values in a graph "Points" list
-//#define STROKEEND   -2
-//#define BRANCHEND   -10
-//#define GRAPHEND    -100
+// #define STROKEEND   -2
+// #define BRANCHEND   -10
+// #define GRAPHEND    -100
 // -----------------------------------------------------------------------
 // screen points pseudo iterator implementation.
-void Graph::ScrPt::setStrokeEnd()
-{
+void Graph::ScrPt::setStrokeEnd() {
   type = STROKEEND;
 }
-void Graph::ScrPt::setBranchEnd()
-{
+void Graph::ScrPt::setBranchEnd() {
   type = BRANCHEND;
 }
-void Graph::ScrPt::setGraphEnd()
-{
+void Graph::ScrPt::setGraphEnd() {
   type = GRAPHEND;
 }
-bool Graph::ScrPt::isPt() const{return (ScrX >= 0. && type == DataPt);}
-bool Graph::ScrPt::isStrokeEnd() const{return (type >= STROKEEND);}
-bool Graph::ScrPt::isBranchEnd() const{return (type >= BRANCHEND);}
-bool Graph::ScrPt::isGraphEnd() const{return (type >= GRAPHEND);}
+bool Graph::ScrPt::isPt() const {
+  return (ScrX >= 0. && type == DataPt);
+}
+bool Graph::ScrPt::isStrokeEnd() const {
+  return (type >= STROKEEND);
+}
+bool Graph::ScrPt::isBranchEnd() const {
+  return (type >= BRANCHEND);
+}
+bool Graph::ScrPt::isGraphEnd() const {
+  return (type >= GRAPHEND);
+}
 
 /*!
  * set screen coordinate for graph sampling point
@@ -328,62 +388,56 @@ bool Graph::ScrPt::isGraphEnd() const{return (type >= GRAPHEND);}
  * (negative values are reserved for control.)
  */
 void Graph::ScrPt::setScrX(float x) {
-    if (x < 0) {
-        qDebug() << "dangerous: negative screen coordinate" << x;
-    } else {
-      type = DataPt;
-    }
-    if (ScrX < 0) {
-        qDebug() << "dangerous: (maybe) overwriting control token" << x;
-    }
-    ScrX = x;
+  if (x < 0) {
+    qDebug() << "dangerous: negative screen coordinate" << x;
+  } else {
+    type = DataPt;
+  }
+  if (ScrX < 0) {
+    qDebug() << "dangerous: (maybe) overwriting control token" << x;
+  }
+  ScrX = x;
 }
 
 void Graph::ScrPt::setScrY(float y) {
-    if (y < 0) { // need to investigate...
-        qDebug() << "setting negative screen coordinate" << y << "at" << ScrY;
-    } else {
-      type = DataPt;
-    }
-    ScrY = y;
+  if (y < 0) { // need to investigate...
+    qDebug() << "setting negative screen coordinate" << y << "at" << ScrY;
+  } else {
+    type = DataPt;
+  }
+  ScrY = y;
 }
 
 void Graph::ScrPt::setScr(float x, float y) {
-    x = fmaxf(x, 0); // avoid negative coordinates
-    y = fmaxf(y, 0);
-    setScrX(x);
-    setScrY(y);
+  x = fmaxf(x, 0); // avoid negative coordinates
+  y = fmaxf(y, 0);
+  setScrX(x);
+  setScrY(y);
 }
 
-void Graph::ScrPt::setIndep(double x)
-{
-  assert(ScrX>=0);
+void Graph::ScrPt::setIndep(double x) {
+  assert(ScrX >= 0);
   indep = x;
 }
-void Graph::ScrPt::setDep(double x)
-{
-  assert(ScrX>=0);
+void Graph::ScrPt::setDep(double x) {
+  assert(ScrX >= 0);
   dep = x;
 }
-float Graph::ScrPt::getScrX() const
-{
-  if(ScrX<0){
+float Graph::ScrPt::getScrX() const {
+  if (ScrX < 0) {
     std::cerr << "dangerous: returning negative screen coordinate" << ScrX;
   }
   return ScrX;
 }
-float Graph::ScrPt::getScrY() const
-{
+float Graph::ScrPt::getScrY() const {
   return ScrY;
 }
-double Graph::ScrPt::getIndep() const
-{
-  assert(ScrX>=0);
+double Graph::ScrPt::getIndep() const {
+  assert(ScrX >= 0);
   return indep;
 }
-double Graph::ScrPt::getDep() const
-{
-  assert(ScrX>=0);
+double Graph::ScrPt::getDep() const {
+  assert(ScrX >= 0);
   return dep;
 }
 
@@ -400,7 +454,7 @@ void Graph::drawCircleSymbols(QPainter* painter) const {
 
 void Graph::drawArrowSymbols(QPainter* painter) const {
   // Arrow head size constants
-  constexpr double head_height = 7.0;
+  constexpr double head_height     = 7.0;
   constexpr double head_half_width = 4.0;
   for (auto point : *this) {
     if (point.isGraphEnd()) {
@@ -413,11 +467,16 @@ void Graph::drawArrowSymbols(QPainter* painter) const {
     // Given a graph point we draw a vertical arrow pointed to it
 
     // Vertical arrow line (stem)
-    painter->drawLine(QLineF{point.getScrX(), point.getScrY(), point.getScrX(), static_cast<qreal>(cy)});
+    painter->drawLine(QLineF{point.getScrX(), point.getScrY(), point.getScrX(),
+                             static_cast<qreal>(cy)});
     // left arrowhead part
-    painter->drawLine(QLineF{point.getScrX() - head_half_width, point.getScrY() - head_height, point.getScrX(), point.getScrY()});
+    painter->drawLine(QLineF{point.getScrX() - head_half_width,
+                             point.getScrY() - head_height, point.getScrX(),
+                             point.getScrY()});
     // right arrowhead part
-    painter->drawLine(QLineF{point.getScrX() + head_half_width, point.getScrY() - head_height, point.getScrX(), point.getScrY()});
+    painter->drawLine(QLineF{point.getScrX() + head_half_width,
+                             point.getScrY() - head_height, point.getScrX(),
+                             point.getScrY()});
   }
 }
 
@@ -443,18 +502,18 @@ void Graph::drawLines(QPainter* painter) const {
   QPen pen = painter->pen();
   pen.setJoinStyle(Qt::RoundJoin);
   pen.setCapStyle(Qt::RoundCap);
-  switch(Style) {
-    case GRAPHSTYLE_DASH:
-      pen.setDashPattern({10.0, 6.0});  // stroke len, space len
-      break;
-    case GRAPHSTYLE_DOT:
-      pen.setDashPattern({2.0, 4.0});
-      break;
-    case GRAPHSTYLE_LONGDASH:
-      pen.setDashPattern({24.0, 8.0});
-      break;
-    default:
-      pen.setStyle(Qt::SolidLine);
+  switch (Style) {
+  case GRAPHSTYLE_DASH:
+    pen.setDashPattern({10.0, 6.0}); // stroke len, space len
+    break;
+  case GRAPHSTYLE_DOT:
+    pen.setDashPattern({2.0, 4.0});
+    break;
+  case GRAPHSTYLE_LONGDASH:
+    pen.setDashPattern({24.0, 8.0});
+    break;
+  default:
+    pen.setStyle(Qt::SolidLine);
   }
   painter->setPen(pen);
 
@@ -489,29 +548,35 @@ void Graph::drawLines(QPainter* painter) const {
   // if it is too close to the previous one and graph segment between them
   // cannot be rendered distinctively.
   //
-  // These are formulas from QTransform documentation (https://doc.qt.io/qt-6/qtransform.html)
-  // explaining how QTransform transforms the coordinates:
+  // These are formulas from QTransform documentation
+  // (https://doc.qt.io/qt-6/qtransform.html) explaining how QTransform
+  // transforms the coordinates:
   //    x' = m11*x + m21*y + dx
   //    y' = m22*y + m12*x + dy
   //
-  // We don't care about the second (skew) and third parts (tranlsation). This leaves us:
+  // We don't care about the second (skew) and third parts (tranlsation). This
+  // leaves us:
   //    x' = m11*x
   //    y' = m22*y
   //
-  // So, for example, a horizontal segment of length 10 will be of size 10*m11 after transformation.
-  // But this works in the opposite direction too: 10/m11 gives us the length a horizontal segment
-  // should have to be of length 10 *after* transformation.
+  // So, for example, a horizontal segment of length 10 will be of size 10*m11
+  // after transformation. But this works in the opposite direction too: 10/m11
+  // gives us the length a horizontal segment should have to be of length 10
+  // *after* transformation.
   //
   // With this knowledge we can now calculate thresholds for our dataset.
 
-  constexpr double min_pixels = 1.0;  // I can be wrong here, but I believe these are pixels…
+  constexpr double min_pixels =
+      1.0; // I can be wrong here, but I believe these are pixels…
   const double x_threshold = std::abs(min_pixels / painter->transform().m11());
   const double y_threshold = std::abs(min_pixels / painter->transform().m22());
 
-  // Helper to quickly calculate whether two points are distant enough to be worth of drawing
-  // a graph segment between them
-  const auto is_too_short = [x_threshold, y_threshold](const QPointF& a, const QPointF& b) {
-    return std::abs(a.x() - b.x()) < x_threshold && std::abs(a.y() - b.y()) < y_threshold;
+  // Helper to quickly calculate whether two points are distant enough to be
+  // worth of drawing a graph segment between them
+  const auto is_too_short = [x_threshold, y_threshold](const QPointF& a,
+                                                       const QPointF& b) {
+    return std::abs(a.x() - b.x()) < x_threshold &&
+           std::abs(a.y() - b.y()) < y_threshold;
   };
 
   bool drawing_started = false;

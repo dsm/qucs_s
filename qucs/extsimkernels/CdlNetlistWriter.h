@@ -27,26 +27,26 @@
 
 class Schematic;
 
-class CdlNetlistWriter
-{
+class CdlNetlistWriter {
 public:
-    CdlNetlistWriter(QTextStream& netlistStream, Schematic* schematic, bool resolveSpicePrefix);
-    ~CdlNetlistWriter() {};
+  CdlNetlistWriter(QTextStream& netlistStream, Schematic* schematic,
+                   bool resolveSpicePrefix);
+  ~CdlNetlistWriter(){};
 
-    bool write();
+  bool write();
 
 private:
-    int prepareNetlist();
-    void startNetlist();
-    void resolveNetListContinuation(QStringList& netList);
-    void resolveSpicePrefix();
+  int prepareNetlist();
+  void startNetlist();
+  void resolveNetListContinuation(QStringList& netList);
+  void resolveSpicePrefix();
 
-    QTextStream& a_netlistStream;
-    Schematic* a_schematic;
-    const bool a_resolveSpicePrefix;
-    QString a_netListString;
-    QTextStream a_netListStringStream;
-    QTextStream& a_effectiveNetlistStream;
+  QTextStream& a_netlistStream;
+  Schematic* a_schematic;
+  const bool a_resolveSpicePrefix;
+  QString a_netListString;
+  QTextStream a_netListStringStream;
+  QTextStream& a_effectiveNetlistStream;
 };
 
 #endif // CDL_NETLIST_WRITER_H

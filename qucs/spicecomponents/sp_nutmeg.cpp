@@ -21,77 +21,78 @@
 #include <QFontMetrics>
 #include <QRegularExpression>
 
-NutmegEquation::NutmegEquation()
-{
-  isEquation = true;
-  Type = isComponent; // Analogue and digital component.
+NutmegEquation::NutmegEquation() {
+  isEquation  = true;
+  Type        = isComponent; // Analogue and digital component.
   Description = QObject::tr("Nutmeg equation");
-  Simulator = spicecompat::simSpice;
+  Simulator   = spicecompat::simSpice;
 
   QFont f = QucsSettings.font;
   f.setWeight(QFont::Light);
   f.setPointSizeF(12.0);
-  QFontMetrics  metrics(f, 0);  // use the the screen-compatible metric
+  QFontMetrics metrics(f, 0); // use the the screen-compatible metric
   QSize r = metrics.size(0, QObject::tr("Nutmeg"));
-  int xb = r.width()  >> 1;
-  int yb = r.height() >> 1;
+  int xb  = r.width() >> 1;
+  int yb  = r.height() >> 1;
 
-  Lines.append(new qucs::Line(-xb, -yb, -xb,  yb,QPen(Qt::blue,2)));
-  Lines.append(new qucs::Line(-xb,  yb,  xb+3,yb,QPen(Qt::blue,2)));
-  Texts.append(new Text(-xb+4,  -yb-3, QObject::tr("Nutmeg"),
-			QColor(0,0,0), QFontInfo(f).pixelSize()));
+  Lines.append(new qucs::Line(-xb, -yb, -xb, yb, QPen(Qt::blue, 2)));
+  Lines.append(new qucs::Line(-xb, yb, xb + 3, yb, QPen(Qt::blue, 2)));
+  Texts.append(new Text(-xb + 4, -yb - 3, QObject::tr("Nutmeg"),
+                        QColor(0, 0, 0), QFontInfo(f).pixelSize()));
 
-  x1 = -xb-3;  y1 = -yb-5;
-  x2 =  xb+9; y2 =  yb+3;
+  x1 = -xb - 3;
+  y1 = -yb - 5;
+  x2 = xb + 9;
+  y2 = yb + 3;
 
-  tx = x1+4;
-  ty = y2+4;
-  Model = "NutmegEq";
+  tx         = x1 + 4;
+  ty         = y2 + 4;
+  Model      = "NutmegEq";
   SpiceModel = "NutmegEq";
-  Name  = "NutmegEq";
+  Name       = "NutmegEq";
 
   Props.append(new Property("Simulation", "ALL", true, "Simulation name"));
   Props.append(new Property("y", "1", true));
 }
 
-NutmegEquation::~NutmegEquation()
-{
-}
+NutmegEquation::~NutmegEquation() {}
 
-Component* NutmegEquation::newOne()
-{
+Component* NutmegEquation::newOne() {
   return new NutmegEquation();
 }
 
-Element* NutmegEquation::info(QString& Name, char* &BitmapFile, bool getNewOne)
-{
-  Name = QObject::tr("Nutmeg Equation");
-  BitmapFile = (char *) "sp_nutmeg";
+Element* NutmegEquation::info(QString& Name, char*& BitmapFile,
+                              bool getNewOne) {
+  Name       = QObject::tr("Nutmeg Equation");
+  BitmapFile = (char*)"sp_nutmeg";
 
-  if(getNewOne)  return new NutmegEquation();
+  if (getNewOne) {
+    return new NutmegEquation();
+  }
   return 0;
 }
 
-QString NutmegEquation::getEquations(QString sim, QStringList &dep_vars)
-{
-    if (isActive != COMP_IS_ACTIVE) return QString();
+QString NutmegEquation::getEquations(QString sim, QStringList& dep_vars) {
+  if (isActive != COMP_IS_ACTIVE) {
+    return QString();
+  }
 
-    QString s;
-    QRegularExpression sim_rx("^\\w+\\d+");
-    QString used_sim =  Props.at(0)->Value.toLower();
-    bool match = false;
-    if ( sim_rx.match(used_sim).hasMatch() )
-        match = sim == used_sim;
-    else
-        match = sim.startsWith(used_sim);
-    if ( match || used_sim == "all" ) {
-        auto pp = Props.begin();
-        pp++;
-        for ( ; pp != Props.end() ; ++pp) {
-            s += QStringLiteral("let %1 = %2\n").arg((*pp)->Name).arg((*pp)->Value);
-          dep_vars.append((*pp)->Name);
-        }
+  QString s;
+  QRegularExpression sim_rx("^\\w+\\d+");
+  QString used_sim = Props.at(0)->Value.toLower();
+  bool match       = false;
+  if (sim_rx.match(used_sim).hasMatch()) {
+    match = sim == used_sim;
+  } else {
+    match = sim.startsWith(used_sim);
+  }
+  if (match || used_sim == "all") {
+    auto pp = Props.begin();
+    pp++;
+    for (; pp != Props.end(); ++pp) {
+      s += QStringLiteral("let %1 = %2\n").arg((*pp)->Name).arg((*pp)->Value);
+      dep_vars.append((*pp)->Name);
     }
-    return s;
+  }
+  return s;
 }
-

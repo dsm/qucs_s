@@ -164,7 +164,7 @@ void cauer::values(void) {
   subsection final_capa;
   final_capa.wiring  = Wiring::SHUNT;
   final_capa.content = Content::CAPA;
-  final_capa.capa_v  = Ws * BN_.eval (1) / BD_.eval (1);
+  final_capa.capa_v  = Ws * BN_.eval(1) / BD_.eval(1);
   proto_subsecs_.push_back(final_capa);
 }
 

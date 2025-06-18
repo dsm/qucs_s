@@ -18,23 +18,15 @@
 #include "misc.h"
 #include "schematic.h"
 
-
-ImagePainting::ImagePainting() :
-      Rectangle(false),
-      penColor(Qt::black),
-      penWidth(1),
-      penStyle(Qt::SolidLine),
-      m_keepAspectRatio(false),
-      m_aspectRatio(1.0)
-{
+ImagePainting::ImagePainting()
+    : Rectangle(false), penColor(Qt::black), penWidth(1),
+      penStyle(Qt::SolidLine), m_keepAspectRatio(false), m_aspectRatio(1.0) {
   Name = "ImagePainting ";
 }
 
-Painting* ImagePainting::newOne()
-{
+Painting* ImagePainting::newOne() {
   return new ImagePainting();
 }
-
 
 void ImagePainting::paint(QPainter* painter) {
   loadImage();
@@ -49,10 +41,7 @@ void ImagePainting::paint(QPainter* painter) {
 
     // Scale the image to fit the bounding rectangle
     QPixmap scaledImage = imageToPaint.scaled(
-        boundingRect().size(),
-        Qt::IgnoreAspectRatio,
-        Qt::SmoothTransformation
-        );
+        boundingRect().size(), Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
 
     painter->drawPixmap(boundingRect().topLeft(), scaledImage);
     painter->restore();
@@ -73,38 +62,53 @@ void ImagePainting::paint(QPainter* painter) {
     }
   } else {
     // Ensure base class is in valid state
-    if (x1 == x2) x2 = x1 + 100; // Default width
-    if (y1 == y2) y2 = y1 + 100; // Default height
+    if (x1 == x2) {
+      x2 = x1 + 100; // Default width
+    }
+    if (y1 == y2) {
+      y2 = y1 + 100; // Default height
+    }
     Rectangle::paint(painter);
   }
 }
 
-
 bool ImagePainting::load(const QString& s) {
   QStringList parts = s.split(' ', Qt::SkipEmptyParts);
-  if (parts.size() < 6) return false;
+  if (parts.size() < 6) {
+    return false;
+  }
 
   // Extract coordinates
-  if (parts[0] != "ImagePainting") return false;
+  if (parts[0] != "ImagePainting") {
+    return false;
+  }
 
   bool ok;
   x1 = parts[1].toInt(&ok);
-  if (!ok) return false;
+  if (!ok) {
+    return false;
+  }
 
   y1 = parts[2].toInt(&ok);
-  if (!ok) return false;
+  if (!ok) {
+    return false;
+  }
 
   x2 = parts[3].toInt(&ok);
-  if (!ok) return false;
+  if (!ok) {
+    return false;
+  }
 
   y2 = parts[4].toInt(&ok);
-  if (!ok) return false;
+  if (!ok) {
+    return false;
+  }
 
   // The base64 image data is in part 5
   QString imageData = parts[5];
 
   // Clear previous image and path
-  image = QPixmap();
+  image         = QPixmap();
   originalImage = QPixmap();
   imagePath.clear();
 
@@ -114,7 +118,7 @@ bool ImagePainting::load(const QString& s) {
     if (!byteArray.isEmpty()) {
       if (image.loadFromData(byteArray)) {
         originalImage = image; // Store original for resize operations
-        updateAspectRatio(); // Update aspect ratio when image is loaded
+        updateAspectRatio();   // Update aspect ratio when image is loaded
         return true;
       } else {
         qWarning("Failed to load image from base64 data");
@@ -155,13 +159,21 @@ QString ImagePainting::save() {
 
   // Return in format: "ImagePainting x1 y1 x2 y2 base64_data"
   return QString("ImagePainting %1 %2 %3 %4 %5")
-      .arg(x1).arg(y1).arg(x2).arg(y2).arg(imageData);
+      .arg(x1)
+      .arg(y1)
+      .arg(x2)
+      .arg(y2)
+      .arg(imageData);
 }
 
 QString ImagePainting::saveCpp() {
   // Customize as needed; example:
   return QString("new ImagePainting(%1, %2, %3, %4, \"%5\")")
-      .arg(x1).arg(y1).arg(x2-x1).arg(y2-y1).arg(imagePath);
+      .arg(x1)
+      .arg(y1)
+      .arg(x2 - x1)
+      .arg(y2 - y1)
+      .arg(imagePath);
 }
 
 QString ImagePainting::saveJSON() {
@@ -183,7 +195,8 @@ bool ImagePainting::resizeTouched(const QPoint& click, int tolerance) {
 }
 
 // Override mouse interaction methods
-void ImagePainting::MouseMoving(const QPoint& onGrid, Schematic* sch, const QPoint& cursor) {
+void ImagePainting::MouseMoving(const QPoint& onGrid, Schematic* sch,
+                                const QPoint& cursor) {
   // Get the cursor coordinates
   x1 = onGrid.x();
   y1 = onGrid.y();
@@ -195,18 +208,24 @@ void ImagePainting::MouseMoving(const QPoint& onGrid, Schematic* sch, const QPoi
   sch->PostPaintEvent(_Rect, cursor.x() + 13, cursor.y(), 105, 48, 0, 0, true);
 
   // Draw the sun (larger, in the top-right corner)
-  sch->PostPaintEvent(_Ellipse, cursor.x() + 100, cursor.y() + 8, 12, 12, 0, 0, true); // (x, y, width, height)
+  sch->PostPaintEvent(_Ellipse, cursor.x() + 100, cursor.y() + 8, 12, 12, 0, 0,
+                      true); // (x, y, width, height)
 
   // Draw the mountain on the left
-  sch->PostPaintEvent(_Line, cursor.x() + 15, cursor.y() + 44, cursor.x() + 45, cursor.y() + 12, 0, 0, true); // left base to peak
-  sch->PostPaintEvent(_Line, cursor.x() + 45, cursor.y() + 12, cursor.x() + 75, cursor.y() + 44, 0, 0, true); // peak to right base
+  sch->PostPaintEvent(_Line, cursor.x() + 15, cursor.y() + 44, cursor.x() + 45,
+                      cursor.y() + 12, 0, 0, true); // left base to peak
+  sch->PostPaintEvent(_Line, cursor.x() + 45, cursor.y() + 12, cursor.x() + 75,
+                      cursor.y() + 44, 0, 0, true); // peak to right base
 
   // Draw the mountain on the right
-  sch->PostPaintEvent(_Line, cursor.x() + 45, cursor.y() + 44, cursor.x() + 81, cursor.y() + 4, 0, 0, true); // left base to peak
-  sch->PostPaintEvent(_Line, cursor.x() + 81, cursor.y() + 4, cursor.x() + 115, cursor.y() + 44, 0, 0, true); // peak to right base
+  sch->PostPaintEvent(_Line, cursor.x() + 45, cursor.y() + 44, cursor.x() + 81,
+                      cursor.y() + 4, 0, 0, true); // left base to peak
+  sch->PostPaintEvent(_Line, cursor.x() + 81, cursor.y() + 4, cursor.x() + 115,
+                      cursor.y() + 44, 0, 0, true); // peak to right base
 
   // Add a ground line
-  sch->PostPaintEvent(_Line, cursor.x() + 15, cursor.y() + 44, cursor.x() + 115, cursor.y() + 44, 0, 0, true); // ground
+  sch->PostPaintEvent(_Line, cursor.x() + 15, cursor.y() + 44, cursor.x() + 115,
+                      cursor.y() + 44, 0, 0, true); // ground
 }
 
 bool ImagePainting::MousePressing(Schematic* sch) {
@@ -216,21 +235,17 @@ bool ImagePainting::MousePressing(Schematic* sch) {
       parentWidget = QApplication::activeWindow();
     }
 
-    QString filter = QObject::tr("Images (*.bmp *.gif *.jpg *.jpeg *.png)");
+    QString filter  = QObject::tr("Images (*.bmp *.gif *.jpg *.jpeg *.png)");
     QString newPath = QFileDialog::getOpenFileName(
-        parentWidget,
-        QObject::tr("Select Image"),
-        QDir::homePath(),
-        filter
-        );
+        parentWidget, QObject::tr("Select Image"), QDir::homePath(), filter);
 
     if (!newPath.isEmpty()) {
-      imagePath = newPath;
-      image = QPixmap();
+      imagePath     = newPath;
+      image         = QPixmap();
       originalImage = QPixmap();
       loadImage();
 
-             // Set dimensions to actual image size if image loaded successfully
+      // Set dimensions to actual image size if image loaded successfully
       if (!image.isNull()) {
         x2 = x1 + image.width();
         y2 = y1 + image.height();
@@ -238,8 +253,8 @@ bool ImagePainting::MousePressing(Schematic* sch) {
       } else {
         // Fallback to default square size if image fails to load
         const int squareSize = 100;
-        x2 = x1 + squareSize;
-        y2 = y1 + squareSize;
+        x2                   = x1 + squareSize;
+        y2                   = y1 + squareSize;
       }
     } else {
       // No image selected.
@@ -254,7 +269,7 @@ void ImagePainting::MouseResizeMoving(int x, int y, Schematic* p) {
   // Apply aspect ratio constraint before calling parent method
   if (m_keepAspectRatio && m_aspectRatio > 0) {
     // Calculate constrained dimensions based on which corner is being dragged
-    int newWidth = x - x1;
+    int newWidth  = x - x1;
     int newHeight = y - y1;
     applyAspectRatioToResize(newWidth, newHeight);
 
@@ -273,9 +288,9 @@ bool ImagePainting::Dialog(QWidget* parent) {
   auto* layout = new QVBoxLayout(&dialog);
 
   // Add image path UI
-  auto* imageLayout = new QHBoxLayout;
-  auto* pathLabel = new QLabel(QObject::tr("Image Path:"));
-  m_pathEdit = new QLineEdit(imagePath);
+  auto* imageLayout  = new QHBoxLayout;
+  auto* pathLabel    = new QLabel(QObject::tr("Image Path:"));
+  m_pathEdit         = new QLineEdit(imagePath);
   auto* browseButton = new QPushButton(QObject::tr("Browse..."));
 
   // Add status label to show if image is embedded or external
@@ -292,7 +307,8 @@ bool ImagePainting::Dialog(QWidget* parent) {
   }
 
   // Connect browse button
-  QObject::connect(browseButton, &QPushButton::clicked, this, &ImagePainting::onBrowseClicked);
+  QObject::connect(browseButton, &QPushButton::clicked, this,
+                   &ImagePainting::onBrowseClicked);
 
   imageLayout->addWidget(pathLabel);
   imageLayout->addWidget(m_pathEdit);
@@ -303,16 +319,16 @@ bool ImagePainting::Dialog(QWidget* parent) {
 
   // Width input
   auto* widthLayout = new QHBoxLayout;
-  auto* widthLabel = new QLabel(QObject::tr("Width:"));
-  m_widthEdit = new QLineEdit(QString::number(x2 - x1));
+  auto* widthLabel  = new QLabel(QObject::tr("Width:"));
+  m_widthEdit       = new QLineEdit(QString::number(x2 - x1));
   m_widthEdit->setValidator(new QIntValidator(1, 10000, &dialog));
   widthLayout->addWidget(widthLabel);
   widthLayout->addWidget(m_widthEdit);
 
   // Height input
   auto* heightLayout = new QHBoxLayout;
-  auto* heightLabel = new QLabel(QObject::tr("Height:"));
-  m_heightEdit = new QLineEdit(QString::number(y2 - y1));
+  auto* heightLabel  = new QLabel(QObject::tr("Height:"));
+  m_heightEdit       = new QLineEdit(QString::number(y2 - y1));
   m_heightEdit->setValidator(new QIntValidator(1, 10000, &dialog));
   heightLayout->addWidget(heightLabel);
   heightLayout->addWidget(m_heightEdit);
@@ -331,9 +347,12 @@ bool ImagePainting::Dialog(QWidget* parent) {
   dimensionsLayout->addWidget(m_resetButton);
 
   // Connect signals to handlers
-  QObject::connect(m_resetButton, &QPushButton::clicked, this, &ImagePainting::onResetClicked);
-  QObject::connect(m_aspectRatioCheck, &QCheckBox::toggled, this, &ImagePainting::onAspectRatioToggled);
-  QObject::connect(m_pathEdit, &QLineEdit::textChanged, this, &ImagePainting::onPathChanged);
+  QObject::connect(m_resetButton, &QPushButton::clicked, this,
+                   &ImagePainting::onResetClicked);
+  QObject::connect(m_aspectRatioCheck, &QCheckBox::toggled, this,
+                   &ImagePainting::onAspectRatioToggled);
+  QObject::connect(m_pathEdit, &QLineEdit::textChanged, this,
+                   &ImagePainting::onPathChanged);
 
   // Connect width change to height calculation when aspect ratio is locked
   QObject::connect(m_widthEdit, &QLineEdit::textChanged, this, [this]() {
@@ -347,12 +366,16 @@ bool ImagePainting::Dialog(QWidget* parent) {
   layout->addLayout(dimensionsLayout);
 
   QDialogButtonBox buttons(QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
-  QObject::connect(&buttons, &QDialogButtonBox::accepted, &dialog, &QDialog::accept);
-  QObject::connect(&buttons, &QDialogButtonBox::rejected, &dialog, &QDialog::reject);
+  QObject::connect(&buttons, &QDialogButtonBox::accepted, &dialog,
+                   &QDialog::accept);
+  QObject::connect(&buttons, &QDialogButtonBox::rejected, &dialog,
+                   &QDialog::reject);
 
   layout->addWidget(&buttons);
 
-  if (dialog.exec() == QDialog::Rejected) return false;
+  if (dialog.exec() == QDialog::Rejected) {
+    return false;
+  }
 
   // Update image path and load new image if changed
   QString newPath = m_pathEdit->text();
@@ -372,7 +395,7 @@ bool ImagePainting::Dialog(QWidget* parent) {
   m_keepAspectRatio = m_aspectRatioCheck->isChecked();
 
   // Update dimensions
-  int newWidth = m_widthEdit->text().toInt();
+  int newWidth  = m_widthEdit->text().toInt();
   int newHeight = m_heightEdit->text().toInt();
 
   if (newWidth > 0 && newHeight > 0) {
@@ -383,9 +406,8 @@ bool ImagePainting::Dialog(QWidget* parent) {
   return true;
 }
 
-
-Element* ImagePainting::info(QString& Name, char* &BitmapFile, bool getNewOne) {
-  Name = QObject::tr("Image");
+Element* ImagePainting::info(QString& Name, char*& BitmapFile, bool getNewOne) {
+  Name       = QObject::tr("Image");
   BitmapFile = (char*)"ImagePainting";
   return getNewOne ? new ImagePainting() : nullptr;
 }
@@ -397,13 +419,15 @@ void ImagePainting::loadImage() {
   }
 
   // This method is now primarily used for loading from file path
-  if (imagePath.isEmpty()) return;
+  if (imagePath.isEmpty()) {
+    return;
+  }
 
   // Only load if not already loaded or if path changed
   if (image.isNull()) {
     if (image.load(imagePath)) {
       originalImage = image; // Store original for resize operations
-      updateAspectRatio(); // Update aspect ratio when image is loaded
+      updateAspectRatio();   // Update aspect ratio when image is loaded
     } else {
       qWarning("Failed to load image: %s", qUtf8Printable(imagePath));
     }
@@ -437,20 +461,19 @@ bool ImagePainting::rotate(int xc, int yc) noexcept {
   return result;
 }
 
-
 void ImagePainting::setImageFromPixmap(const QPixmap& pixmap) {
   if (!pixmap.isNull()) {
-    image = pixmap;
+    image         = pixmap;
     originalImage = pixmap;
-    imagePath.clear(); // Clear path since this is embedded image data
+    imagePath.clear();   // Clear path since this is embedded image data
     updateAspectRatio(); // Update aspect ratio for new image
   }
 }
 
 void ImagePainting::setImageFromPath(const QString& path) {
   if (!path.isEmpty()) {
-    imagePath = path;
-    image = QPixmap(); // Clear current image
+    imagePath     = path;
+    image         = QPixmap(); // Clear current image
     originalImage = QPixmap(); // Clear original image
     loadImage(); // Load from the new path (this will call updateAspectRatio)
   }
@@ -467,17 +490,12 @@ void ImagePainting::setImageFromClipboard() {
   }
 }
 
-
 void ImagePainting::onBrowseClicked() {
 
   QString filter = QObject::tr("Images (*.bmp *.gif *.jpg *.jpeg *.png)");
-  QString path = QFileDialog::getOpenFileName(
-      m_pathEdit->parentWidget(),
-      QObject::tr("Select Image"),
-      QDir::homePath(),
-      filter
-      );
-
+  QString path   = QFileDialog::getOpenFileName(m_pathEdit->parentWidget(),
+                                                QObject::tr("Select Image"),
+                                                QDir::homePath(), filter);
 
   if (!path.isEmpty()) {
     m_pathEdit->setText(path);
@@ -490,7 +508,7 @@ void ImagePainting::onResetClicked() {
   QPixmap tempImage;
   QString currentPath = m_pathEdit->text();
 
-         // First try to use already loaded image
+  // First try to use already loaded image
   if (!image.isNull()) {
     tempImage = image;
   }
@@ -541,7 +559,8 @@ void ImagePainting::updateHeight() {
     if (!currentImage.isNull() && m_widthEdit && m_heightEdit) {
       int width = m_widthEdit->text().toInt();
       if (width > 0) {
-        double aspectRatio = (double)currentImage.height() / currentImage.width();
+        double aspectRatio =
+            (double)currentImage.height() / currentImage.width();
         int height = qRound(width * aspectRatio);
         m_heightEdit->setText(QString::number(height));
       }
@@ -559,7 +578,9 @@ void ImagePainting::updateAspectRatio() {
 }
 
 void ImagePainting::applyAspectRatioToResize(int& newWidth, int& newHeight) {
-  if (m_aspectRatio <= 0) return;
+  if (m_aspectRatio <= 0) {
+    return;
+  }
 
   // Calculate what the height should be based on width and aspect ratio
   int calculatedHeight = qRound(newWidth * m_aspectRatio);
@@ -570,13 +591,21 @@ void ImagePainting::applyAspectRatioToResize(int& newWidth, int& newHeight) {
 
 // Needed to have the image size at schematic.cpp when drag and dropping
 int ImagePainting::getImageWidth() const {
-  if (!originalImage.isNull()) return originalImage.width();
-  if (!image.isNull()) return image.width();
+  if (!originalImage.isNull()) {
+    return originalImage.width();
+  }
+  if (!image.isNull()) {
+    return image.width();
+  }
   return 100; // default fallback
 }
 
 int ImagePainting::getImageHeight() const {
-  if (!originalImage.isNull()) return originalImage.height();
-  if (!image.isNull()) return image.height();
+  if (!originalImage.isNull()) {
+    return originalImage.height();
+  }
+  if (!image.isNull()) {
+    return image.height();
+  }
   return 100; // default fallback
 }

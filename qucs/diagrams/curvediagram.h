@@ -20,18 +20,17 @@
 
 #include "diagram.h"
 
-
-class CurveDiagram : public Diagram  {
-public: 
-  CurveDiagram(int _cx=0, int _cy=0);
- ~CurveDiagram();
-
+class CurveDiagram : public Diagram {
+public:
+  CurveDiagram(int _cx = 0, int _cy = 0);
+  ~CurveDiagram();
 
   Diagram* newOne();
-  static Element* info(QString&, char* &, bool getNewOne=false);
-  int  calcDiagram();
+  static Element* info(QString&, char*&, bool getNewOne = false);
+  int calcDiagram();
   void calcLimits();
-  void calcCoordinate(const double*, const double*, const double*, float*, float*, Axis const*) const;
+  void calcCoordinate(const double*, const double*, const double*, float*,
+                      float*, Axis const*) const;
   void finishMarkerCoordinates(float&, float&) const;
   bool insideDiagram(float, float) const;
 

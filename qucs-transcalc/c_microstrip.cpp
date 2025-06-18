@@ -1,49 +1,49 @@
 /*
  * c_microstrip.cpp - coupled microstrip class implementation
- * 
+ *
  * Copyright (C) 2002 Claudio Girardi <claudio.girardi@ieee.org>
  * Copyright (C) 2005, 2006 Stefan Jahn <stefan@lkcc.org>
- * 
+ *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or (at
  * your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this package; see the file COPYING.  If not, write to
  * the Free Software Foundation, Inc., 51 Franklin Street - Fifth Floor,
- * Boston, MA 02110-1301, USA.  
+ * Boston, MA 02110-1301, USA.
  *
  */
 
-/* c_microstrip.c - Puts up window for coupled microstrips and 
+/* c_microstrip.c - Puts up window for coupled microstrips and
  * performs the associated calculations
- * Based on the original microstrip.c by Gopal Narayanan 
+ * Based on the original microstrip.c by Gopal Narayanan
  */
 
-#include <stdlib.h>
-#include <stdio.h>
-#include <string.h>
 #include <cmath>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
-#include "units.h"
-#include "transline.h"
-#include "microstrip.h"
 #include "c_microstrip.h"
+#include "microstrip.h"
+#include "transline.h"
+#include "units.h"
 
-c_microstrip::c_microstrip() : transline()
-{
+c_microstrip::c_microstrip() : transline() {
   aux_ms = NULL;
 }
 
-c_microstrip::~c_microstrip()
-{
-  if (aux_ms) delete aux_ms;
+c_microstrip::~c_microstrip() {
+  if (aux_ms) {
+    delete aux_ms;
+  }
 }
 
 /*
@@ -54,12 +54,15 @@ c_microstrip::~c_microstrip()
  * Microstrip Line Parameters", Microwave Journal, pp. 109-115,
  * November 1989.
  */
-double c_microstrip::delta_u_thickness_single(double u, double t_h)
-{
+double c_microstrip::delta_u_thickness_single(double u, double t_h) {
   double delta_u;
 
   if (t_h > 0.0) {
-    delta_u = (1.25 * t_h / pi) * (1.0 + log((2.0 + (4.0 * pi * u - 2.0) / (1.0 + exp(-100.0 * (u - 1.0 / (2.0 * pi))))) / t_h));
+    delta_u =
+        (1.25 * t_h / pi) *
+        (1.0 + log((2.0 + (4.0 * pi * u - 2.0) /
+                              (1.0 + exp(-100.0 * (u - 1.0 / (2.0 * pi))))) /
+                   t_h));
   } else {
     delta_u = 0.0;
   }
@@ -75,15 +78,14 @@ double c_microstrip::delta_u_thickness_single(double u, double t_h)
  * Modes, Loss and Finite Strip Thickness", IEEE Trans. MTT, vol. 26,
  * no. 2, pp. 75-82, Feb. 1978
  */
-void c_microstrip::delta_u_thickness()
-{
+void c_microstrip::delta_u_thickness() {
   double e_r, u, g, t_h;
   double delta_u, delta_t, delta_u_e, delta_u_o;
 
   e_r = er;
-  u = w / h;			/* normalized line width */
-  g = s / h;			/* normalized line spacing */
-  t_h = t / h;			/* normalized strip thickness */
+  u   = w / h; /* normalized line width */
+  g   = s / h; /* normalized line spacing */
+  t_h = t / h; /* normalized strip thickness */
 
   if (t_h > 0.0) {
     /* single microstrip correction for finite strip thickness */
@@ -103,38 +105,36 @@ void c_microstrip::delta_u_thickness()
 /*
  * compute various parameters for a single line
  */
-void c_microstrip::compute_single_line()
-{
-  if (aux_ms == NULL)
-    aux_ms = new microstrip ();
+void c_microstrip::compute_single_line() {
+  if (aux_ms == NULL) {
+    aux_ms = new microstrip();
+  }
 
   /* prepare parameters for single microstrip computations */
   aux_ms->er = er;
-  aux_ms->w = w;
-  aux_ms->h = h;
-  aux_ms->t = 0.0;
-  //aux_ms->t = t;
-  aux_ms->ht = 1e12;		/* arbitrarily high */
-  aux_ms->f = f;
+  aux_ms->w  = w;
+  aux_ms->h  = h;
+  aux_ms->t  = 0.0;
+  // aux_ms->t = t;
+  aux_ms->ht  = 1e12; /* arbitrarily high */
+  aux_ms->f   = f;
   aux_ms->mur = mur;
   aux_ms->microstrip_Z0();
   aux_ms->dispersion();
 }
 
-
 /*
  * filling_factor_even() - compute the filling factor for the coupled
  * microstrips even-mode without cover and zero conductor thickness
  */
-double c_microstrip::filling_factor_even(double u, double g, double e_r)
-{
+double c_microstrip::filling_factor_even(double u, double g, double e_r) {
   double v, v3, v4, a_e, b_e, q_inf;
 
-  v = u * (20.0 + g * g) / (10.0 + g * g) + g * exp(-g);
-  v3 = v * v * v;
-  v4 = v3 * v;
-  a_e = 1.0 + log((v4 + v * v / 2704.0) / (v4 + 0.432)) / 49.0 + log(1.0 + v3 / 5929.741)
-    / 18.7;
+  v   = u * (20.0 + g * g) / (10.0 + g * g) + g * exp(-g);
+  v3  = v * v * v;
+  v4  = v3 * v;
+  a_e = 1.0 + log((v4 + v * v / 2704.0) / (v4 + 0.432)) / 49.0 +
+        log(1.0 + v3 / 5929.741) / 18.7;
   b_e = 0.564 * pow(((e_r - 0.9) / (e_r + 3.0)), 0.053);
 
   /* filling factor, with width corrected for thickness */
@@ -147,8 +147,7 @@ double c_microstrip::filling_factor_even(double u, double g, double e_r)
  * filling_factor_odd() - compute the filling factor for the coupled
  * microstrips odd-mode without cover and zero conductor thickness
  */
-double c_microstrip::filling_factor_odd(double u, double g, double e_r)
-{
+double c_microstrip::filling_factor_odd(double u, double g, double e_r) {
   double b_o, c_o, d_o, q_inf;
 
   b_o = 0.747 * e_r / (0.15 + e_r);
@@ -161,13 +160,11 @@ double c_microstrip::filling_factor_odd(double u, double g, double e_r)
   return q_inf;
 }
 
-
 /*
  * delta_q_cover_even() - compute the cover effect on filling factor
  * for the even-mode
  */
-double c_microstrip::delta_q_cover_even(double h2h)
-{
+double c_microstrip::delta_q_cover_even(double h2h) {
   double q_c;
 
   if (h2h <= 39) {
@@ -183,8 +180,7 @@ double c_microstrip::delta_q_cover_even(double h2h)
  * delta_q_cover_odd() - compute the cover effect on filling factor
  * for the odd-mode
  */
-double c_microstrip::delta_q_cover_odd(double h2h)
-{
+double c_microstrip::delta_q_cover_odd(double h2h) {
   double q_c;
 
   if (h2h <= 7) {
@@ -197,15 +193,14 @@ double c_microstrip::delta_q_cover_odd(double h2h)
 }
 
 /**
- * er_eff_static() - compute the static effective dielectric constants 
+ * er_eff_static() - compute the static effective dielectric constants
  *
  * References: Manfred Kirschning and Rolf Jansen, "Accurate
  * Wide-Range Design Equations for the Frequency-Dependent
  * Characteristic of Parallel Coupled Microstrip Lines", IEEE
  * Trans. MTT, vol. 32, no. 1, Jan. 1984
  */
-void c_microstrip::er_eff_static()
-{
+void c_microstrip::er_eff_static() {
   double u_t_e, u_t_o, g, h2, h2h;
   double a_o, t_h, q, q_c, q_t, q_inf;
   double er_eff_single;
@@ -214,12 +209,12 @@ void c_microstrip::er_eff_static()
   compute_single_line();
   er_eff_single = aux_ms->er_eff_0;
 
-  h2 = ht;
-  u_t_e = w_t_e / h;		/* normalized even_mode line width */
-  u_t_o = w_t_o / h;		/* normalized odd_mode line width */
-  g = s / h;			/* normalized line spacing */
-  h2h = h2 / h;			/* normalized cover height */
-  t_h = t / h;			/* normalized strip thickness */
+  h2    = ht;
+  u_t_e = w_t_e / h; /* normalized even_mode line width */
+  u_t_o = w_t_o / h; /* normalized odd_mode line width */
+  g     = s / h;     /* normalized line spacing */
+  h2h   = h2 / h;    /* normalized cover height */
+  t_h   = t / h;     /* normalized strip thickness */
 
   /* filling factor, computed with thickness corrected width */
   q_inf = filling_factor_even(u_t_e, g, er);
@@ -241,12 +236,12 @@ void c_microstrip::er_eff_static()
   /* resultant filling factor */
   q = (q_inf - q_t) * q_c;
 
-  a_o = 0.7287 * (er_eff_single - 0.5 * (er + 1.0)) * (1.0 - exp(-0.179 * u_t_o));
+  a_o =
+      0.7287 * (er_eff_single - 0.5 * (er + 1.0)) * (1.0 - exp(-0.179 * u_t_o));
 
   /* static odd-mode effective dielectric constant */
   er_eff_o_0 = (0.5 * (er + 1.0) + a_o - er_eff_single) * q + er_eff_single;
 }
-
 
 /**
  * delta_Z0_even_cover() - compute the even-mode impedance correction
@@ -255,31 +250,30 @@ void c_microstrip::er_eff_static()
  * References: S. March, "Microstrip Packaging: Watch the Last Step",
  * Microwaves, vol. 20, no. 13, pp. 83.94, Dec. 1981.
  */
-double c_microstrip::delta_Z0_even_cover(double g, double u, double h2h)
-{
+double c_microstrip::delta_Z0_even_cover(double g, double u, double h2h) {
   double f_e, g_e, delta_Z0_even;
   double x, y, A, B, C, D, E, F;
 
-  A = -4.351 / pow(1.0 + h2h, 1.842);
-  B = 6.639 / pow(1.0 + h2h, 1.861);
-  C = -2.291 / pow(1.0 + h2h, 1.90);
+  A   = -4.351 / pow(1.0 + h2h, 1.842);
+  B   = 6.639 / pow(1.0 + h2h, 1.861);
+  C   = -2.291 / pow(1.0 + h2h, 1.90);
   f_e = 1.0 - atanh(A + (B + C * u) * u);
 
   if (g < 4.46631063751) {
-    x = pow(10.0, 0.103 * g - 0.159);
-    y = pow(10.0, 0.0492 * g - 0.073);
-    D = 0.747 / sin(0.5 * pi * x);
-    E = 0.725 * sin(0.5 * pi * y);
-    F = pow(10.0, 0.11 - 0.0947 * g);
+    x   = pow(10.0, 0.103 * g - 0.159);
+    y   = pow(10.0, 0.0492 * g - 0.073);
+    D   = 0.747 / sin(0.5 * pi * x);
+    E   = 0.725 * sin(0.5 * pi * y);
+    F   = pow(10.0, 0.11 - 0.0947 * g);
     g_e = 270.0 * (1.0 - tanh(D + E * sqrt(1.0 + h2h) - F / (1.0 + h2h)));
-  } else
+  } else {
     g_e = 0.0;
+  }
 
   delta_Z0_even = f_e * g_e;
 
   return delta_Z0_even;
 }
-
 
 /**
  * delta_Z0_odd_cover() - compute the odd-mode impedance correction
@@ -288,12 +282,11 @@ double c_microstrip::delta_Z0_even_cover(double g, double u, double h2h)
  * References: S. March, "Microstrip Packaging: Watch the Last Step",
  * Microwaves, vol. 20, no. 13, pp. 83.94, Dec. 1981.
  */
-double c_microstrip::delta_Z0_odd_cover(double g, double u, double h2h)
-{
+double c_microstrip::delta_Z0_odd_cover(double g, double u, double h2h) {
   double f_o, g_o, delta_Z0_odd;
   double G, J, K, L;
 
-  J = tanh(pow(1.0 + h2h, 1.585) / 6.0);
+  J   = tanh(pow(1.0 + h2h, 1.585) / 6.0);
   f_o = pow(u, J);
 
   G = 2.178 - 0.796 * g;
@@ -323,29 +316,32 @@ double c_microstrip::delta_Z0_odd_cover(double g, double u, double h2h)
  * Characteristic of Parallel Coupled Microstrip Lines", IEEE
  * Trans. MTT, vol. 32, no. 1, Jan. 1984
  */
-void c_microstrip::Z0_even_odd()
-{
+void c_microstrip::Z0_even_odd() {
   double er_eff, h2, u_t_e, u_t_o, g, h2h;
   double Q_1, Q_2, Q_3, Q_4, Q_5, Q_6, Q_7, Q_8, Q_9, Q_10;
   double delta_Z0_e_0, delta_Z0_o_0, Z0_single, er_eff_single;
 
-  h2 = ht;
-  u_t_e = w_t_e / h;		/* normalized even-mode line width */
-  u_t_o = w_t_o / h;		/* normalized odd-mode line width */
-  g = s / h;			/* normalized line spacing */
-  h2h = h2 / h;			/* normalized cover height */
+  h2    = ht;
+  u_t_e = w_t_e / h; /* normalized even-mode line width */
+  u_t_o = w_t_o / h; /* normalized odd-mode line width */
+  g     = s / h;     /* normalized line spacing */
+  h2h   = h2 / h;    /* normalized cover height */
 
-  Z0_single = aux_ms->Z0_0;
+  Z0_single     = aux_ms->Z0_0;
   er_eff_single = aux_ms->er_eff_0;
 
   /* even-mode */
   er_eff = er_eff_e_0;
-  Q_1 = 0.8695 * pow(u_t_e, 0.194);
-  Q_2 = 1.0 + 0.7519 * g + 0.189 * pow(g, 2.31);
-  Q_3 = 0.1975 + pow((16.6 + pow((8.4 / g), 6.0)), -0.387) + log(pow(g, 10.0) / (1.0 + pow(g / 3.4, 10.0))) / 241.0;
-  Q_4 = 2.0 * Q_1 / (Q_2 * (exp(-g) * pow(u_t_e, Q_3) + (2.0 - exp(-g)) * pow(u_t_e, -Q_3)));
+  Q_1    = 0.8695 * pow(u_t_e, 0.194);
+  Q_2    = 1.0 + 0.7519 * g + 0.189 * pow(g, 2.31);
+  Q_3    = 0.1975 + pow((16.6 + pow((8.4 / g), 6.0)), -0.387) +
+        log(pow(g, 10.0) / (1.0 + pow(g / 3.4, 10.0))) / 241.0;
+  Q_4 =
+      2.0 * Q_1 /
+      (Q_2 * (exp(-g) * pow(u_t_e, Q_3) + (2.0 - exp(-g)) * pow(u_t_e, -Q_3)));
   /* static even-mode impedance */
-  Z0_e_0 = Z0_single * sqrt(er_eff_single / er_eff) / (1.0 - sqrt(er_eff_single) * Q_4 * Z0_single / ZF0);
+  Z0_e_0 = Z0_single * sqrt(er_eff_single / er_eff) /
+           (1.0 - sqrt(er_eff_single) * Q_4 * Z0_single / ZF0);
   /* correction for cover */
   delta_Z0_e_0 = delta_Z0_even_cover(g, u_t_e, h2h) / sqrt(er_eff);
 
@@ -353,71 +349,74 @@ void c_microstrip::Z0_even_odd()
 
   /* odd-mode */
   er_eff = er_eff_o_0;
-  Q_5 = 1.794 + 1.14 * log(1.0 + 0.638 / (g + 0.517 * pow(g, 2.43)));
-  Q_6 = 0.2305 + log(pow(g, 10.0) / (1.0 + pow(g / 5.8, 10.0))) / 281.3 + log(1.0 + 0.598 * pow(g, 1.154)) / 5.1;
-  Q_7 = (10.0 + 190.0 * g * g) / (1.0 + 82.3 * g * g * g);
-  Q_8 = exp(-6.5 - 0.95 * log(g) - pow(g / 0.15, 5.0));
-  Q_9 = log(Q_7) * (Q_8 + 1.0 / 16.5);
+  Q_5    = 1.794 + 1.14 * log(1.0 + 0.638 / (g + 0.517 * pow(g, 2.43)));
+  Q_6    = 0.2305 + log(pow(g, 10.0) / (1.0 + pow(g / 5.8, 10.0))) / 281.3 +
+        log(1.0 + 0.598 * pow(g, 1.154)) / 5.1;
+  Q_7  = (10.0 + 190.0 * g * g) / (1.0 + 82.3 * g * g * g);
+  Q_8  = exp(-6.5 - 0.95 * log(g) - pow(g / 0.15, 5.0));
+  Q_9  = log(Q_7) * (Q_8 + 1.0 / 16.5);
   Q_10 = (Q_2 * Q_4 - Q_5 * exp(log(u_t_o) * Q_6 * pow(u_t_o, -Q_9))) / Q_2;
 
   /* static odd-mode impedance */
-  Z0_o_0 = Z0_single * sqrt(er_eff_single / er_eff) / (1.0 - sqrt(er_eff_single) * Q_10 * Z0_single / ZF0);
+  Z0_o_0 = Z0_single * sqrt(er_eff_single / er_eff) /
+           (1.0 - sqrt(er_eff_single) * Q_10 * Z0_single / ZF0);
   /* correction for cover */
   delta_Z0_o_0 = delta_Z0_odd_cover(g, u_t_o, h2h) / sqrt(er_eff);
 
   Z0_o_0 = Z0_o_0 - delta_Z0_o_0;
 }
 
-
 /*
- * mur_eff() - returns effective magnetic permeability 
+ * mur_eff() - returns effective magnetic permeability
  */
-double c_microstrip::calc_mur_eff()
-{
+double c_microstrip::calc_mur_eff() {
   double mureff;
-  mureff = mur;		/* FIXME: ... */
+  mureff = mur; /* FIXME: ... */
   return mureff;
 }
-
 
 /*
  * er_eff_freq() - compute er_eff as a function of frequency
  */
-void c_microstrip::er_eff_freq()
-{
+void c_microstrip::er_eff_freq() {
   double P_1, P_2, P_3, P_4, P_5, P_6, P_7;
   double P_8, P_9, P_10, P_11, P_12, P_13, P_14, P_15;
   double F_e, F_o;
   double er_eff, u, g, f_n;
 
-  u = w / h;			/* normalize line width */
-  g = s / h;			/* normalize line spacing */
+  u = w / h; /* normalize line width */
+  g = s / h; /* normalize line spacing */
 
   /* normalized frequency [GHz * mm] */
   f_n = f * h / 1e06;
 
   er_eff = er_eff_e_0;
-  P_1 = 0.27488 + (0.6315 + 0.525 / pow(1.0 + 0.0157 * f_n, 20.0)) * u - 0.065683 * exp(-8.7513 * u);
+  P_1    = 0.27488 + (0.6315 + 0.525 / pow(1.0 + 0.0157 * f_n, 20.0)) * u -
+        0.065683 * exp(-8.7513 * u);
   P_2 = 0.33622 * (1.0 - exp(-0.03442 * er));
   P_3 = 0.0363 * exp(-4.6 * u) * (1.0 - exp(-pow(f_n / 38.7, 4.97)));
   P_4 = 1.0 + 2.751 * (1.0 - exp(-pow(er / 15.916, 8.0)));
   P_5 = 0.334 * exp(-3.3 * pow(er / 15.0, 3.0)) + 0.746;
   P_6 = P_5 * exp(-pow(f_n / 18.0, 0.368));
-  P_7 = 1.0 + 4.069 * P_6 * pow(g, 0.479) * exp(-1.347 * pow(g, 0.595) - 0.17 * pow(g, 2.5));
+  P_7 = 1.0 + 4.069 * P_6 * pow(g, 0.479) *
+                  exp(-1.347 * pow(g, 0.595) - 0.17 * pow(g, 2.5));
 
   F_e = P_1 * P_2 * pow((P_3 * P_4 + 0.1844 * P_7) * f_n, 1.5763);
   /* even-mode effective dielectric constant */
   er_eff_e = er - (er - er_eff) / (1.0 + F_e);
 
   er_eff = er_eff_o_0;
-  P_8 = 0.7168 * (1.0 + 1.076 / (1.0 + 0.0576 * (er - 1.0)));
-  P_9 = P_8 - 0.7913 * (1.0 - exp(-pow(f_n / 20.0, 1.424))) * atan(2.481 * pow(er / 8.0, 0.946));
+  P_8    = 0.7168 * (1.0 + 1.076 / (1.0 + 0.0576 * (er - 1.0)));
+  P_9    = P_8 - 0.7913 * (1.0 - exp(-pow(f_n / 20.0, 1.424))) *
+                  atan(2.481 * pow(er / 8.0, 0.946));
   P_10 = 0.242 * pow(er - 1.0, 0.55);
-  P_11 = 0.6366 * (exp(-0.3401 * f_n) - 1.0) * atan(1.263 * pow(u / 3.0, 1.629));
+  P_11 =
+      0.6366 * (exp(-0.3401 * f_n) - 1.0) * atan(1.263 * pow(u / 3.0, 1.629));
   P_12 = P_9 + (1.0 - P_9) / (1.0 + 1.183 * pow(u, 1.376));
   P_13 = 1.695 * P_10 / (0.414 + 1.605 * P_10);
   P_14 = 0.8928 + 0.1072 * (1.0 - exp(-0.42 * pow(f_n / 20.0, 3.215)));
-  P_15 = std::abs(1.0 - 0.8928 * (1.0 + P_11) * P_12 * exp(-P_13 * pow(g, 1.092)) / P_14);
+  P_15 = std::abs(1.0 - 0.8928 * (1.0 + P_11) * P_12 *
+                            exp(-P_13 * pow(g, 1.092)) / P_14);
 
   F_o = P_1 * P_2 * pow((P_3 * P_4 + 0.1844) * f_n * P_15, 1.5763);
   /* odd-mode effective dielectric constant */
@@ -428,16 +427,15 @@ void c_microstrip::er_eff_freq()
  * conductor_losses() - compute microstrips conductor losses per unit
  * length
  */
-void c_microstrip::conductor_losses()
-{
+void c_microstrip::conductor_losses() {
   double e_r_eff_e_0, e_r_eff_o_0, Z0_h_e, Z0_h_o, delta;
   double K, R_s, Q_c_e, Q_c_o, alpha_c_e, alpha_c_o;
 
   e_r_eff_e_0 = er_eff_e_0;
   e_r_eff_o_0 = er_eff_o_0;
-  Z0_h_e = Z0_e_0 * sqrt(e_r_eff_e_0);	/* homogeneous stripline impedance */
-  Z0_h_o = Z0_o_0 * sqrt(e_r_eff_o_0);	/* homogeneous stripline impedance */
-  delta = skindepth;
+  Z0_h_e = Z0_e_0 * sqrt(e_r_eff_e_0); /* homogeneous stripline impedance */
+  Z0_h_o = Z0_o_0 * sqrt(e_r_eff_o_0); /* homogeneous stripline impedance */
+  delta  = skindepth;
 
   if (f > 0.0) {
     /* current distribution factor (same for the two modes) */
@@ -446,63 +444,59 @@ void c_microstrip::conductor_losses()
     R_s = 1.0 / (sigma * delta);
     /* correction for surface roughness */
     R_s *= 1.0 + ((2.0 / pi) * atan(1.40 * pow((rough / delta), 2.0)));
-    
+
     /* even-mode strip inductive quality factor */
     Q_c_e = (pi * Z0_h_e * w * f) / (R_s * C0 * K);
     /* even-mode losses per unith length */
     alpha_c_e = (20.0 * pi / log(10.0)) * f * sqrt(e_r_eff_e_0) / (C0 * Q_c_e);
-    
-  /* odd-mode strip inductive quality factor */
+
+    /* odd-mode strip inductive quality factor */
     Q_c_o = (pi * Z0_h_o * w * f) / (R_s * C0 * K);
     /* odd-mode losses per unith length */
     alpha_c_o = (20.0 * pi / log(10.0)) * f * sqrt(e_r_eff_o_0) / (C0 * Q_c_o);
   } else {
     alpha_c_e = alpha_c_o = 0.0;
   }
-  
+
   atten_cond_e = alpha_c_e * l;
   atten_cond_o = alpha_c_o * l;
 }
-
 
 /*
  * dielectric_losses() - compute microstrips dielectric losses per
  * unit length
  */
-void c_microstrip::dielectric_losses()
-{
+void c_microstrip::dielectric_losses() {
   double e_r, e_r_eff_e_0, e_r_eff_o_0;
   double alpha_d_e, alpha_d_o;
 
-  e_r = er;
+  e_r         = er;
   e_r_eff_e_0 = er_eff_e_0;
   e_r_eff_o_0 = er_eff_o_0;
 
-  alpha_d_e = (20.0 * pi / log(10.0)) * (f / C0) * (e_r / sqrt(e_r_eff_e_0)) * ((e_r_eff_e_0 - 1.0) / (e_r - 1.0)) * tand;
-  alpha_d_o = (20.0 * pi / log(10.0)) * (f / C0) * (e_r / sqrt(e_r_eff_o_0)) * ((e_r_eff_o_0 - 1.0) / (e_r - 1.0)) * tand;
+  alpha_d_e = (20.0 * pi / log(10.0)) * (f / C0) * (e_r / sqrt(e_r_eff_e_0)) *
+              ((e_r_eff_e_0 - 1.0) / (e_r - 1.0)) * tand;
+  alpha_d_o = (20.0 * pi / log(10.0)) * (f / C0) * (e_r / sqrt(e_r_eff_o_0)) *
+              ((e_r_eff_o_0 - 1.0) / (e_r - 1.0)) * tand;
 
   atten_dielectric_e = alpha_d_e * l;
   atten_dielectric_o = alpha_d_o * l;
 }
 
-
 /*
  * c_microstrip_attenuation() - compute attenuation of coupled
  * microstrips
  */
-void c_microstrip::attenuation()
-{
+void c_microstrip::attenuation() {
   skindepth = skin_depth();
   conductor_losses();
   dielectric_losses();
 }
 
-
 /*
  * line_angle() - calculate strips electrical lengths in radians
  */
-void c_microstrip::line_angle()
-{
+void c_microstrip::line_angle() {
   double e_r_eff_e, e_r_eff_o;
   double v_e, v_o, lambda_g_e, lambda_g_o;
 
@@ -518,13 +512,12 @@ void c_microstrip::line_angle()
   /* odd-mode wavelength */
   lambda_g_o = v_o / f;
   /* electrical angles */
-  ang_l_e = 2.0 * pi * l / lambda_g_e;	/* in radians */
-  ang_l_o = 2.0 * pi * l / lambda_g_o;	/* in radians */
+  ang_l_e = 2.0 * pi * l / lambda_g_e; /* in radians */
+  ang_l_o = 2.0 * pi * l / lambda_g_o; /* in radians */
 }
 
-
-void c_microstrip::syn_err_fun(double *f1, double *f2, double s_h, double w_h, double e_r, double w_h_se, double w_h_so)
-{
+void c_microstrip::syn_err_fun(double* f1, double* f2, double s_h, double w_h,
+                               double e_r, double w_h_se, double w_h_so) {
 
   double g, h;
 
@@ -549,25 +542,28 @@ void c_microstrip::syn_err_fun(double *f1, double *f2, double s_h, double w_h, d
  * Hinton, J.H., "On design of coupled microstrip lines", IEEE Trans.
  * MTT-28, March 1980
  */
-void c_microstrip::synth_width()
-{
+void c_microstrip::synth_width() {
   double Z0, e_r;
   double w_h_se, w_h_so, w_h, a, ce, co, s_h;
   double f1, f2, ft1, ft2, j11, j12, j21, j22, d_s_h, d_w_h, err;
   double eps = 1e-04;
 
   f1 = f2 = 0;
-  e_r = er;
+  e_r     = er;
 
   Z0 = Z0e / 2.0;
   /* Wheeler formula for single microstrip synthesis */
-  a = exp(Z0 * sqrt(e_r + 1.0) / 42.4) - 1.0;
-  w_h_se = 8.0 * sqrt(a * ((7.0 + 4.0 / e_r) / 11.0) + ((1.0 + 1.0 / e_r) / 0.81)) / a;
+  a      = exp(Z0 * sqrt(e_r + 1.0) / 42.4) - 1.0;
+  w_h_se = 8.0 *
+           sqrt(a * ((7.0 + 4.0 / e_r) / 11.0) + ((1.0 + 1.0 / e_r) / 0.81)) /
+           a;
 
   Z0 = Z0o / 2.0;
   /* Wheeler formula for single microstrip synthesis */
-  a = exp(Z0 * sqrt(e_r + 1.0) / 42.4) - 1.0;
-  w_h_so = 8.0 * sqrt(a * ((7.0 + 4.0 / e_r) / 11.0) + ((1.0 + 1.0 / e_r) / 0.81)) / a;
+  a      = exp(Z0 * sqrt(e_r + 1.0) / 42.4) - 1.0;
+  w_h_so = 8.0 *
+           sqrt(a * ((7.0 + 4.0 / e_r) / 11.0) + ((1.0 + 1.0 / e_r) / 0.81)) /
+           a;
 
   ce = cosh(0.5 * pi * w_h_se);
   co = cosh(0.5 * pi * w_h_so);
@@ -595,9 +591,9 @@ void c_microstrip::synth_width()
     /* compute next step */
     d_s_h = (-f1 * j22 + f2 * j12) / (j11 * j22 - j21 * j12);
     d_w_h = (-f2 * j11 + f1 * j21) / (j11 * j22 - j21 * j12);
-    //g_print("j11 = %e\tj12 = %e\tj21 = %e\tj22 = %e\n", j11, j12, j21, j22);
-    //g_print("det = %e\n", j11*j22 - j21*j22);
-    //g_print("d_s_h = %e\td_w_h = %e\n", d_s_h, d_w_h);
+    // g_print("j11 = %e\tj12 = %e\tj21 = %e\tj22 = %e\n", j11, j12, j21, j22);
+    // g_print("det = %e\n", j11*j22 - j21*j22);
+    // g_print("d_s_h = %e\td_w_h = %e\n", d_s_h, d_w_h);
 
     s_h += d_s_h;
     w_h += d_w_h;
@@ -609,18 +605,15 @@ void c_microstrip::synth_width()
     /* converged ? */
   } while (err > 1e-04);
 
-
   s = s_h * h;
   w = w_h * h;
 }
-
 
 /*
  * Z0_dispersion() - calculate frequency dependency of characteristic
  * impedances
  */
-void c_microstrip::Z0_dispersion()
-{
+void c_microstrip::Z0_dispersion() {
   double Q_0;
   double Q_11, Q_12, Q_13, Q_14, Q_15, Q_16, Q_17, Q_18, Q_19, Q_20, Q_21;
   double Q_22, Q_23, Q_24, Q_25, Q_26, Q_27, Q_28, Q_29;
@@ -632,51 +625,66 @@ void c_microstrip::Z0_dispersion()
 
   e_r = er;
 
-  u = w / h;			/* normalize line width */
-  g = s / h;			/* normalize line spacing */
+  u = w / h; /* normalize line width */
+  g = s / h; /* normalize line spacing */
 
   /* normalized frequency [GHz * mm] */
   f_n = f * h / 1e06;
 
   e_r_eff_single_f = aux_ms->er_eff;
   e_r_eff_single_0 = aux_ms->er_eff_0;
-  Z0_single_f = aux_ms->Z0;
+  Z0_single_f      = aux_ms->Z0;
 
   e_r_eff_o_f = er_eff_o;
   e_r_eff_o_0 = er_eff_o_0;
 
   Q_11 = 0.893 * (1.0 - 0.3 / (1.0 + 0.7 * (e_r - 1.0)));
-  Q_12 = 2.121 * (pow(f_n / 20.0, 4.91) / (1.0 + Q_11 * pow(f_n / 20.0, 4.91))) * exp(-2.87 * g) * pow(g, 0.902);
+  Q_12 = 2.121 *
+         (pow(f_n / 20.0, 4.91) / (1.0 + Q_11 * pow(f_n / 20.0, 4.91))) *
+         exp(-2.87 * g) * pow(g, 0.902);
   Q_13 = 1.0 + 0.038 * pow(e_r / 8.0, 5.1);
   Q_14 = 1.0 + 1.203 * pow(e_r / 15.0, 4.0) / (1.0 + pow(e_r / 15.0, 4.0));
-  Q_15 = 1.887 * exp(-1.5 * pow(g, 0.84)) * pow(g, Q_14) / (1.0 + 0.41 * pow(f_n / 15.0, 3.0) * pow(u, 2.0 / Q_13) / (0.125 + pow(u, 1.626 / Q_13)));
+  Q_15 = 1.887 * exp(-1.5 * pow(g, 0.84)) * pow(g, Q_14) /
+         (1.0 + 0.41 * pow(f_n / 15.0, 3.0) * pow(u, 2.0 / Q_13) /
+                    (0.125 + pow(u, 1.626 / Q_13)));
   Q_16 = (1.0 + 9.0 / (1.0 + 0.403 * pow(e_r - 1.0, 2))) * Q_15;
-  Q_17 = 0.394 * (1.0 - exp(-1.47 * pow(u / 7.0, 0.672))) * (1.0 - exp(-4.25 * pow(f_n / 20.0, 1.87)));
-  Q_18 = 0.61 * (1.0 - exp(-2.13 * pow(u / 8.0, 1.593))) / (1.0 + 6.544 * pow(g, 4.17));
-  Q_19 = 0.21 * g * g * g * g / ((1.0 + 0.18 * pow(g, 4.9)) * (1.0 + 0.1 * u * u) * (1.0 + pow(f_n / 24.0, 3.0)));
+  Q_17 = 0.394 * (1.0 - exp(-1.47 * pow(u / 7.0, 0.672))) *
+         (1.0 - exp(-4.25 * pow(f_n / 20.0, 1.87)));
+  Q_18 = 0.61 * (1.0 - exp(-2.13 * pow(u / 8.0, 1.593))) /
+         (1.0 + 6.544 * pow(g, 4.17));
+  Q_19 = 0.21 * g * g * g * g /
+         ((1.0 + 0.18 * pow(g, 4.9)) * (1.0 + 0.1 * u * u) *
+          (1.0 + pow(f_n / 24.0, 3.0)));
   Q_20 = (0.09 + 1.0 / (1.0 + 0.1 * pow(e_r - 1, 2.7))) * Q_19;
-  Q_21 = std::abs(1.0 - 42.54 * pow(g, 0.133) * exp(-0.812 * g) * pow(u, 2.5) / (1.0 + 0.033 * pow(u, 2.5)));
+  Q_21 = std::abs(1.0 - 42.54 * pow(g, 0.133) * exp(-0.812 * g) * pow(u, 2.5) /
+                            (1.0 + 0.033 * pow(u, 2.5)));
 
   r_e = pow(f_n / 28.843, 12);
   q_e = 0.016 + pow(0.0514 * e_r * Q_21, 4.524);
   p_e = 4.766 * exp(-3.228 * pow(u, 0.641));
-  d_e = 5.086 * q_e * (r_e / (0.3838 + 0.386 * q_e)) * (exp(-22.2 * pow(u, 1.92)) / (1.0 + 1.2992 * r_e)) * (pow(e_r - 1.0, 6.0) / (1.0 + 10 * pow(e_r - 1.0, 6.0)));
-  C_e = 1.0 + 1.275 * (1.0 - exp(-0.004625 * p_e * pow(e_r, 1.674) * pow(f_n / 18.365, 2.745))) - Q_12 + Q_16 - Q_17 + Q_18 + Q_20;
+  d_e = 5.086 * q_e * (r_e / (0.3838 + 0.386 * q_e)) *
+        (exp(-22.2 * pow(u, 1.92)) / (1.0 + 1.2992 * r_e)) *
+        (pow(e_r - 1.0, 6.0) / (1.0 + 10 * pow(e_r - 1.0, 6.0)));
+  C_e = 1.0 +
+        1.275 * (1.0 - exp(-0.004625 * p_e * pow(e_r, 1.674) *
+                           pow(f_n / 18.365, 2.745))) -
+        Q_12 + Q_16 - Q_17 + Q_18 + Q_20;
 
-
-  R_1 = 0.03891 * pow(e_r, 1.4);
-  R_2 = 0.267 * pow(u, 7.0);
-  R_7 = 1.206 - 0.3144 * exp(-R_1) * (1.0 - exp(-R_2));
+  R_1  = 0.03891 * pow(e_r, 1.4);
+  R_2  = 0.267 * pow(u, 7.0);
+  R_7  = 1.206 - 0.3144 * exp(-R_1) * (1.0 - exp(-R_2));
   R_10 = 0.00044 * pow(e_r, 2.136) + 0.0184;
   tmpf = pow(f_n / 19.47, 6.0);
   R_11 = tmpf / (1.0 + 0.0962 * tmpf);
   R_12 = 1.0 / (1.0 + 0.00245 * u * u);
   R_15 = 0.707 * R_10 * pow(f_n / 12.3, 1.097);
   R_16 = 1.0 + 0.0503 * e_r * e_r * R_11 * (1.0 - exp(-pow(u / 15.0, 6.0)));
-  Q_0 = R_7 * (1.0 - 1.1241 * (R_12 / R_16) * exp(-0.026 * pow(f_n, 1.15656) - R_15));
+  Q_0  = R_7 *
+        (1.0 - 1.1241 * (R_12 / R_16) * exp(-0.026 * pow(f_n, 1.15656) - R_15));
 
   /* even-mode frequency-dependent characteristic impedances */
-  Z0e = Z0_e_0 * pow(0.9408 * pow(e_r_eff_single_f, C_e) - 0.9603, Q_0) / pow((0.9408 - d_e) * pow(e_r_eff_single_0, C_e) - 0.9603, Q_0);
+  Z0e = Z0_e_0 * pow(0.9408 * pow(e_r_eff_single_f, C_e) - 0.9603, Q_0) /
+        pow((0.9408 - d_e) * pow(e_r_eff_single_0, C_e) - 0.9603, Q_0);
 
   Q_29 = 15.16 / (1.0 + 0.196 * pow(e_r - 1.0, 2.0));
   tmpf = pow(e_r - 1.0, 3.0);
@@ -686,18 +694,22 @@ void c_microstrip::Z0_dispersion()
   tmpf = pow((e_r - 1.0) / 13.0, 12.0);
   Q_26 = 30.0 - 22.2 * (tmpf / (1.0 + 3.0 * tmpf)) - Q_29;
   tmpf = (e_r - 1.0) * (e_r - 1.0);
-  Q_25 = (0.3 * f_n * f_n / (10.0 + f_n * f_n)) * (1.0 + 2.333 * tmpf / (5.0 + tmpf));
-  Q_24 = 2.506 * Q_28 * pow(u, 0.894) * pow((1.0 + 1.3 * u) * f_n / 99.25, 4.29) / (3.575 + pow(u, 0.894));
-  Q_23 = 1.0 + 0.005 * f_n * Q_27 / ((1.0 + 0.812 * pow(f_n / 15.0, 1.9)) * (1.0 + 0.025 * u * u));
+  Q_25 = (0.3 * f_n * f_n / (10.0 + f_n * f_n)) *
+         (1.0 + 2.333 * tmpf / (5.0 + tmpf));
+  Q_24 = 2.506 * Q_28 * pow(u, 0.894) *
+         pow((1.0 + 1.3 * u) * f_n / 99.25, 4.29) / (3.575 + pow(u, 0.894));
+  Q_23 =
+      1.0 + 0.005 * f_n * Q_27 /
+                ((1.0 + 0.812 * pow(f_n / 15.0, 1.9)) * (1.0 + 0.025 * u * u));
   Q_22 = 0.925 * pow(f_n / Q_26, 1.536) / (1.0 + 0.3 * pow(f_n / 30.0, 1.536));
 
   /* odd-mode frequency-dependent characteristic impedances */
-  Z0o = Z0_single_f + (Z0_o_0 * pow(e_r_eff_o_f / e_r_eff_o_0, Q_22) - Z0_single_f * Q_23) / (1.0 + Q_24 + pow(0.46 * g, 2.2) * Q_25);
+  Z0o = Z0_single_f +
+        (Z0_o_0 * pow(e_r_eff_o_f / e_r_eff_o_0, Q_22) - Z0_single_f * Q_23) /
+            (1.0 + Q_24 + pow(0.46 * g, 2.2) * Q_25);
 }
 
-
-void c_microstrip::calc()
-{
+void c_microstrip::calc() {
   /* compute thickness corrections */
   delta_u_thickness();
   /* get effective dielectric constants */
@@ -721,16 +733,15 @@ void c_microstrip::calc()
  * get and assign microstrip substrate parameters
  * into microstrip structure
  */
-void c_microstrip::get_c_microstrip_sub()
-{
-  er = getProperty ("Er");
-  mur = getProperty ("Mur");
-  h = getProperty ("H", UNIT_LENGTH, LENGTH_M);
-  ht = getProperty ("H_t", UNIT_LENGTH, LENGTH_M);
-  t = getProperty ("T", UNIT_LENGTH, LENGTH_M);
-  sigma = getProperty ("Cond");
-  tand = getProperty ("Tand");
-  rough = getProperty ("Rough", UNIT_LENGTH, LENGTH_M);
+void c_microstrip::get_c_microstrip_sub() {
+  er    = getProperty("Er");
+  mur   = getProperty("Mur");
+  h     = getProperty("H", UNIT_LENGTH, LENGTH_M);
+  ht    = getProperty("H_t", UNIT_LENGTH, LENGTH_M);
+  t     = getProperty("T", UNIT_LENGTH, LENGTH_M);
+  sigma = getProperty("Cond");
+  tand  = getProperty("Tand");
+  rough = getProperty("Rough", UNIT_LENGTH, LENGTH_M);
 }
 
 /*
@@ -738,9 +749,8 @@ void c_microstrip::get_c_microstrip_sub()
  * get and assign microstrip component parameters
  * into microstrip structure
  */
-void c_microstrip::get_c_microstrip_comp()
-{
-  f = getProperty ("Freq", UNIT_FREQ, FREQ_HZ);
+void c_microstrip::get_c_microstrip_comp() {
+  f = getProperty("Freq", UNIT_FREQ, FREQ_HZ);
 }
 
 /*
@@ -748,47 +758,40 @@ void c_microstrip::get_c_microstrip_comp()
  * get and assign microstrip electrical parameters
  * into microstrip structure
  */
-void c_microstrip::get_c_microstrip_elec()
-{
-  Z0e = getProperty ("Z0e", UNIT_RES, RES_OHM);
-  Z0o = getProperty ("Z0o", UNIT_RES, RES_OHM);
-  ang_l_e = getProperty ("Ang_l", UNIT_ANG, ANG_RAD);
-  ang_l_o = getProperty ("Ang_l", UNIT_ANG, ANG_RAD);
+void c_microstrip::get_c_microstrip_elec() {
+  Z0e     = getProperty("Z0e", UNIT_RES, RES_OHM);
+  Z0o     = getProperty("Z0o", UNIT_RES, RES_OHM);
+  ang_l_e = getProperty("Ang_l", UNIT_ANG, ANG_RAD);
+  ang_l_o = getProperty("Ang_l", UNIT_ANG, ANG_RAD);
 }
-
 
 /*
  * get_c_microstrip_phys
  * get and assign microstrip physical parameters
  * into microstrip structure
  */
-void c_microstrip::get_c_microstrip_phys()
-{
-  w = getProperty ("W", UNIT_LENGTH, LENGTH_M);
-  s = getProperty ("S", UNIT_LENGTH, LENGTH_M);
-  l = getProperty ("L", UNIT_LENGTH, LENGTH_M);
+void c_microstrip::get_c_microstrip_phys() {
+  w = getProperty("W", UNIT_LENGTH, LENGTH_M);
+  s = getProperty("S", UNIT_LENGTH, LENGTH_M);
+  l = getProperty("L", UNIT_LENGTH, LENGTH_M);
 }
 
+void c_microstrip::show_results() {
+  setResult(0, er_eff_e, "");
+  setResult(1, er_eff_o, "");
+  setResult(2, atten_cond_e, "dB");
+  setResult(3, atten_cond_o, "dB");
+  setResult(4, atten_dielectric_e, "dB");
+  setResult(5, atten_dielectric_o, "dB");
 
-void c_microstrip::show_results()
-{
-  setResult (0, er_eff_e, "");
-  setResult (1, er_eff_o, "");
-  setResult (2, atten_cond_e, "dB");
-  setResult (3, atten_cond_o, "dB");
-  setResult (4, atten_dielectric_e, "dB");
-  setResult (5, atten_dielectric_o, "dB");
-
-  double val = convertProperty ("T", skindepth, UNIT_LENGTH, LENGTH_M);
-  setResult (6, val, getUnit ("T"));
+  double val = convertProperty("T", skindepth, UNIT_LENGTH, LENGTH_M);
+  setResult(6, val, getUnit("T"));
 }
-
 
 /*
  * analysis function
  */
-void c_microstrip::analyze()
-{
+void c_microstrip::analyze() {
   /* Get and assign substrate parameters */
   get_c_microstrip_sub();
   /* Get and assign component parameters */
@@ -800,17 +803,16 @@ void c_microstrip::analyze()
   calc();
 
   /* update electrical parameters */
-  setProperty ("Z0e", Z0e, UNIT_RES, RES_OHM);
-  setProperty ("Z0o", Z0o, UNIT_RES, RES_OHM);
-  setProperty ("Ang_l", sqrt (ang_l_e * ang_l_o), UNIT_ANG, ANG_RAD);
+  setProperty("Z0e", Z0e, UNIT_RES, RES_OHM);
+  setProperty("Z0o", Z0o, UNIT_RES, RES_OHM);
+  setProperty("Ang_l", sqrt(ang_l_e * ang_l_o), UNIT_ANG, ANG_RAD);
 
   /* print results in the subwindow */
   show_results();
 }
 
-
-void c_microstrip::syn_fun(double *f1, double *f2, double s_h, double w_h, double Z0_e, double Z0_o)
-{
+void c_microstrip::syn_fun(double* f1, double* f2, double s_h, double w_h,
+                           double Z0_e, double Z0_o) {
   s = s_h * h;
   w = w_h * h;
 
@@ -824,13 +826,12 @@ void c_microstrip::syn_fun(double *f1, double *f2, double s_h, double w_h, doubl
 /*
  * synthesis function
  */
-int c_microstrip::synthesize()
-{
+int c_microstrip::synthesize() {
   double Z0_e, Z0_o;
   double f1, f2, ft1, ft2, j11, j12, j21, j22, d_s_h, d_w_h, err;
   double eps = 1e-04;
   double w_h, s_h, le, lo;
-  int iter = 0;
+  int iter          = 0;
   const int maxiter = 1000;
 
   /* Get and assign substrate parameters */
@@ -846,7 +847,6 @@ int c_microstrip::synthesize()
   /* at present it is required only for getting strips length */
   get_c_microstrip_phys();
 
-
   /* required value of Z0_e and Z0_o */
   Z0_e = Z0e;
   Z0_o = Z0o;
@@ -858,7 +858,8 @@ int c_microstrip::synthesize()
   f1 = f2 = 0;
 
   /* rather crude Newton-Rhapson */
-  /* might fail due to overshooting or singular jacobian, should implement a better algorithm... */
+  /* might fail due to overshooting or singular jacobian, should implement a
+   * better algorithm... */
   /* initial errors values */
   syn_fun(&f1, &f2, s_h, w_h, Z0_e, Z0_o);
   do {
@@ -876,13 +877,17 @@ int c_microstrip::synthesize()
 
     if (!std::isfinite(d_s_h) || !std::isfinite(d_w_h)) {
       /* a computed step is infinite: we are lost... */
-      iter = maxiter+1; /* just to signal we did not converge */
+      iter = maxiter + 1; /* just to signal we did not converge */
       break;
     }
     s_h += d_s_h;
-    if (s_h <= 0.0) s_h = eps; /* avoid negative values */
+    if (s_h <= 0.0) {
+      s_h = eps; /* avoid negative values */
+    }
     w_h += d_w_h;
-    if (w_h <= 0.0) w_h = eps; /* avoid negative values */
+    if (w_h <= 0.0) {
+      w_h = eps; /* avoid negative values */
+    }
 
     /* compute the error with the new values of s_h and w_h */
     syn_fun(&f1, &f2, s_h, w_h, Z0_e, Z0_o);
@@ -897,23 +902,24 @@ int c_microstrip::synthesize()
   w = w_h * h;
 
   /* calculate physical length */
-  ang_l_e = getProperty ("Ang_l", UNIT_ANG, ANG_RAD);
-  ang_l_o = getProperty ("Ang_l", UNIT_ANG, ANG_RAD);
-  le = C0 / f / sqrt(er_eff_e * mur_eff) * ang_l_e / 2.0 / pi;
-  lo = C0 / f / sqrt(er_eff_o * mur_eff) * ang_l_o / 2.0 / pi;
-  l = sqrt (le * lo);
-  
+  ang_l_e = getProperty("Ang_l", UNIT_ANG, ANG_RAD);
+  ang_l_o = getProperty("Ang_l", UNIT_ANG, ANG_RAD);
+  le      = C0 / f / sqrt(er_eff_e * mur_eff) * ang_l_e / 2.0 / pi;
+  lo      = C0 / f / sqrt(er_eff_o * mur_eff) * ang_l_o / 2.0 / pi;
+  l       = sqrt(le * lo);
+
   /* update physical parameters */
-  setProperty ("W", w, UNIT_LENGTH, LENGTH_M);
-  setProperty ("S", s, UNIT_LENGTH, LENGTH_M);
-  setProperty ("L", l, UNIT_LENGTH, LENGTH_M);
+  setProperty("W", w, UNIT_LENGTH, LENGTH_M);
+  setProperty("S", s, UNIT_LENGTH, LENGTH_M);
+  setProperty("L", l, UNIT_LENGTH, LENGTH_M);
 
   calc();
   /* print results in the subwindow */
   show_results();
 
-  if (iter > maxiter)
+  if (iter > maxiter) {
     return -1;
-  else
+  } else {
     return 0;
+  }
 }

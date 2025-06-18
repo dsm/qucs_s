@@ -24,14 +24,14 @@
 
 #include "component.h"
 
-
-class vExp : public Component  {
+class vExp : public Component {
 public:
   vExp();
   ~vExp();
   Component* newOne();
-  static Element* info(QString&, char* &, bool getNewOne=false);
-   QString spice_netlist(spicecompat::SpiceDialect dialect = spicecompat::SPICEDefault);
+  static Element* info(QString&, char*&, bool getNewOne = false);
+  QString
+  spice_netlist(spicecompat::SpiceDialect dialect = spicecompat::SPICEDefault);
 };
 
 #endif

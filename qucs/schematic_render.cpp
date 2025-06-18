@@ -44,76 +44,73 @@
 
  There is a set of methods to convert between types of coordinates.
 
- The core of drawing a schematic –– or @e rendering –– is @ref Schematic::renderModel
- method. Use it when you need to show display changes applied to schematic, like:
+ The core of drawing a schematic –– or @e rendering –– is @ref
+ Schematic::renderModel method. Use it when you need to show display changes
+ applied to schematic, like:
   - schematic should be drawn in another scale
   - model size has changed because the view has been scrolled
  See method description for example usage.
 */
 #include "schematic.h"
 
-QRect Schematic::modelRect()
-{
-    return QRect{a_ViewX1, a_ViewY1, a_ViewX2 - a_ViewX1, a_ViewY2 - a_ViewY1};
+QRect Schematic::modelRect() {
+  return QRect{a_ViewX1, a_ViewY1, a_ViewX2 - a_ViewX1, a_ViewY2 - a_ViewY1};
 }
 
 QRect Schematic::viewportRect() {
-    return QRect{0, 0, viewport()->width(), viewport()->height()};
+  return QRect{0, 0, viewport()->width(), viewport()->height()};
 }
 
-QPoint Schematic::modelToViewport(const QPoint& modelCoordinates)
-{
-    return modelToContents(modelCoordinates) - QPoint{ contentsX(), contentsY() };
+QPoint Schematic::modelToViewport(const QPoint& modelCoordinates) {
+  return modelToContents(modelCoordinates) - QPoint{contentsX(), contentsY()};
 }
 
-QPoint Schematic::viewportToModel(const QPoint& viewportCoordinates)
-{
-    return contentsToModel(QPoint{ contentsX(), contentsY() } + viewportCoordinates);
+QPoint Schematic::viewportToModel(const QPoint& viewportCoordinates) {
+  return contentsToModel(QPoint{contentsX(), contentsY()} +
+                         viewportCoordinates);
 }
 
-QPoint Schematic::contentsToModel(const QPoint& coordinates)
-{
-    // Sizes in the model and contents are interconnected and obey the rule:
-    //     <size on model plane> * <Scale> = <size on contents>
-    //
-    // Contents is a rectangle with (0, 0) at its top-left corner. Model plane
-    // is rectangular area of abstract infinite plane, so model plane's top-left
-    // corner may have any coordinates.
-    //
-    // To transform coordinates of a point on the contents to coordinates
-    // of corresponding point on model plane:
-    // 1. Adjust "contents" coordinates so that they become having the same scale
-    //    the model plane has
-    // 2. Adjust resulting coordinates so they become absolute coordinates
-    //    in model plane
+QPoint Schematic::contentsToModel(const QPoint& coordinates) {
+  // Sizes in the model and contents are interconnected and obey the rule:
+  //     <size on model plane> * <Scale> = <size on contents>
+  //
+  // Contents is a rectangle with (0, 0) at its top-left corner. Model plane
+  // is rectangular area of abstract infinite plane, so model plane's top-left
+  // corner may have any coordinates.
+  //
+  // To transform coordinates of a point on the contents to coordinates
+  // of corresponding point on model plane:
+  // 1. Adjust "contents" coordinates so that they become having the same scale
+  //    the model plane has
+  // 2. Adjust resulting coordinates so they become absolute coordinates
+  //    in model plane
 
-    // QPoint overrides operator /. It divides both coordinates on given value
-    QPoint modelCoords = coordinates / a_Scale;
+  // QPoint overrides operator /. It divides both coordinates on given value
+  QPoint modelCoords = coordinates / a_Scale;
 
-    modelCoords.setX(a_ViewX1 + modelCoords.x());
-    modelCoords.setY(a_ViewY1 + modelCoords.y());
-    return modelCoords;
+  modelCoords.setX(a_ViewX1 + modelCoords.x());
+  modelCoords.setY(a_ViewY1 + modelCoords.y());
+  return modelCoords;
 }
 
-QPoint Schematic::modelToContents(const QPoint& coordinates)
-{
-    // Model and contents sizes are interconnected and obey the rule:
-    //     <size on model plane> * <a_Scale> = <size on contents>
-    //
-    // Contents is a rectangle with (0, 0) at its top-left corner. Model plane
-    // is rectangular area of abstract infinite plane, so model plane's top-left
-    // corner may have any coordinates.
-    //
-    // To transform coordinates of a point on the model plane to coordinates
-    // of corresponding point on the contents:
-    // 1. Adjust coordinates so that they become relative to model planes'
-    //    top-left corner
-    // 2. Adjust resulting coordinates so thay they become having the same scale
-    //    as contents
+QPoint Schematic::modelToContents(const QPoint& coordinates) {
+  // Model and contents sizes are interconnected and obey the rule:
+  //     <size on model plane> * <a_Scale> = <size on contents>
+  //
+  // Contents is a rectangle with (0, 0) at its top-left corner. Model plane
+  // is rectangular area of abstract infinite plane, so model plane's top-left
+  // corner may have any coordinates.
+  //
+  // To transform coordinates of a point on the model plane to coordinates
+  // of corresponding point on the contents:
+  // 1. Adjust coordinates so that they become relative to model planes'
+  //    top-left corner
+  // 2. Adjust resulting coordinates so thay they become having the same scale
+  //    as contents
 
-    QPoint contentsCoords{coordinates.x() - a_ViewX1, coordinates.y() - a_ViewY1};
-    contentsCoords *= a_Scale;
-    return contentsCoords;
+  QPoint contentsCoords{coordinates.x() - a_ViewX1, coordinates.y() - a_ViewY1};
+  contentsCoords *= a_Scale;
+  return contentsCoords;
 }
 
 /**
@@ -126,76 +123,83 @@ constexpr double minScale = 0.1;
 */
 constexpr double maxScale = 10.0;
 
-inline double clipScale(double offeredScale)
-{
-    if (offeredScale > maxScale) {
-        return maxScale;
-    }
-    if (offeredScale < minScale) {
-        return minScale;
-    }
-    return offeredScale;
+inline double clipScale(double offeredScale) {
+  if (offeredScale > maxScale) {
+    return maxScale;
+  }
+  if (offeredScale < minScale) {
+    return minScale;
+  }
+  return offeredScale;
 }
 
-bool Schematic::shouldRender(const double& newScale, const QRect& newModelBounds, const QPoint& toBeDisplayed, const QPoint& viewportCoords) {
-    const QRect currentModelBounds = modelRect();
-    // This point currently displayed at "viewportCoords" of the viewport
-    const QPoint currenlyDisplayed = viewportToModel(viewportCoords);
-    return a_Scale != newScale || toBeDisplayed != currenlyDisplayed || currentModelBounds != newModelBounds;
+bool Schematic::shouldRender(const double& newScale,
+                             const QRect& newModelBounds,
+                             const QPoint& toBeDisplayed,
+                             const QPoint& viewportCoords) {
+  const QRect currentModelBounds = modelRect();
+  // This point currently displayed at "viewportCoords" of the viewport
+  const QPoint currenlyDisplayed = viewportToModel(viewportCoords);
+  return a_Scale != newScale || toBeDisplayed != currenlyDisplayed ||
+         currentModelBounds != newModelBounds;
 }
 
-double Schematic::renderModel(const double offeredScale, QRect newModel, const QPoint modelPoint, const QPoint viewportPoint)
-{
-    // DO NOT alter model bounds or scale and DO NOT call resizeContens() outside
-    // of this method. It may break the state and lead to hard-to-find bugs.
-    // Pass the desired model bounds or scale as the argument to this method.
+double Schematic::renderModel(const double offeredScale, QRect newModel,
+                              const QPoint modelPoint,
+                              const QPoint viewportPoint) {
+  // DO NOT alter model bounds or scale and DO NOT call resizeContens() outside
+  // of this method. It may break the state and lead to hard-to-find bugs.
+  // Pass the desired model bounds or scale as the argument to this method.
 
-    assert(modelPoint.x() >= newModel.left() && modelPoint.x() <= newModel.right());
-    assert(modelPoint.y() >= newModel.top() && modelPoint.y() <= newModel.bottom());
-    assert(viewportPoint.x() >= 0 && viewportPoint.x() < viewport()->width());
-    assert(viewportPoint.y() >= 0 && viewportPoint.y() < viewport()->height());
+  assert(modelPoint.x() >= newModel.left() &&
+         modelPoint.x() <= newModel.right());
+  assert(modelPoint.y() >= newModel.top() &&
+         modelPoint.y() <= newModel.bottom());
+  assert(viewportPoint.x() >= 0 && viewportPoint.x() < viewport()->width());
+  assert(viewportPoint.y() >= 0 && viewportPoint.y() < viewport()->height());
 
-    // Maybe there is no need to do anything
-    const double newScale = clipScale(offeredScale);
-    if (!shouldRender(newScale, newModel, modelPoint, viewportPoint)) {
-       return a_Scale;
-    }
-
-    // The part below is quite tricky: while working at the model plane scale,
-    // we construct a "viewport" rectangle and position it so that it contains the
-    // area of the model, which should be displayed in the real viewport at the
-    // end. We do this because the "should-be-displayed" area might go beyond
-    // the model plane bounds, in which case the model plane size would have to
-    // be adjusted to include this area.
-    //
-    // Remember that <size in model plane> * <Scale> = <size in view plane>
-
-    QSize viewportSizeOnModelPlane = viewportRect().size() / newScale;
-
-    QPoint vpTopLeftOnModelPlane{
-        modelPoint.x() - static_cast<int>(std::round(viewportPoint.x() / newScale)),
-        modelPoint.y() - static_cast<int>(std::round(viewportPoint.y() / newScale))
-    };
-
-    QRect viewportOnModelPlane{vpTopLeftOnModelPlane, viewportSizeOnModelPlane};
-    newModel |= viewportOnModelPlane;
-
-    // At this point everything is ready for rendering and positioning
-
-    // Set new model size
-    a_ViewX1 = newModel.left();
-    a_ViewY1 = newModel.top();
-    a_ViewX2 = newModel.left() + newModel.width();
-    a_ViewY2 = newModel.top() + newModel.height();
-
-    a_Scale = newScale;
-    resizeContents(static_cast<int>(std::round(newModel.width() * a_Scale)),
-                   static_cast<int>(std::round(newModel.height() * a_Scale)));
-
-    auto contentTopLeft = modelToContents(vpTopLeftOnModelPlane);
-    setContentsPos(contentTopLeft.x(), contentTopLeft.y());
-
-    viewport()->update();
-
+  // Maybe there is no need to do anything
+  const double newScale = clipScale(offeredScale);
+  if (!shouldRender(newScale, newModel, modelPoint, viewportPoint)) {
     return a_Scale;
+  }
+
+  // The part below is quite tricky: while working at the model plane scale,
+  // we construct a "viewport" rectangle and position it so that it contains the
+  // area of the model, which should be displayed in the real viewport at the
+  // end. We do this because the "should-be-displayed" area might go beyond
+  // the model plane bounds, in which case the model plane size would have to
+  // be adjusted to include this area.
+  //
+  // Remember that <size in model plane> * <Scale> = <size in view plane>
+
+  QSize viewportSizeOnModelPlane = viewportRect().size() / newScale;
+
+  QPoint vpTopLeftOnModelPlane{
+      modelPoint.x() -
+          static_cast<int>(std::round(viewportPoint.x() / newScale)),
+      modelPoint.y() -
+          static_cast<int>(std::round(viewportPoint.y() / newScale))};
+
+  QRect viewportOnModelPlane{vpTopLeftOnModelPlane, viewportSizeOnModelPlane};
+  newModel |= viewportOnModelPlane;
+
+  // At this point everything is ready for rendering and positioning
+
+  // Set new model size
+  a_ViewX1 = newModel.left();
+  a_ViewY1 = newModel.top();
+  a_ViewX2 = newModel.left() + newModel.width();
+  a_ViewY2 = newModel.top() + newModel.height();
+
+  a_Scale = newScale;
+  resizeContents(static_cast<int>(std::round(newModel.width() * a_Scale)),
+                 static_cast<int>(std::round(newModel.height() * a_Scale)));
+
+  auto contentTopLeft = modelToContents(vpTopLeftOnModelPlane);
+  setContentsPos(contentTopLeft.x(), contentTopLeft.y());
+
+  viewport()->update();
+
+  return a_Scale;
 }

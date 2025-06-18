@@ -25,13 +25,12 @@
 
 #include "component.h"
 
-
-class CircLine : public Component  {
+class CircLine : public Component {
 public:
   CircLine();
- ~CircLine();
+  ~CircLine();
   Component* newOne();
-  static Element* info(QString&, char* &, bool getNewOne=false);
+  static Element* info(QString&, char*&, bool getNewOne = false);
 };
 
 #endif

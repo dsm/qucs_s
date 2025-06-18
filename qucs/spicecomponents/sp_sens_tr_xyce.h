@@ -20,16 +20,16 @@
 
 #include "components/simulation.h"
 
-
-class SpiceSENS_TR_Xyce : public qucs::component::SimulationComponent  {
+class SpiceSENS_TR_Xyce : public qucs::component::SimulationComponent {
 public:
   SpiceSENS_TR_Xyce();
   ~SpiceSENS_TR_Xyce();
   Component* newOne();
-  static Element* info(QString&, char* &, bool getNewOne=false);
+  static Element* info(QString&, char*&, bool getNewOne = false);
 
 protected:
-  QString spice_netlist(spicecompat::SpiceDialect dialect = spicecompat::SPICEDefault);
+  QString
+  spice_netlist(spicecompat::SpiceDialect dialect = spicecompat::SPICEDefault);
   Qt::GlobalColor color() const override { return Qt::darkGreen; }
 };
 

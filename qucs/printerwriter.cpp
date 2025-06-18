@@ -21,17 +21,16 @@
  */
 
 #include "printerwriter.h"
+#include "qucs.h"
 #include "schematic.h"
 #include "textdoc.h"
-#include "qucs.h"
 
-#include <QPrinter>
 #include <QPainter>
 #include <QPrintDialog>
+#include <QPrinter>
 
-PrinterWriter::PrinterWriter()
-{
-  //default setting
+PrinterWriter::PrinterWriter() {
+  // default setting
   Printer = new QPrinter(QPrinter::HighResolution);
   /*Printer->setOptionEnabled(QPrinter::PrintSelection, true);
   Printer->setOptionEnabled(QPrinter::PrintPageRange, false);
@@ -44,20 +43,17 @@ PrinterWriter::PrinterWriter()
   fitToPage = false;
 }
 
-PrinterWriter::~PrinterWriter()
-{
+PrinterWriter::~PrinterWriter() {
   delete Printer;
 }
 
-//allow user pass parameter and print document
-void
-PrinterWriter::noGuiPrint(QWidget *doc, QString printFile,
-    QString page, int dpi, QString color, QString orientation)
-{
-  //set property
+// allow user pass parameter and print document
+void PrinterWriter::noGuiPrint(QWidget* doc, QString printFile, QString page,
+                               int dpi, QString color, QString orientation) {
+  // set property
   Printer->setOutputFileName(printFile);
 
-  //page size
+  // page size
   if (page == "A3") {
     Printer->setPageSize(QPageSize(QPageSize::A3));
   } else if (page == "B4") {
@@ -67,49 +63,45 @@ PrinterWriter::noGuiPrint(QWidget *doc, QString printFile,
   } else {
     Printer->setPageSize(QPageSize(QPageSize::A4));
   }
-  //dpi
+  // dpi
   Printer->setResolution(dpi);
-  //color
+  // color
   if (color == "BW") {
     Printer->setColorMode(QPrinter::GrayScale);
   } else {
     Printer->setColorMode(QPrinter::Color);
   }
-  //orientation
+  // orientation
   if (orientation == "landscape") {
     Printer->setPageOrientation(QPageLayout::Landscape);
   } else {
     Printer->setPageOrientation(QPageLayout::Portrait);
   }
   QPainter Painter(Printer);
-  if(!Painter.device()) {      // valid device available ?
+  if (!Painter.device()) { // valid device available ?
     return;
   }
 
-  static_cast<Schematic *>(doc)->print(Printer, &Painter,
-    Printer->printRange() == QPrinter::AllPages, fitToPage);
+  static_cast<Schematic*>(doc)->print(
+      Printer, &Painter, Printer->printRange() == QPrinter::AllPages,
+      fitToPage);
 }
 
-void
-PrinterWriter::print(QWidget *doc)
-{
-  QPrintDialog *dialog = new QPrintDialog(Printer, 0);
+void PrinterWriter::print(QWidget* doc) {
+  QPrintDialog* dialog = new QPrintDialog(Printer, 0);
   dialog->setWindowTitle(QObject::tr("Print Document"));
   dialog->setOption(QAbstractPrintDialog::PrintSelection);
 
-  if (QucsApp::isTextDocument(doc))
-  {
+  if (QucsApp::isTextDocument(doc)) {
     if (dialog->exec() == QDialog::Accepted) {
-       static_cast<QPlainTextEdit *>(doc)->print(Printer);
+      static_cast<QPlainTextEdit*>(doc)->print(Printer);
     }
-  }
-  else {
+  } else {
     Printer->setPageOrientation(QPageLayout::Landscape);
 
-    if (dialog->exec() == QDialog::Accepted)
-    {
+    if (dialog->exec() == QDialog::Accepted) {
       QPainter Painter(Printer);
-      if(!Painter.device()) {     // valid device available ?
+      if (!Painter.device()) { // valid device available ?
         delete dialog;
         return;
       }
@@ -118,8 +110,9 @@ PrinterWriter::print(QWidget *doc)
           break;
         }
 
-        static_cast<Schematic *>(doc)->print(Printer, &Painter,
-                Printer->printRange() == QPrinter::AllPages, fitToPage);
+        static_cast<Schematic*>(doc)->print(
+            Printer, &Painter, Printer->printRange() == QPrinter::AllPages,
+            fitToPage);
         if (z > 1 && !Printer->newPage()) {
           delete dialog;
           return;

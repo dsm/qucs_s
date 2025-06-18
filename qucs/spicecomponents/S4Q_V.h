@@ -23,16 +23,16 @@
 
 #include "components/component.h"
 
-
-class S4Q_V : public Component  {
+class S4Q_V : public Component {
 public:
   S4Q_V();
   ~S4Q_V();
   Component* newOne();
-  static Element* info(QString&, char* &, bool getNewOne=false);
+  static Element* info(QString&, char*&, bool getNewOne = false);
 
 protected:
-  QString spice_netlist(spicecompat::SpiceDialect dialect = spicecompat::SPICEDefault);
+  QString
+  spice_netlist(spicecompat::SpiceDialect dialect = spicecompat::SPICEDefault);
   virtual QString cdl_netlist();
 };
 

@@ -22,15 +22,14 @@
 #ifndef LOADDIALOG_H
 #define LOADDIALOG_H
 
-#include <QVariant>
-#include <QDialog>
-#include <QMap>
 #include <QBoxLayout>
-#include <QGridLayout>
-#include <QBoxLayout>
-#include <QLabel>
 #include <QCheckBox>
+#include <QDialog>
 #include <QDir>
+#include <QGridLayout>
+#include <QLabel>
+#include <QMap>
+#include <QVariant>
 
 class QBoxLayout;
 class QBoxLayout;
@@ -43,52 +42,45 @@ class QPushButton;
 class QucsDoc;
 class QucsApp;
 
-class LoadDialog : public QDialog
-{
-    Q_OBJECT
+class LoadDialog : public QDialog {
+  Q_OBJECT
 public:
+  enum { AbortClosing = 0, DontSave, Accept };
 
-    enum {
-        AbortClosing = 0,
-        DontSave,
-        Accept
-    };
+  LoadDialog(QWidget* p = 0);
+  ~LoadDialog();
+  void setApp(QucsApp* a);
+  void initDialog();
 
-    LoadDialog(QWidget* p = 0 );
-    ~LoadDialog();
-    void setApp(QucsApp *a);
-    void initDialog();
+  QStringList symbolFiles;
+  QDir projDir;
 
-    QStringList symbolFiles;
-    QDir projDir;
-
-    QMap<QString, QString> selectedComponents;
+  QMap<QString, QString> selectedComponents;
 
 private slots:
-    void slotSelectAll();
-    void slotSelectNone();
-    void slotSymbolFileClicked(QListWidgetItem *item);
+  void slotSelectAll();
+  void slotSelectNone();
+  void slotSymbolFileClicked(QListWidgetItem* item);
 
 protected slots:
-    void reject();
-    void loadSelected();
-    void slotChangeIcon();
+  void reject();
+  void loadSelected();
+  void slotChangeIcon();
 
 protected:
-    bool eventFilter(QObject *obj, QEvent *event);
+  bool eventFilter(QObject* obj, QEvent* event);
 
 private:
-    QLabel *iconPixmap;
-    QLabel* label;
-    QListWidget* fileView;
-    QBoxLayout* LoadDialogLayout;
-    QHBoxLayout* buttonsLayout;
-    QSpacerItem* spacer;
-    QucsApp *app;
+  QLabel* iconPixmap;
+  QLabel* label;
+  QListWidget* fileView;
+  QBoxLayout* LoadDialogLayout;
+  QHBoxLayout* buttonsLayout;
+  QSpacerItem* spacer;
+  QucsApp* app;
 
-    QPushButton *ButtOk, *ButtCancel,
-                *ButtSelectAll, *ButtSelectNone,
-                *ButtChangeIcon;
+  QPushButton *ButtOk, *ButtCancel, *ButtSelectAll, *ButtSelectNone,
+      *ButtChangeIcon;
 };
 
 #endif // LOADDIALOG_H

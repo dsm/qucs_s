@@ -18,11 +18,11 @@
 #ifndef XYCE_H
 #define XYCE_H
 
+#include "abstractspicekernel.h"
 #include <QObject>
 #include <QString>
 #include <QStringList>
 #include <QTextStream>
-#include "abstractspicekernel.h"
 
 /*!
   \file xyce.h
@@ -32,40 +32,35 @@
 /*!
  * \brief The Xyce class responsible for execution of Xyce simulator.
  */
-class Xyce : public AbstractSpiceKernel
-{
-    Q_OBJECT
+class Xyce : public AbstractSpiceKernel {
+  Q_OBJECT
 
 private:
-    bool a_Noisesim;
+  bool a_Noisesim;
 
-    QStringList a_simulationsQueue;
-    QStringList a_netlistQueue;
+  QStringList a_simulationsQueue;
+  QStringList a_netlistQueue;
 
-    void nextSimulation();
+  void nextSimulation();
 
 public:
-    void determineUsedSimulations(QStringList *sim_lst = nullptr);
-    explicit Xyce(Schematic* schematic, QObject *parent = 0);
+  void determineUsedSimulations(QStringList* sim_lst = nullptr);
+  explicit Xyce(Schematic* schematic, QObject* parent = 0);
 
-    void SaveNetlist(QString filename, bool netlist2Console);
-    void setParallel(bool par);
-    bool waitEndOfSimulation();
+  void SaveNetlist(QString filename, bool netlist2Console);
+  void setParallel(bool par);
+  bool waitEndOfSimulation();
 
 protected:
-    void createNetlist(
-            QTextStream& stream,
-            QStringList& simulations,
-            QStringList& vars,
-            QStringList& outputs);
+  void createNetlist(QTextStream& stream, QStringList& simulations,
+                     QStringList& vars, QStringList& outputs);
 
 protected slots:
-    void slotFinished();
-    void slotProcessOutput();
+  void slotFinished();
+  void slotProcessOutput();
 
 public slots:
-    void slotSimulate();
-
+  void slotSimulate();
 };
 
 #endif // XYCE_H

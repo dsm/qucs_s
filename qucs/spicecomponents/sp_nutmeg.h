@@ -20,15 +20,14 @@
 
 #include "components/component.h"
 
-
-class NutmegEquation : public Component  {
+class NutmegEquation : public Component {
 
 public:
   NutmegEquation();
   ~NutmegEquation();
   Component* newOne();
-  static Element* info(QString&, char* &, bool getNewOne=false);
-  QString getEquations(QString sim, QStringList &dep_vars);
+  static Element* info(QString&, char*&, bool getNewOne = false);
+  QString getEquations(QString sim, QStringList& dep_vars);
 
 protected:
   QString vhdlCode(int) { return QString(); }

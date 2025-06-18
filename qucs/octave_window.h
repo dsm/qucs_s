@@ -6,21 +6,20 @@
 #ifndef OCTAVE_WINDOW_H
 #define OCTAVE_WINDOW_H
 
-#include <QWidget>
 #include <QProcess>
 #include <QStringList>
+#include <QWidget>
 
 class QEvent;
 class QDockWidget;
 class QTextEdit;
 class QLineEdit;
 
-
 class OctaveWindow : public QWidget {
   Q_OBJECT
 public:
   OctaveWindow(QDockWidget*);
- ~OctaveWindow();
+  ~OctaveWindow();
 
   QSize sizeHint() const;
   bool startOctave();
@@ -35,12 +34,12 @@ private slots:
   void slotSendCommand();
 
 protected:
-  bool eventFilter(QObject *obj, QEvent *event);
+  bool eventFilter(QObject* obj, QEvent* event);
 
 private:
-  QTextEdit *output;
+  QTextEdit* output;
   QProcess octProcess;
-  QLineEdit *input;
+  QLineEdit* input;
   QStringList cmdHistory;
   int histPosition;
 };

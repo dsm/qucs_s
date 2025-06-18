@@ -20,14 +20,14 @@
 
 #include "component.h"
 
-
-class Relais : public Component  {
+class Relais : public Component {
 public:
   Relais();
- ~Relais();
+  ~Relais();
   Component* newOne();
-  static Element* info(QString&, char* &, bool getNewOne=false);
-  QString spice_netlist(spicecompat::SpiceDialect dialect = spicecompat::SPICEDefault);
+  static Element* info(QString&, char*&, bool getNewOne = false);
+  QString
+  spice_netlist(spicecompat::SpiceDialect dialect = spicecompat::SPICEDefault);
 };
 
 #endif

@@ -5,7 +5,7 @@
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2, or (at your option)
  * any later version.
- * 
+ *
  */
 
 #ifndef MESFET_H
@@ -13,15 +13,15 @@
 
 #include "component.h"
 
-class MESFET : public Component
-{
-  public:
-    MESFET();
-    ~MESFET() { };
-    Component* newOne();
-    static Element* info(QString&, char* &, bool getNewOne=false);
-  protected:
-    void createSymbol();
+class MESFET : public Component {
+public:
+  MESFET();
+  ~MESFET(){};
+  Component* newOne();
+  static Element* info(QString&, char*&, bool getNewOne = false);
+
+protected:
+  void createSymbol();
 };
 
 #endif /* MESFET_H */

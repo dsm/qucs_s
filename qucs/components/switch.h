@@ -20,16 +20,16 @@
 
 #include "component.h"
 
-
-class Switch : public MultiViewComponent  {
+class Switch : public MultiViewComponent {
 public:
   Switch();
- ~Switch() {};
+  ~Switch(){};
   Component* newOne();
-  static Element* info(QString&, char* &, bool getNewOne=false);
+  static Element* info(QString&, char*&, bool getNewOne = false);
 
 protected:
-  QString spice_netlist(spicecompat::SpiceDialect dialect = spicecompat::SPICEDefault);
+  QString
+  spice_netlist(spicecompat::SpiceDialect dialect = spicecompat::SPICEDefault);
   QString netlist();
   void createSymbol();
 };

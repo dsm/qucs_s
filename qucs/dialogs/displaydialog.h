@@ -24,18 +24,17 @@
 class QTextEdit;
 class QVBoxLayout;
 
-
-class DisplayDialog : public QDialog  {
-   Q_OBJECT
+class DisplayDialog : public QDialog {
+  Q_OBJECT
 public:
-  DisplayDialog(QWidget *parent = 0, QString Text="", QString SpiceText="");
- ~DisplayDialog();
+  DisplayDialog(QWidget* parent = 0, QString Text = "", QString SpiceText = "");
+  ~DisplayDialog();
 
 private slots:
   void slotClose();
 
 private:
-  QVBoxLayout *vLayout;
+  QVBoxLayout* vLayout;
   QTextEdit *QText, *QSpice;
 };
 

@@ -19,58 +19,54 @@
  */
 
 #ifdef HAVE_CONFIG_H
-# include <config.h>
+#include <config.h>
 #endif
 
 #include "CdlSettingsDialog.h"
 #include "main.h"
 #include "settings.h"
 
-CdlSettingsDialog::CdlSettingsDialog(QWidget *parent) :
-    QDialog(parent),
-    a_btnOK(new QPushButton(tr("Apply changes"))),
-    a_btnCancel(new QPushButton(tr("Cancel"))),
-    a_chkResolveSpicePrefix(new QCheckBox(tr("Resolve spice prefix")))
-{
-    a_chkResolveSpicePrefix->setChecked(_settings::Get().item<bool>("ResolveSpicePrefix"));
+CdlSettingsDialog::CdlSettingsDialog(QWidget* parent)
+    : QDialog(parent), a_btnOK(new QPushButton(tr("Apply changes"))),
+      a_btnCancel(new QPushButton(tr("Cancel"))),
+      a_chkResolveSpicePrefix(new QCheckBox(tr("Resolve spice prefix"))) {
+  a_chkResolveSpicePrefix->setChecked(
+      _settings::Get().item<bool>("ResolveSpicePrefix"));
 
-    connect(a_btnOK,SIGNAL(clicked()),this,SLOT(slotApply()));
-    connect(a_btnCancel,SIGNAL(clicked()),this,SLOT(reject()));
+  connect(a_btnOK, SIGNAL(clicked()), this, SLOT(slotApply()));
+  connect(a_btnCancel, SIGNAL(clicked()), this, SLOT(reject()));
 
-    QVBoxLayout *top = new QVBoxLayout;
+  QVBoxLayout* top = new QVBoxLayout;
 
-    QGroupBox *gbp = new QGroupBox(this);
-    gbp->setTitle(tr("CDL netlist settings"));
-    QVBoxLayout *top2 = new QVBoxLayout;
-    QHBoxLayout *h1 = new QHBoxLayout;
-    h1->addWidget(a_chkResolveSpicePrefix);
-    top2->addLayout(h1);
+  QGroupBox* gbp = new QGroupBox(this);
+  gbp->setTitle(tr("CDL netlist settings"));
+  QVBoxLayout* top2 = new QVBoxLayout;
+  QHBoxLayout* h1   = new QHBoxLayout;
+  h1->addWidget(a_chkResolveSpicePrefix);
+  top2->addLayout(h1);
 
-    gbp->setLayout(top2);
-    top->addWidget(gbp);
+  gbp->setLayout(top2);
+  top->addWidget(gbp);
 
-    QHBoxLayout *h2 = new QHBoxLayout;
-    h2->addWidget(a_btnOK);
-    h2->addWidget(a_btnCancel);
-    h2->addStretch(2);
-    top->addLayout(h2);
+  QHBoxLayout* h2 = new QHBoxLayout;
+  h2->addWidget(a_btnOK);
+  h2->addWidget(a_btnCancel);
+  h2->addStretch(2);
+  top->addLayout(h2);
 
-    this->setLayout(top);
-    this->setFixedWidth(500);
-    this->setWindowTitle(tr("CDL Settings"));
+  this->setLayout(top);
+  this->setFixedWidth(500);
+  this->setWindowTitle(tr("CDL Settings"));
 }
 
-void CdlSettingsDialog::slotApply()
-{
-    QucsSettings.ResolveSpicePrefix = a_chkResolveSpicePrefix->isChecked();
-    settingsManager& qs = _settings::Get();
-    qs.setItem<bool>("ResolveSpicePrefix", a_chkResolveSpicePrefix->isChecked());
-    accept();
-    saveApplSettings();
+void CdlSettingsDialog::slotApply() {
+  QucsSettings.ResolveSpicePrefix = a_chkResolveSpicePrefix->isChecked();
+  settingsManager& qs             = _settings::Get();
+  qs.setItem<bool>("ResolveSpicePrefix", a_chkResolveSpicePrefix->isChecked());
+  accept();
+  saveApplSettings();
 }
 
-void CdlSettingsDialog::slotCancel()
-{
-    reject();
+void CdlSettingsDialog::slotCancel() {
+  reject();
 }
-

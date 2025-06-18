@@ -24,22 +24,21 @@
 #include <QtGui>
 #include <QtWidgets>
 
-class CdlSettingsDialog : public QDialog
-{
-    Q_OBJECT
+class CdlSettingsDialog : public QDialog {
+  Q_OBJECT
 
 public:
-    explicit CdlSettingsDialog(QWidget *parent = 0);
+  explicit CdlSettingsDialog(QWidget* parent = 0);
 
 private:
-    QPushButton *a_btnOK;
-    QPushButton *a_btnCancel;
+  QPushButton* a_btnOK;
+  QPushButton* a_btnCancel;
 
-    QCheckBox *a_chkResolveSpicePrefix;
+  QCheckBox* a_chkResolveSpicePrefix;
 
 private slots:
-    void slotApply();
-    void slotCancel();
+  void slotApply();
+  void slotCancel();
 };
 
 #endif // CDL_SETTINGS_DIALOG_H

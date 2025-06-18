@@ -23,15 +23,14 @@
 class QTextStream;
 class QString;
 
-
-class Verilog_File : public MultiViewComponent  {
+class Verilog_File : public MultiViewComponent {
 public:
   Verilog_File();
- ~Verilog_File() {};
+  ~Verilog_File(){};
   Component* newOne();
-  static Element* info(QString&, char* &, bool getNewOne=false);
+  static Element* info(QString&, char*&, bool getNewOne = false);
 
-  bool createSubNetlist(QTextStream *);
+  bool createSubNetlist(QTextStream*);
   QString getErrorText() { return ErrText; }
   QString getSubcircuitFile();
 
@@ -48,7 +47,7 @@ class Verilog_File_Info {
 public:
   Verilog_File_Info();
   Verilog_File_Info(QString, bool isfile = false);
- ~Verilog_File_Info() {};
+  ~Verilog_File_Info(){};
   QString parsePorts(QString, int);
 
 public:

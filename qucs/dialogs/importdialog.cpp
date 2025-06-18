@@ -14,38 +14,36 @@
  *   (at your option) any later version.                                   *
  *                                                                         *
  ***************************************************************************/
+#include <QComboBox>
+#include <QDebug>
+#include <QFileDialog>
+#include <QGridLayout>
+#include <QGroupBox>
 #include <QLabel>
 #include <QLineEdit>
-#include <QPlainTextEdit>
-#include <QGroupBox>
-#include <QComboBox>
-#include <QFileDialog>
-#include <QPushButton>
-#include <QMessageBox>
-#include <QGridLayout>
-#include <QDebug>
 #include <QListView>
+#include <QMessageBox>
+#include <QPlainTextEdit>
+#include <QPushButton>
 
 #include "importdialog.h"
 #include "main.h"
 #include "qucs.h"
 
-
-ImportDialog::ImportDialog(QWidget *parent)
-		: QDialog(parent) 
-{
+ImportDialog::ImportDialog(QWidget* parent) : QDialog(parent) {
   setWindowTitle(tr("Convert Data File..."));
 
   all = new QGridLayout(this);
 
-  QGroupBox *Group2 = new QGroupBox(tr("File specification"),this);
-  
-  QGridLayout *file = new QGridLayout();
-  file->addWidget(new QLabel(tr("Input File:")),0, 0);
+  QGroupBox* Group2 = new QGroupBox(tr("File specification"), this);
+
+  QGridLayout* file = new QGridLayout();
+  file->addWidget(new QLabel(tr("Input File:")), 0, 0);
   ImportEdit = new QLineEdit();
   file->addWidget(ImportEdit, 0, 1);
-  connect(ImportEdit,SIGNAL(textChanged(QString)),this,SLOT(slotValidateInput()));
-  QPushButton *BrowseButt = new QPushButton(tr("Browse"));
+  connect(ImportEdit, SIGNAL(textChanged(QString)), this,
+          SLOT(slotValidateInput()));
+  QPushButton* BrowseButt = new QPushButton(tr("Browse"));
   file->addWidget(BrowseButt, 0, 2);
   connect(BrowseButt, SIGNAL(clicked()), SLOT(slotBrowse()));
 
@@ -59,17 +57,16 @@ ImportDialog::ImportDialog(QWidget *parent)
   InType->addItem(tr("ZVR"));
   InType->addItem(tr("MDL"));
   InType->addItem(tr("Touchstone"));
-  file->addWidget(InType,1,1);
-  connect(InType,SIGNAL(currentIndexChanged(int)),this,SLOT(slotValidateOutput()));
-
+  file->addWidget(InType, 1, 1);
+  connect(InType, SIGNAL(currentIndexChanged(int)), this,
+          SLOT(slotValidateOutput()));
 
   file->addWidget(new QLabel(tr("Output File:")), 2, 0);
   OutputEdit = new QLineEdit();
   file->addWidget(OutputEdit, 2, 1);
-  QPushButton *SaveBrowseButt = new QPushButton(tr("Browse"));
+  QPushButton* SaveBrowseButt = new QPushButton(tr("Browse"));
   file->addWidget(SaveBrowseButt, 2, 2);
   connect(SaveBrowseButt, SIGNAL(clicked()), SLOT(slotSaveBrowse()));
-
 
   file->addWidget(new QLabel(tr("Output Format:")), 3, 0);
   OutType = new QComboBox();
@@ -90,28 +87,28 @@ ImportDialog::ImportDialog(QWidget *parent)
   file->addWidget(OutputData, 4, 1);
 
   LibLabel = new QLabel(tr("Library Name:"));
-  file->addWidget(LibLabel,5,0);
+  file->addWidget(LibLabel, 5, 0);
   LibName = new QLineEdit;
-  file->addWidget(LibName,5,1);
+  file->addWidget(LibName, 5, 1);
 
   Group2->setLayout(file);
-  all->addWidget(Group2, 0,0,1,1);
-  
-  QGroupBox *Group1 = new QGroupBox(tr("Messages"));
-  
-  QVBoxLayout *vMess = new QVBoxLayout();
-  MsgText = new QPlainTextEdit();
+  all->addWidget(Group2, 0, 0, 1, 1);
+
+  QGroupBox* Group1 = new QGroupBox(tr("Messages"));
+
+  QVBoxLayout* vMess = new QVBoxLayout();
+  MsgText            = new QPlainTextEdit();
   vMess->addWidget(MsgText);
   MsgText->setReadOnly(true);
   MsgText->setWordWrapMode(QTextOption::NoWrap);
   MsgText->setMinimumSize(250, 60);
   Group1->setLayout(vMess);
-  all->addWidget(Group1, 1,0,1,1);
+  all->addWidget(Group1, 1, 0, 1, 1);
 
-  QHBoxLayout *Butts = new QHBoxLayout();
-  
+  QHBoxLayout* Butts = new QHBoxLayout();
+
   Butts->addStretch(5);
- 
+
   ImportButt = new QPushButton(tr("Convert"));
   connect(ImportButt, SIGNAL(clicked()), SLOT(slotImport()));
   AbortButt = new QPushButton(tr("Abort"));
@@ -122,39 +119,37 @@ ImportDialog::ImportDialog(QWidget *parent)
   Butts->addWidget(ImportButt);
   Butts->addWidget(AbortButt);
   Butts->addWidget(CancelButt);
-  
-  all->addLayout(Butts,2,0,1,1);
-  slotValidateOutput();
 
+  all->addLayout(Butts, 2, 0, 1, 1);
+  slotValidateOutput();
 }
 
-ImportDialog::~ImportDialog()
-{
-  if(Process.state() == QProcess::Running)  Process.kill();
+ImportDialog::~ImportDialog() {
+  if (Process.state() == QProcess::Running) {
+    Process.kill();
+  }
   delete all;
 }
 
 // ------------------------------------------------------------------------
-void ImportDialog::slotBrowse()
-{
+void ImportDialog::slotBrowse() {
   QString s = QFileDialog::getOpenFileName(
-     this, tr("Enter a Data File Name"),
-     lastImportDir.isEmpty() ? QStringLiteral(".") : lastImportDir,
-     tr("All known")+
-     " (*.s?p *.csv *.citi *.cit *.asc *.mdl *.vcd *.dat *.cir *.dat.ngspice *.dat.xyce *.dat.spopus);;"+
-     tr("Touchstone files")+" (*.s?p);;"+
-     tr("CSV files")+" (*.csv);;"+
-     tr("CITI files")+" (*.citi *.cit);;"+
-     tr("ZVR ASCII files")+" (*.asc);;"+
-     tr("IC-CAP model files")+" (*.mdl);;"+
-     tr("VCD files")+" (*.vcd);;"+
-     tr("Qucs dataset files")+" (*.dat *.dat.ngspice *.dat.xyce *.dat.spopus);;"+
-     tr("SPICE files")+" (*.cir);;"+
-     tr("Any file")+" (*)");
+      this, tr("Enter a Data File Name"),
+      lastImportDir.isEmpty() ? QStringLiteral(".") : lastImportDir,
+      tr("All known") +
+          " (*.s?p *.csv *.citi *.cit *.asc *.mdl *.vcd *.dat *.cir "
+          "*.dat.ngspice *.dat.xyce *.dat.spopus);;" +
+          tr("Touchstone files") + " (*.s?p);;" + tr("CSV files") +
+          " (*.csv);;" + tr("CITI files") + " (*.citi *.cit);;" +
+          tr("ZVR ASCII files") + " (*.asc);;" + tr("IC-CAP model files") +
+          " (*.mdl);;" + tr("VCD files") + " (*.vcd);;" +
+          tr("Qucs dataset files") +
+          " (*.dat *.dat.ngspice *.dat.xyce *.dat.spopus);;" +
+          tr("SPICE files") + " (*.cir);;" + tr("Any file") + " (*)");
 
-  if(!s.isEmpty()) {
+  if (!s.isEmpty()) {
     QFileInfo Info(s);
-    lastImportDir = Info.absolutePath();  // remember last directory
+    lastImportDir = Info.absolutePath(); // remember last directory
     ImportEdit->setText(s);
 
     if (OutType->currentIndex() == 3) {
@@ -163,80 +158,78 @@ void ImportDialog::slotBrowse()
   }
 }
 
-void ImportDialog::slotSaveBrowse()
-{
-    QString s = QFileDialog::getSaveFileName(
-       this, tr("Enter a Data File Name"),
-       lastImportDir.isEmpty() ? QStringLiteral(".") : lastImportDir,
-       tr("All known")+
-       " (*.s?p *.csv *.dat *.cir *.net *.lib);;"+
-       tr("Touchstone files")+" (*.s?p);;"+
-       tr("CSV files")+" (*.csv);;"+
-       tr("Qucs dataset files")+" (*.dat);;"+
-       tr("SPICE files")+" (*.cir);;"+
-       tr("Qucsator netlist")+" (*.net);;"+
-       tr("Qucs library")+" (*.lib);;"+
-       tr("Any file")+" (*)");
-    OutputEdit->setText(s);
+void ImportDialog::slotSaveBrowse() {
+  QString s = QFileDialog::getSaveFileName(
+      this, tr("Enter a Data File Name"),
+      lastImportDir.isEmpty() ? QStringLiteral(".") : lastImportDir,
+      tr("All known") + " (*.s?p *.csv *.dat *.cir *.net *.lib);;" +
+          tr("Touchstone files") + " (*.s?p);;" + tr("CSV files") +
+          " (*.csv);;" + tr("Qucs dataset files") + " (*.dat);;" +
+          tr("SPICE files") + " (*.cir);;" + tr("Qucsator netlist") +
+          " (*.net);;" + tr("Qucs library") + " (*.lib);;" + tr("Any file") +
+          " (*)");
+  OutputEdit->setText(s);
 }
 
 // ------------------------------------------------------------------------
-void ImportDialog::slotImport()
-{
+void ImportDialog::slotImport() {
   MsgText->clear();
-  if (OutputEdit->text().isEmpty())
+  if (OutputEdit->text().isEmpty()) {
     return;
+  }
 
   ImportButt->setDisabled(true);
   AbortButt->setDisabled(false);
 
   QFile File(QucsSettings.QucsWorkDir.filePath(OutputEdit->text()));
-  if(File.exists())
-    if(QMessageBox::information(this, tr("Info"),
-          tr("Output file already exists!")+"\n"+tr("Overwrite it?"),
-          QMessageBox::Yes|QMessageBox::No) == QMessageBox::No)
-      {
-	ImportButt->setDisabled(false);
-	AbortButt->setDisabled(true);
-	return;
-      }
+  if (File.exists()) {
+    if (QMessageBox::information(
+            this, tr("Info"),
+            tr("Output file already exists!") + "\n" + tr("Overwrite it?"),
+            QMessageBox::Yes | QMessageBox::No) == QMessageBox::No) {
+      ImportButt->setDisabled(false);
+      AbortButt->setDisabled(true);
+      return;
+    }
+  }
 
   QString Program;
   QStringList CommandLine;
 
   Program = QucsSettings.Qucsconv;
-  CommandLine  << "-if";
-  
+  CommandLine << "-if";
+
   switch (InType->currentIndex()) {
   case 0:
-      CommandLine << "spice";
-      break;
+    CommandLine << "spice";
+    break;
   case 1:
-      CommandLine << "vcd";
-      break;
+    CommandLine << "vcd";
+    break;
   case 2:
-      CommandLine << "csv";
-      break;
+    CommandLine << "csv";
+    break;
   case 3:
-      CommandLine << "qucsdata";
-      break;
+    CommandLine << "qucsdata";
+    break;
   case 4:
-      CommandLine << "citi";
-      break;
+    CommandLine << "citi";
+    break;
   case 5:
-      CommandLine << "zvr";
-      break;
+    CommandLine << "zvr";
+    break;
   case 6:
-      CommandLine << "mdl";
-      break;
+    CommandLine << "mdl";
+    break;
   case 7:
-      CommandLine << "touchstone";
-      break;
-  default:  break;
+    CommandLine << "touchstone";
+    break;
+  default:
+    break;
   }
 
   CommandLine << "-of";
-  switch(OutType->currentIndex()) {
+  switch (OutType->currentIndex()) {
   case 0:
     CommandLine << "qucsdata";
     break;
@@ -245,8 +238,9 @@ void ImportDialog::slotImport()
     break;
   case 2:
     CommandLine << "csv";
-    if (!OutputData->currentText().isEmpty())
+    if (!OutputData->currentText().isEmpty()) {
       CommandLine << "-d" << OutputData->currentText();
+    }
     break;
   case 3:
     CommandLine << "qucslib";
@@ -265,8 +259,8 @@ void ImportDialog::slotImport()
     break;
   }
 
-  CommandLine << "-i" << ImportEdit->text()
-              << "-o" << QucsSettings.QucsWorkDir.filePath(OutputEdit->text());
+  CommandLine << "-i" << ImportEdit->text() << "-o"
+              << QucsSettings.QucsWorkDir.filePath(OutputEdit->text());
 
   Process.blockSignals(false);
 
@@ -275,22 +269,22 @@ void ImportDialog::slotImport()
   connect(&Process, SIGNAL(readyReadStandardOutput()), SLOT(slotDisplayMsg()));
   connect(&Process, SIGNAL(finished(int)), SLOT(slotProcessEnded(int)));
 
-  MsgText->appendPlainText(tr("Running command line:")+"\n");
+  MsgText->appendPlainText(tr("Running command line:") + "\n");
   MsgText->appendPlainText(Program + " " + CommandLine.join(" "));
   MsgText->appendPlainText("\n");
 
   qDebug() << "Command:" << Program << CommandLine.join(" ");
   Process.start(Program, CommandLine);
   Process.waitForStarted();
-  
-  if(Process.state() != QProcess::Running)
+
+  if (Process.state() != QProcess::Running) {
     MsgText->appendPlainText(tr("ERROR: Cannot start converter!"));
+  }
 }
 
 // ------------------------------------------------------------------------
-void ImportDialog::slotType(int index)
-{
-  //auto index = OutType->currentIndex();
+void ImportDialog::slotType(int index) {
+  // auto index = OutType->currentIndex();
   if (index == 2) {
     OutputData->setEnabled(true);
     OutputLabel->setEnabled(true);
@@ -309,146 +303,144 @@ void ImportDialog::slotType(int index)
 }
 
 // ------------------------------------------------------------------------
-void ImportDialog::slotAbort()
-{
-  if(Process.state() == QProcess::Running)  Process.kill();
+void ImportDialog::slotAbort() {
+  if (Process.state() == QProcess::Running) {
+    Process.kill();
+  }
   AbortButt->setDisabled(true);
   ImportButt->setDisabled(false);
 }
 
 // ------------------------------------------------------------------------
 // Is called when the process sends an output to stdout.
-void ImportDialog::slotDisplayMsg()
-{
+void ImportDialog::slotDisplayMsg() {
   MsgText->appendPlainText(QString(Process.readAllStandardOutput()));
 }
 
 // ------------------------------------------------------------------------
 // Is called when the process sends an output to stderr.
-void ImportDialog::slotDisplayErr()
-{
+void ImportDialog::slotDisplayErr() {
   MsgText->appendPlainText(QString(Process.readAllStandardError()));
 }
 
 // ------------------------------------------------------------------------
 // Is called when the simulation process terminates.
-void ImportDialog::slotProcessEnded(int status)
-{
+void ImportDialog::slotProcessEnded(int status) {
   ImportButt->setDisabled(false);
   AbortButt->setDisabled(true);
 
-  if(status == 0) {    
+  if (status == 0) {
     MsgText->appendPlainText(tr("Successfully converted file!"));
 
     disconnect(CancelButt, SIGNAL(clicked()), 0, 0);
     connect(CancelButt, SIGNAL(clicked()), SLOT(accept()));
-  }
-  else
+  } else {
     MsgText->appendPlainText(tr("Converter ended with errors!"));
+  }
 }
 
-void ImportDialog::slotValidateInput()
-{
-    QString in_file = ImportEdit->text();
-    if (in_file.isEmpty() || !QFile::exists(in_file)) return;
+void ImportDialog::slotValidateInput() {
+  QString in_file = ImportEdit->text();
+  if (in_file.isEmpty() || !QFile::exists(in_file)) {
+    return;
+  }
 
-    QFileInfo inf(in_file);
-    QString Suffix = inf.suffix().toLower();
-    QString FullSuffix = inf.completeSuffix().toLower();
-    int idx = 3;
-    QRegularExpression snp_expr("s[1-9]p");
+  QFileInfo inf(in_file);
+  QString Suffix     = inf.suffix().toLower();
+  QString FullSuffix = inf.completeSuffix().toLower();
+  int idx            = 3;
+  QRegularExpression snp_expr("s[1-9]p");
 
-    if((Suffix == "citi") || (Suffix == "cit")) {
-      idx = 4;
-    } else if(Suffix == "vcd") {
-      idx = 1;
-    } else if(Suffix == "asc") {
-      idx = 5;
-    } else if(Suffix == "mdl") {
-      idx = 6;
-    } else if(Suffix == "csv") {
-      idx = 2;
-    } else if(Suffix == "dat" || FullSuffix == "dat.ngspice" ||
-            FullSuffix == "dat.xyce" || FullSuffix == "dat.spopus") {
-      idx = 3;
-      getDataVarsFromDatafile(in_file);
-    } else if(Suffix == "cir" || Suffix == "ckt" || Suffix == "sp") {
-      idx = 0;
-    } else if (snp_expr.match(Suffix).hasMatch()) {
-      idx = 7;
-    }
+  if ((Suffix == "citi") || (Suffix == "cit")) {
+    idx = 4;
+  } else if (Suffix == "vcd") {
+    idx = 1;
+  } else if (Suffix == "asc") {
+    idx = 5;
+  } else if (Suffix == "mdl") {
+    idx = 6;
+  } else if (Suffix == "csv") {
+    idx = 2;
+  } else if (Suffix == "dat" || FullSuffix == "dat.ngspice" ||
+             FullSuffix == "dat.xyce" || FullSuffix == "dat.spopus") {
+    idx = 3;
+    getDataVarsFromDatafile(in_file);
+  } else if (Suffix == "cir" || Suffix == "ckt" || Suffix == "sp") {
+    idx = 0;
+  } else if (snp_expr.match(Suffix).hasMatch()) {
+    idx = 7;
+  }
 
-    InType->setCurrentIndex(idx);
+  InType->setCurrentIndex(idx);
 }
 
+void ImportDialog::slotValidateOutput() {
+  QListView* view = qobject_cast<QListView*>(OutType->view());
 
-void ImportDialog::slotValidateOutput()
-{
-    QListView* view = qobject_cast<QListView *>(OutType->view());
+  for (int i = 0; i < OutType->count(); i++) {
+    view->setRowHidden(i, false);
+  }
 
-    for (int i = 0; i < OutType->count(); i++) {
-        view->setRowHidden(i,false);
-    }
-
-    switch (InType->currentIndex()) {
-    case 0: // SPICE
-        view->setRowHidden(0,true);
-        view->setRowHidden(1,true);
-        view->setRowHidden(2,true);
-        view->setRowHidden(5,true);
-        OutType->setCurrentIndex(3);
-        break;
-    case 1: // CSV
-    case 2: // VCD
-        view->setRowHidden(1,true);
-        view->setRowHidden(2,true);
-        view->setRowHidden(3,true);
-        view->setRowHidden(4,true);
-        view->setRowHidden(5,true);
-        OutType->setCurrentIndex(0);
-        break;
-    case 3: // Qucsdata
-        view->setRowHidden(0,true);
-        view->setRowHidden(3,true);
-        view->setRowHidden(4,true);
-        OutType->setCurrentIndex(1);
-        break;
-    case 4: // Citi
-    case 5: // ZVR
-    case 6: // MDL
-    case 7: // Touchstone
-        view->setRowHidden(1,true);
-        view->setRowHidden(2,true);
-        view->setRowHidden(3,true);
-        view->setRowHidden(4,true);
-        view->setRowHidden(5,true);
-        OutType->setCurrentIndex(0);
-        break;
-        break;
-    default:
-        break;
-    }
-    slotType(OutType->currentIndex());
+  switch (InType->currentIndex()) {
+  case 0: // SPICE
+    view->setRowHidden(0, true);
+    view->setRowHidden(1, true);
+    view->setRowHidden(2, true);
+    view->setRowHidden(5, true);
+    OutType->setCurrentIndex(3);
+    break;
+  case 1: // CSV
+  case 2: // VCD
+    view->setRowHidden(1, true);
+    view->setRowHidden(2, true);
+    view->setRowHidden(3, true);
+    view->setRowHidden(4, true);
+    view->setRowHidden(5, true);
+    OutType->setCurrentIndex(0);
+    break;
+  case 3: // Qucsdata
+    view->setRowHidden(0, true);
+    view->setRowHidden(3, true);
+    view->setRowHidden(4, true);
+    OutType->setCurrentIndex(1);
+    break;
+  case 4: // Citi
+  case 5: // ZVR
+  case 6: // MDL
+  case 7: // Touchstone
+    view->setRowHidden(1, true);
+    view->setRowHidden(2, true);
+    view->setRowHidden(3, true);
+    view->setRowHidden(4, true);
+    view->setRowHidden(5, true);
+    OutType->setCurrentIndex(0);
+    break;
+    break;
+  default:
+    break;
+  }
+  slotType(OutType->currentIndex());
 }
 
-
-bool ImportDialog::getDataVarsFromDatafile(const QString &filename)
-{
+bool ImportDialog::getDataVarsFromDatafile(const QString& filename) {
   OutputData->clear();
   QFile f(filename);
   if (!f.open(QIODevice::ReadOnly)) {
-    QMessageBox::critical(this,tr("Error"),tr("Cannot open file: ") + filename);
+    QMessageBox::critical(this, tr("Error"),
+                          tr("Cannot open file: ") + filename);
     return false;
   }
 
   QTextStream ts(&f);
   QStringList vars;
-  while(!ts.atEnd()) {
+  while (!ts.atEnd()) {
     QString line = ts.readLine();
-    line = line.trimmed();
+    line         = line.trimmed();
     if (line.startsWith("<dep")) {
-      QString var = line.section(' ',1,1);
-      if (!var.isEmpty()) vars.append(var);
+      QString var = line.section(' ', 1, 1);
+      if (!var.isEmpty()) {
+        vars.append(var);
+      }
     }
   }
 

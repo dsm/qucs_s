@@ -18,7 +18,7 @@
  *   (at your option) any later version.                                   *
  *                                                                         *
  ***************************************************************************/
- #ifndef MESFET_SPICE_H
+#ifndef MESFET_SPICE_H
 #define MESFET_SPICE_H
 
 #include "components/component.h"
@@ -28,10 +28,12 @@ public:
   MESFET_SPICE();
   ~MESFET_SPICE();
   Component* newOne();
-  static Element* info(QString&, char* &, bool getNewOne=false);
+  static Element* info(QString&, char*&, bool getNewOne = false);
+
 protected:
   QString netlist();
-  QString spice_netlist(spicecompat::SpiceDialect dialect = spicecompat::SPICEDefault);
+  QString
+  spice_netlist(spicecompat::SpiceDialect dialect = spicecompat::SPICEDefault);
 };
 
 #endif // MESFET_SPICE_H

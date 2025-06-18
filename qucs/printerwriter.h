@@ -28,19 +28,19 @@
 
 class QWidget;
 
-class PrinterWriter
-{
+class PrinterWriter {
 public:
-  PrinterWriter ();
-  virtual ~PrinterWriter ();
-  void print(QWidget *);
-  void noGuiPrint(QWidget *doc, QString printFile,
-      QString page, int dpi, QString color, QString orientation);
+  PrinterWriter();
+  virtual ~PrinterWriter();
+  void print(QWidget*);
+  void noGuiPrint(QWidget* doc, QString printFile, QString page, int dpi,
+                  QString color, QString orientation);
 
   void setFitToPage(bool _fitToPage) { fitToPage = _fitToPage; };
+
 private:
   bool fitToPage;
-  QPrinter *Printer;
+  QPrinter* Printer;
 };
 
 #endif
