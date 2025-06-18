@@ -20,18 +20,16 @@
 #include "misc.h"
 #include "node.h"
 
-#include <QTextStream>
-#include <QRegularExpression>
 #include <QFileInfo>
+#include <QRegularExpression>
+#include <QTextStream>
 
-
-Verilog_File::Verilog_File()
-{
-  Type = isDigitalComponent;
+Verilog_File::Verilog_File() {
+  Type        = isDigitalComponent;
   Description = QObject::tr("Verilog file");
 
   Props.append(new Property("File", "sub.v", false,
-		QObject::tr("Name of Verilog file")));
+                            QObject::tr("Name of Verilog file")));
 
   Model = "Verilog";
   Name  = "X";
@@ -41,43 +39,41 @@ Verilog_File::Verilog_File()
 }
 
 // -------------------------------------------------------
-Component* Verilog_File::newOne()
-{
-  Verilog_File *p = new Verilog_File();
+Component* Verilog_File::newOne() {
+  Verilog_File* p         = new Verilog_File();
   p->Props.front()->Value = Props.front()->Value;
   p->recreate();
   return p;
 }
 
 // -------------------------------------------------------
-Element* Verilog_File::info(QString& Name, char* &BitmapFile, bool getNewOne)
-{
-  Name = QObject::tr("Verilog file");
-  BitmapFile = (char *) "vhdlfile";
+Element* Verilog_File::info(QString& Name, char*& BitmapFile, bool getNewOne) {
+  Name       = QObject::tr("Verilog file");
+  BitmapFile = (char*)"vhdlfile";
 
-  if(getNewOne) {
-    Verilog_File *p = new Verilog_File();
-    p->recreate();   // createSymbol() is NOT called in constructor !!!
+  if (getNewOne) {
+    Verilog_File* p = new Verilog_File();
+    p->recreate(); // createSymbol() is NOT called in constructor !!!
     return p;
   }
   return 0;
 }
 
 // -------------------------------------------------------
-QString Verilog_File::verilogCode(int)
-{
+QString Verilog_File::verilogCode(int) {
   QString s;
-  QListIterator<Port *> iport(Ports);
-  Port *pp = iport.next();
-  if(pp) {
+  QListIterator<Port*> iport(Ports);
+  Port* pp = iport.next();
+  if (pp) {
     s = "  " + ModuleName + " " + Name + " (";
 
     // output all node names
-    if(pp)  s += pp->Connection->Name;
-    while(iport.hasNext())
-    {
+    if (pp) {
+      s += pp->Connection->Name;
+    }
+    while (iport.hasNext()) {
       pp = iport.next();
-      s += ", "+pp->Connection->Name;   // node names
+      s += ", " + pp->Connection->Name; // node names
     }
 
     s += ");\n";
@@ -88,19 +84,20 @@ QString Verilog_File::verilogCode(int)
 // -------------------------------------------------------
 // Returns a comma separated list of the port names of the last
 // entity in this file.
-QString Verilog_File::loadFile()
-{
+QString Verilog_File::loadFile() {
   QString s, File(Props.front()->Value);
   QFileInfo Info(File);
-  if(Info.isRelative())
+  if (Info.isRelative()) {
     File = QucsSettings.QucsWorkDir.filePath(File);
+  }
 
   QFile f(File);
-  if(!f.open(QIODevice::ReadOnly))
+  if (!f.open(QIODevice::ReadOnly)) {
     return QString();
+  }
 
   QTextStream stream(&f);
-  File = stream.readAll();   // QString is better for "find" function
+  File = stream.readAll(); // QString is better for "find" function
   f.close();
 
   // parse ports, i.e. network connections
@@ -110,72 +107,77 @@ QString Verilog_File::loadFile()
 }
 
 // -------------------------------------------------------
-void Verilog_File::createSymbol()
-{ 
+void Verilog_File::createSymbol() {
   // use the screen-compatible metric
-  QFontMetrics  metrics(QucsSettings.font, 0);   // get size of text
+  QFontMetrics metrics(QucsSettings.font, 0); // get size of text
   int fHeight = metrics.lineSpacing();
 
   int No = 0;
   QString tmp, PortNames = loadFile();
-  if(!PortNames.isEmpty())
+  if (!PortNames.isEmpty()) {
     No = PortNames.count(',') + 1;
+  }
 
+#define HALFWIDTH 24
+  int h = 30 * ((No - 1) / 2) + 15;
+  Lines.append(
+      new qucs::Line(-HALFWIDTH, -h, HALFWIDTH, -h, QPen(Qt::darkBlue, 2)));
+  Lines.append(
+      new qucs::Line(HALFWIDTH, -h, HALFWIDTH, h, QPen(Qt::darkBlue, 2)));
+  Lines.append(
+      new qucs::Line(-HALFWIDTH, h, HALFWIDTH, h, QPen(Qt::darkBlue, 2)));
+  Lines.append(
+      new qucs::Line(-HALFWIDTH, -h, -HALFWIDTH, h, QPen(Qt::darkBlue, 2)));
 
-  #define HALFWIDTH  24
-  int h = 30*((No-1)/2) + 15;
-  Lines.append(new qucs::Line(-HALFWIDTH, -h, HALFWIDTH, -h,QPen(Qt::darkBlue,2)));
-  Lines.append(new qucs::Line( HALFWIDTH, -h, HALFWIDTH,  h,QPen(Qt::darkBlue,2)));
-  Lines.append(new qucs::Line(-HALFWIDTH,  h, HALFWIDTH,  h,QPen(Qt::darkBlue,2)));
-  Lines.append(new qucs::Line(-HALFWIDTH, -h,-HALFWIDTH,  h,QPen(Qt::darkBlue,2)));
-
-  tmp = QObject::tr("verilog");
+  tmp   = QObject::tr("verilog");
   int w = metrics.boundingRect(tmp).width();
-  Texts.append(new Text(w/-2, fHeight/-2, tmp));
+  Texts.append(new Text(w / -2, fHeight / -2, tmp));
 
-
-  int y = 15-h, i = 0;
-  while(i<No) {
-    Lines.append(new qucs::Line(-30,  y,-HALFWIDTH,  y,QPen(Qt::darkBlue,2)));
-    Ports.append(new Port(-30,  y));
+  int y = 15 - h, i = 0;
+  while (i < No) {
+    Lines.append(new qucs::Line(-30, y, -HALFWIDTH, y, QPen(Qt::darkBlue, 2)));
+    Ports.append(new Port(-30, y));
     tmp = PortNames.section(',', i, i);
-    w = metrics.boundingRect(tmp).width();
-    Texts.append(new Text(-26-w, y-fHeight-2, tmp));
+    w   = metrics.boundingRect(tmp).width();
+    Texts.append(new Text(-26 - w, y - fHeight - 2, tmp));
     i++;
 
-    if(i == No) break;
-    Lines.append(new qucs::Line(HALFWIDTH,  y, 30,  y,QPen(Qt::darkBlue,2)));
-    Ports.append(new Port( 30,  y));
+    if (i == No) {
+      break;
+    }
+    Lines.append(new qucs::Line(HALFWIDTH, y, 30, y, QPen(Qt::darkBlue, 2)));
+    Ports.append(new Port(30, y));
     tmp = PortNames.section(',', i, i);
-    Texts.append(new Text( 27, y-fHeight-2, tmp));
+    Texts.append(new Text(27, y - fHeight - 2, tmp));
     y += 60;
     i++;
   }
 
-  x1 = -30; y1 = -h-2;
-  x2 =  30; y2 =  h+2;
-  tx = x1+4;
-  ty = y2+4;
+  x1 = -30;
+  y1 = -h - 2;
+  x2 = 30;
+  y2 = h + 2;
+  tx = x1 + 4;
+  ty = y2 + 4;
 }
 
 // -------------------------------------------------------
-QString Verilog_File::getSubcircuitFile()
-{
+QString Verilog_File::getSubcircuitFile() {
   // construct full filename
   QString FileName = Props.front()->Value;
   return misc::properAbsFileName(FileName);
 }
 
 // -------------------------------------------------------
-bool Verilog_File::createSubNetlist(QTextStream *stream)
-{
+bool Verilog_File::createSubNetlist(QTextStream* stream) {
   ErrText = "";
 
   // check filename
   QString FileName = Props.front()->Value;
-  if(FileName.isEmpty()) {
-    ErrText += QObject::tr("ERROR: No file name in %1 component \"%2\".").
-      arg(Model).arg(Name);
+  if (FileName.isEmpty()) {
+    ErrText += QObject::tr("ERROR: No file name in %1 component \"%2\".")
+                   .arg(Model)
+                   .arg(Name);
     return false;
   }
 
@@ -184,9 +186,10 @@ bool Verilog_File::createSubNetlist(QTextStream *stream)
 
   // open file for reading
   QFile f(FileName);
-  if(!f.open(QIODevice::ReadOnly)) {
-    ErrText += QObject::tr("ERROR: Cannot open %1 file \"%2\".").
-      arg(Model).arg(FileName);
+  if (!f.open(QIODevice::ReadOnly)) {
+    ErrText += QObject::tr("ERROR: Cannot open %1 file \"%2\".")
+                   .arg(Model)
+                   .arg(FileName);
     return false;
   }
 
@@ -201,99 +204,105 @@ bool Verilog_File::createSubNetlist(QTextStream *stream)
 }
 
 // -------------------------------------------------------
-Verilog_File_Info::Verilog_File_Info()
-{
+Verilog_File_Info::Verilog_File_Info() {
   ModuleName = "";
-  PortNames = "";
+  PortNames  = "";
 }
 
 // -------------------------------------------------------
-Verilog_File_Info::Verilog_File_Info(QString File, bool isfile)
-{
+Verilog_File_Info::Verilog_File_Info(QString File, bool isfile) {
   if (isfile) {
     QFile f(File);
-    if(!f.open(QIODevice::ReadOnly))
+    if (!f.open(QIODevice::ReadOnly)) {
       File = "";
-    else {
+    } else {
       QByteArray FileContent = f.readAll();
-      File = QString(FileContent);
+      File                   = QString(FileContent);
     }
     f.close();
   }
-  
+
   QString s;
-  int i=0, j, k=0;
-  while((i=File.indexOf("//", i)) >= 0) { // remove all Verilog comments
-    j = File.indexOf('\n', i+2);          // (This also finds "//" within a ...
-    if(j < 0)                          //  string, but as no strings are ...
-      File = File.left(i);             //  allowed in module headers, it ...
-    else                               //  does not matter.)
-      File.remove(i, j-i);
+  int i = 0, j, k = 0;
+  while ((i = File.indexOf("//", i)) >= 0) { // remove all Verilog comments
+    j = File.indexOf('\n', i + 2); // (This also finds "//" within a ...
+    if (j < 0) {                   //  string, but as no strings are ...
+      File = File.left(i);         //  allowed in module headers, it ...
+    } else {                       //  does not matter.)
+      File.remove(i, j - i);
+    }
   }
 
-  i=0;
-  while((i=File.indexOf("/*", i)) >= 0) { // remove all Verilog comments
-    j = File.indexOf("*/", i+2);          // (This also finds "/*" within a ...
-    if(j < 0)                          //  string, but as no strings are ...
-      File = File.left(i);             //  allowed in module headers, it ...
-    else                               //  does not matter.)
-      File.remove(i, j-i+2);
+  i = 0;
+  while ((i = File.indexOf("/*", i)) >= 0) { // remove all Verilog comments
+    j = File.indexOf("*/", i + 2); // (This also finds "/*" within a ...
+    if (j < 0) {                   //  string, but as no strings are ...
+      File = File.left(i);         //  allowed in module headers, it ...
+    } else {                       //  does not matter.)
+      File.remove(i, j - i + 2);
+    }
   }
 
-  QRegularExpression Expr,Expr1;
-  //Expr.setCaseSensitivity(Qt::CaseSensitive);
-  //Expr1.setCaseSensitivity(Qt::CaseSensitive);
+  QRegularExpression Expr, Expr1;
+  // Expr.setCaseSensitivity(Qt::CaseSensitive);
+  // Expr1.setCaseSensitivity(Qt::CaseSensitive);
   k--;
-  Expr.setPattern("\\bmodule\\b");  // start of last module
+  Expr.setPattern("\\bmodule\\b"); // start of last module
   k = File.lastIndexOf(Expr, k);
-  if(k < 0)
+  if (k < 0) {
     return;
+  }
 
-  Expr.setPattern("\\bendmodule\\b");    // end of last module
-  i = File.indexOf(Expr, k+7);
-  if(i < 0)
+  Expr.setPattern("\\bendmodule\\b"); // end of last module
+  i = File.indexOf(Expr, k + 7);
+  if (i < 0) {
     return;
-  s = File.mid(k+7, i-k-7);  // cut out module declaration
+  }
+  s = File.mid(k + 7, i - k - 7); // cut out module declaration
 
   Expr.setPattern("\\b");
   i = s.indexOf(Expr);
-  if(i < 0)
+  if (i < 0) {
     return;
-  j = s.indexOf(Expr, i+1);
-  if(j < 0)
+  }
+  j = s.indexOf(Expr, i + 1);
+  if (j < 0) {
     return;
-  ModuleName = s.mid(i, j-i);  // save module name
+  }
+  ModuleName = s.mid(i, j - i); // save module name
 
   i = s.indexOf('(', j);
-  if(i < 0)
+  if (i < 0) {
     return;
+  }
 
   j = s.indexOf(')', i);
-  if(j < 0)
+  if (j < 0) {
     return;
-  s = s.mid(i+1, j-i-1);
+  }
+  s = s.mid(i + 1, j - i - 1);
 
   // parse ports, i.e. network connections; and generics, i.e. parameters
-  PortNames = parsePorts (s, 0);
+  PortNames = parsePorts(s, 0);
 }
 
 // -------------------------------------------------------
-QString Verilog_File_Info::parsePorts(QString s, int i)
-{
-  QRegularExpression Expr,Expr1;
-  //Expr.setCaseSensitivity(Qt::CaseSensitive);
-  //Expr1.setCaseSensitivity(Qt::CaseSensitive);
+QString Verilog_File_Info::parsePorts(QString s, int i) {
+  QRegularExpression Expr, Expr1;
+  // Expr.setCaseSensitivity(Qt::CaseSensitive);
+  // Expr1.setCaseSensitivity(Qt::CaseSensitive);
 
   int j;
-  i = 0;    // remove all Verilog identifiers (e.g. "input")
+  i = 0; // remove all Verilog identifiers (e.g. "input")
   Expr.setPattern("(\\binput\\b|\\boutput\\b|\\binout\\b)");
   Expr1.setPattern("(\\b)");
-  while((i=s.indexOf(Expr, i)) >= 0) {
-    j = s.indexOf(Expr1, i+1);
-    if(j < 0)
+  while ((i = s.indexOf(Expr, i)) >= 0) {
+    j = s.indexOf(Expr1, i + 1);
+    if (j < 0) {
       s = s.left(i);
-    else
-      s.remove(i, j-i);
+    } else {
+      s.remove(i, j - i);
+    }
   }
 
   s.remove(' ');

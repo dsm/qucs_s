@@ -23,15 +23,14 @@
 class QTextStream;
 class QString;
 
-
-class VHDL_File : public MultiViewComponent  {
+class VHDL_File : public MultiViewComponent {
 public:
   VHDL_File();
- ~VHDL_File() {};
+  ~VHDL_File(){};
   Component* newOne();
-  static Element* info(QString&, char* &, bool getNewOne=false);
+  static Element* info(QString&, char*&, bool getNewOne = false);
 
-  bool createSubNetlist(QTextStream *);
+  bool createSubNetlist(QTextStream*);
   QString getErrorText() { return ErrText; }
   QString getSubcircuitFile();
 
@@ -52,7 +51,7 @@ class VHDL_File_Info {
 public:
   VHDL_File_Info();
   VHDL_File_Info(QString, bool isfile = false);
- ~VHDL_File_Info() {};
+  ~VHDL_File_Info(){};
   QString parsePorts(QString, int);
   QString parseGenerics(QString, int);
 

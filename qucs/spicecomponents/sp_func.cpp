@@ -20,67 +20,69 @@
 #include <QFontInfo>
 #include <QFontMetrics>
 
-SpiceFunc::SpiceFunc()
-{
-  isEquation = false;
-  Type = isComponent; // Analogue and digital component.
+SpiceFunc::SpiceFunc() {
+  isEquation  = false;
+  Type        = isComponent; // Analogue and digital component.
   Description = QObject::tr(".FUNC new function definition");
-  Simulator = spicecompat::simSpice;
+  Simulator   = spicecompat::simSpice;
 
   QFont f = QucsSettings.font;
   f.setWeight(QFont::Light);
   f.setPointSizeF(12.0);
-  QFontMetrics  metrics(f, 0);  // use the the screen-compatible metric
+  QFontMetrics metrics(f, 0); // use the the screen-compatible metric
   QSize r = metrics.size(0, QObject::tr(".FUNC"));
-  int xb = r.width()  >> 1;
-  int yb = r.height() >> 1;
+  int xb  = r.width() >> 1;
+  int yb  = r.height() >> 1;
 
-  Lines.append(new qucs::Line(-xb, -yb, -xb,  yb,QPen(Qt::darkRed,2)));
-  Lines.append(new qucs::Line(-xb,  yb,  xb+3,yb,QPen(Qt::darkRed,2)));
-  Texts.append(new Text(-xb+4,  -yb-3, QObject::tr(".FUNC"),
-			QColor(0,0,0), QFontInfo(f).pixelSize()));
+  Lines.append(new qucs::Line(-xb, -yb, -xb, yb, QPen(Qt::darkRed, 2)));
+  Lines.append(new qucs::Line(-xb, yb, xb + 3, yb, QPen(Qt::darkRed, 2)));
+  Texts.append(new Text(-xb + 4, -yb - 3, QObject::tr(".FUNC"), QColor(0, 0, 0),
+                        QFontInfo(f).pixelSize()));
 
-  x1 = -xb-3;  y1 = -yb-5;
-  x2 =  xb+9; y2 =  yb+3;
+  x1 = -xb - 3;
+  y1 = -yb - 5;
+  x2 = xb + 9;
+  y2 = yb + 3;
 
-  tx = x1+4;
-  ty = y2+4;
-  Model = "SpiceFunc";
-  Name  = "SpiceFunc";
+  tx         = x1 + 4;
+  ty         = y2 + 4;
+  Model      = "SpiceFunc";
+  Name       = "SpiceFunc";
   SpiceModel = ".FUNC";
 
   Props.append(new Property("prod(x,y)", "{x*y}", true));
 }
 
-SpiceFunc::~SpiceFunc()
-{
-}
+SpiceFunc::~SpiceFunc() {}
 
-Component* SpiceFunc::newOne()
-{
+Component* SpiceFunc::newOne() {
   return new SpiceFunc();
 }
 
-Element* SpiceFunc::info(QString& Name, char* &BitmapFile, bool getNewOne)
-{
-  Name = QObject::tr(".FUNC new function");
-  BitmapFile = (char *) "sp_func";
+Element* SpiceFunc::info(QString& Name, char*& BitmapFile, bool getNewOne) {
+  Name       = QObject::tr(".FUNC new function");
+  BitmapFile = (char*)"sp_func";
 
-  if(getNewOne)  return new SpiceFunc();
+  if (getNewOne) {
+    return new SpiceFunc();
+  }
   return 0;
 }
 
-QString SpiceFunc::getExpression(spicecompat::SpiceDialect dialect /* = spicecompat::SPICEDefault */)
-{
-    if (isActive != COMP_IS_ACTIVE || dialect == spicecompat::CDL) return QString();
+QString SpiceFunc::getExpression(
+    spicecompat::SpiceDialect dialect /* = spicecompat::SPICEDefault */) {
+  if (isActive != COMP_IS_ACTIVE || dialect == spicecompat::CDL) {
+    return QString();
+  }
 
-    QString s;
-    s.clear();
-    for (Property *pp : Props) {
-        if (QucsSettings.DefaultSimulator==spicecompat::simXyce)
-            s += QStringLiteral(".FUNC %1 %2\n").arg(pp->Name).arg(pp->Value);
-        else s += QStringLiteral(".FUNC %1 = %2\n").arg(pp->Name).arg(pp->Value);
+  QString s;
+  s.clear();
+  for (Property* pp : Props) {
+    if (QucsSettings.DefaultSimulator == spicecompat::simXyce) {
+      s += QStringLiteral(".FUNC %1 %2\n").arg(pp->Name).arg(pp->Value);
+    } else {
+      s += QStringLiteral(".FUNC %1 = %2\n").arg(pp->Name).arg(pp->Value);
     }
-    return s;
+  }
+  return s;
 }
-

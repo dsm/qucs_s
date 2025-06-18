@@ -45,35 +45,33 @@
 #include <QtGui>
 #include <QtWidgets>
 
-class  Q3Frame : public QFrame
-{
-    Q_OBJECT
+class Q3Frame : public QFrame {
+  Q_OBJECT
 
 public:
-    Q3Frame(QWidget* parent, const char* name = 0,
-            Qt::WindowFlags f = Qt::WindowFlags());
-    ~Q3Frame();
+  Q3Frame(QWidget* parent, const char* name = 0,
+          Qt::WindowFlags f = Qt::WindowFlags());
+  ~Q3Frame();
 #ifndef qdoc
-    bool        lineShapesOk()  const { return true; }
+  bool lineShapesOk() const { return true; }
 #endif
 
-    int margin() const { return marg; }
-    void setMargin(int);
+  int margin() const { return marg; }
+  void setMargin(int);
 
-    QRect contentsRect() const;
-    int frameWidth() const;
+  QRect contentsRect() const;
+  int frameWidth() const;
 
 protected:
-    void paintEvent(QPaintEvent *);
-    void resizeEvent(QResizeEvent *);
+  void paintEvent(QPaintEvent*);
+  void resizeEvent(QResizeEvent*);
 
-    virtual void frameChanged();
-    virtual void drawFrame(QPainter *);
-    virtual void drawContents(QPainter *);
+  virtual void frameChanged();
+  virtual void drawFrame(QPainter*);
+  virtual void drawContents(QPainter*);
 
 private:
-    int marg;
+  int marg;
 };
-
 
 #endif // Q3FRAME_H

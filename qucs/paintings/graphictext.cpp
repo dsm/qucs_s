@@ -22,259 +22,258 @@
 #include "one_point.h"
 #include "schematic.h"
 
-
-GraphicText::GraphicText()
-{
-    Name = "Text ";
-    isSelected = false;
-    color = QColor(0, 0, 0);
-    font = QucsSettings.font;
-    cx = cy = 0;
-    x1 = x2 = 0;
-    y1 = y2 = 0;
-    angle = 0;
-    br = QRect(0, 0, 0, 0);
+GraphicText::GraphicText() {
+  Name       = "Text ";
+  isSelected = false;
+  color      = QColor(0, 0, 0);
+  font       = QucsSettings.font;
+  cx = cy = 0;
+  x1 = x2 = 0;
+  y1 = y2 = 0;
+  angle   = 0;
+  br      = QRect(0, 0, 0, 0);
 }
 
 void GraphicText::paint(QPainter* painter) {
-    painter->save();
+  painter->save();
 
-    // Build transformation
-    QTransform transform;
-    transform.translate(x1, y1);
-    transform.rotate(-angle);
+  // Build transformation
+  QTransform transform;
+  transform.translate(x1, y1);
+  transform.rotate(-angle);
 
-    // Use combined transform to handle zooming
-    painter->setTransform(transform, true);
+  // Use combined transform to handle zooming
+  painter->setTransform(transform, true);
 
-    // Set font and pen color
-    painter->setPen(color);
-    QFont f = font;
-    f.setPixelSize(QFontInfo{font}.pixelSize());
-    painter->setFont(f);
+  // Set font and pen color
+  painter->setPen(color);
+  QFont f = font;
+  f.setPixelSize(QFontInfo{font}.pixelSize());
+  painter->setFont(f);
 
-    QRectF textBox;
-    misc::draw_richtext(painter, 0, 0, text, &textBox);
+  QRectF textBox;
+  misc::draw_richtext(painter, 0, 0, text, &textBox);
 
-    // Store the transformed boundingRect
-    br = transform.mapRect(textBox.toRect());
+  // Store the transformed boundingRect
+  br = transform.mapRect(textBox.toRect());
 
-    x2 = x1 + br.width();
-    y2 = y1 + br.height();
-    updateCenter();
+  x2 = x1 + br.width();
+  y2 = y1 + br.height();
+  updateCenter();
 
-    if (isSelected) {
-        painter->setPen(QPen(Qt::darkGray, 3));
-        painter->drawRect(textBox);
-    }
+  if (isSelected) {
+    painter->setPen(QPen(Qt::darkGray, 3));
+    painter->drawRect(textBox);
+  }
 
-    painter->restore();
+  painter->restore();
 }
 
-void GraphicText::paintScheme(Schematic *p)
-{
-    p->PostPaintEvent(_Rect, x1, y1, x2 - x1, y2 - y1);
+void GraphicText::paintScheme(Schematic* p) {
+  p->PostPaintEvent(_Rect, x1, y1, x2 - x1, y2 - y1);
 }
 
-Painting* GraphicText::newOne()
-{
+Painting* GraphicText::newOne() {
+  return new GraphicText();
+}
+
+Element* GraphicText::info(QString& Name, char*& BitmapFile, bool getNewOne) {
+  Name       = QObject::tr("Text");
+  BitmapFile = (char*)"text";
+
+  if (getNewOne) {
     return new GraphicText();
+  }
+  return 0;
 }
 
-Element *GraphicText::info(QString &Name, char *&BitmapFile, bool getNewOne)
-{
-    Name = QObject::tr("Text");
-    BitmapFile = (char *) "text";
+bool GraphicText::load(const QString& s) {
+  bool ok;
 
-    if (getNewOne)
-        return new GraphicText();
-    return 0;
+  QString n;
+  n  = s.section(' ', 1, 1); // x1
+  x1 = n.toInt(&ok);
+  if (!ok) {
+    return false;
+  }
+
+  n  = s.section(' ', 2, 2); // y1
+  y1 = n.toInt(&ok);
+  if (!ok) {
+    return false;
+  }
+
+  n = s.section(' ', 3, 3); // Size
+  font.setPointSize(n.toInt(&ok));
+  if (!ok) {
+    return false;
+  }
+
+  n     = s.section(' ', 4, 4); // Color
+  color = misc::ColorFromString(n);
+  if (!color.isValid()) {
+    return false;
+  }
+
+  n     = s.section(' ', 5, 5); // Angle
+  angle = n.toInt(&ok);
+  if (!ok) {
+    return false;
+  }
+
+  text = s.mid(s.indexOf('"') + 1); // Text (can contain " !!!)
+  text.truncate(text.length() - 1);
+  if (text.isEmpty()) {
+    return false;
+  }
+
+  misc::convert2Unicode(text);
+
+  // Size of the text is calculated here in order to set x2 and y2 coordinates.
+  // But there is a caveat: text may contain LaTeX-like macros for subscripts
+  // and upperscripts and here we treat these macros as usual text. Because
+  // of that, if text contains LaTeX-like macros it's countour is bigger than
+  // the actual text when it's being copied-and-pasted.
+  QFontMetrics metrics(QucsSettings.font, 0);
+  br = metrics.boundingRect(text);
+  x2 = x1 + br.width();
+  y2 = y1 + br.height();
+
+  return true;
 }
 
-bool GraphicText::load(const QString &s)
-{
-    bool ok;
+QString GraphicText::save() {
+  QString t = text;
+  misc::convert2ASCII(t);
 
-    QString n;
-    n = s.section(' ', 1, 1); // x1
-    x1 = n.toInt(&ok);
-    if (!ok)
-        return false;
-
-    n = s.section(' ', 2, 2); // y1
-    y1 = n.toInt(&ok);
-    if (!ok)
-        return false;
-
-    n = s.section(' ', 3, 3); // Size
-    font.setPointSize(n.toInt(&ok));
-    if (!ok)
-        return false;
-
-    n = s.section(' ', 4, 4); // Color
-    color = misc::ColorFromString(n);
-    if (!color.isValid())
-        return false;
-
-    n = s.section(' ', 5, 5); // Angle
-    angle = n.toInt(&ok);
-    if (!ok)
-        return false;
-
-    text = s.mid(s.indexOf('"') + 1); // Text (can contain " !!!)
-    text.truncate(text.length() - 1);
-    if (text.isEmpty())
-        return false;
-
-    misc::convert2Unicode(text);
-
-    // Size of the text is calculated here in order to set x2 and y2 coordinates.
-    // But there is a caveat: text may contain LaTeX-like macros for subscripts
-    // and upperscripts and here we treat these macros as usual text. Because
-    // of that, if text contains LaTeX-like macros it's countour is bigger than
-    // the actual text when it's being copied-and-pasted.
-    QFontMetrics metrics(QucsSettings.font, 0);
-    br = metrics.boundingRect(text);
-    x2 = x1 + br.width();
-    y2 = y1 + br.height();
-
-    return true;
+  // The 'Text' property has to be the last within the line !
+  QString s = Name + QString::number(x1) + " " + QString::number(y1) + " " +
+              QString::number(font.pointSize()) + " " + color.name() + " " +
+              QString::number(angle) + " \"" + t + "\"";
+  return s;
 }
 
-QString GraphicText::save()
-{
-    QString t = text;
-    misc::convert2ASCII(t);
+QString GraphicText::saveCpp() {
+  QString t = text;
+  misc::convert2ASCII(t);
 
-    // The 'Text' property has to be the last within the line !
-    QString s = Name + QString::number(x1) + " " + QString::number(y1) + " "
-                + QString::number(font.pointSize()) + " " + color.name() + " "
-                + QString::number(angle) + " \"" + t + "\"";
-    return s;
+  QString s =
+      QStringLiteral("new Text (%1, %2, \"%3\", QColor (\"%4\"), %5, %6, %7)")
+          .arg(x1)
+          .arg(y1)
+          .arg(t)
+          .arg(color.name())
+          .arg(font.pointSize())
+          .arg(cos(pi * angle / 180.0))
+          .arg(sin(pi * angle / 180.0));
+  s = "Texts.append (" + s + ");";
+  return s;
 }
 
-QString GraphicText::saveCpp()
-{
-    QString t = text;
-    misc::convert2ASCII(t);
+QString GraphicText::saveJSON() {
+  QString t = text;
+  misc::convert2ASCII(t);
 
-    QString s = QStringLiteral("new Text (%1, %2, \"%3\", QColor (\"%4\"), %5, %6, %7)")
-                    .arg(x1)
-                    .arg(y1)
-                    .arg(t)
-                    .arg(color.name())
-                    .arg(font.pointSize())
-                    .arg(cos(pi * angle / 180.0))
-                    .arg(sin(pi * angle / 180.0));
-    s = "Texts.append (" + s + ");";
-    return s;
+  QString s =
+      QStringLiteral(
+          "{\"type\" : \"graphictext\", "
+          "\"x\" : %1, \"y\" : %2, \"s\" : \"%3\", "
+          "\"color\" : \"%4\", \"size\" : %5, \"cos\" : %6, \"sin\" : %7},")
+          .arg(x1)
+          .arg(y1)
+          .arg(t)
+          .arg(color.name())
+          .arg(font.pointSize())
+          .arg(cos(pi * angle / 180.0))
+          .arg(sin(pi * angle / 180.0));
+  return s;
 }
 
-QString GraphicText::saveJSON()
-{
-    QString t = text;
-    misc::convert2ASCII(t);
+void GraphicText::MouseMoving(const QPoint& onGrid, Schematic* sch,
+                              const QPoint& cursor) {
+  x1 = onGrid.x();
+  y1 = onGrid.y();
 
-    QString s = QStringLiteral("{\"type\" : \"graphictext\", "
-                        "\"x\" : %1, \"y\" : %2, \"s\" : \"%3\", "
-                        "\"color\" : \"%4\", \"size\" : %5, \"cos\" : %6, \"sin\" : %7},")
-                    .arg(x1)
-                    .arg(y1)
-                    .arg(t)
-                    .arg(color.name())
-                    .arg(font.pointSize())
-                    .arg(cos(pi * angle / 180.0))
-                    .arg(sin(pi * angle / 180.0));
-    return s;
+  // paint cursor scursor.y()mbol
+  sch->PostPaintEvent(_Line, cursor.x() + 15, cursor.y() + 15, cursor.x() + 20,
+                      cursor.y(), 0, 0, true);
+  sch->PostPaintEvent(_Line, cursor.x() + 26, cursor.y() + 15, cursor.x() + 21,
+                      cursor.y(), 0, 0, true);
+  sch->PostPaintEvent(_Line, cursor.x() + 17, cursor.y() + 8, cursor.x() + 23,
+                      cursor.y() + 8, 0, 0, true);
 }
 
-void GraphicText::MouseMoving(const QPoint& onGrid, Schematic* sch, const QPoint& cursor)
-{
-    x1 = onGrid.x();
-    y1 = onGrid.y();
-
-    // paint cursor scursor.y()mbol
-    sch->PostPaintEvent(_Line, cursor.x() + 15, cursor.y() + 15, cursor.x() + 20, cursor.y(), 0, 0, true);
-    sch->PostPaintEvent(_Line, cursor.x() + 26, cursor.y() + 15, cursor.x() + 21, cursor.y(), 0, 0, true);
-    sch->PostPaintEvent(_Line, cursor.x() + 17, cursor.y() + 8, cursor.x() + 23, cursor.y() + 8, 0, 0, true);
-}
-
-bool GraphicText::MousePressing(Schematic *sch)
-{
-    return Dialog(sch);
+bool GraphicText::MousePressing(Schematic* sch) {
+  return Dialog(sch);
 }
 
 // Checks if the coordinates x/y point to the painting.
-bool GraphicText::getSelected(const QPoint& click, int tolerance)
-{
-    return boundingRect()
-        .marginsAdded(QMargins(tolerance, tolerance, tolerance, tolerance))
-        .contains(click);
+bool GraphicText::getSelected(const QPoint& click, int tolerance) {
+  return boundingRect()
+      .marginsAdded(QMargins(tolerance, tolerance, tolerance, tolerance))
+      .contains(click);
 }
 
 // Rotates around the center.
-bool GraphicText::rotate() noexcept
-{
-    angle += 90;
-    angle %= 360;
-    return true;
+bool GraphicText::rotate() noexcept {
+  angle += 90;
+  angle %= 360;
+  return true;
 }
 
-bool GraphicText::rotate(int rcx, int rcy) noexcept
-{
-    qucs_s::geom::rotate_point_ccw(x1, y1, rcx, rcy);
-    angle += 90;
-    angle %= 360;
-    return true;
+bool GraphicText::rotate(int rcx, int rcy) noexcept {
+  qucs_s::geom::rotate_point_ccw(x1, y1, rcx, rcy);
+  angle += 90;
+  angle %= 360;
+  return true;
 }
 
-QRect GraphicText::boundingRect() const noexcept
-{
-    return br;
+QRect GraphicText::boundingRect() const noexcept {
+  return br;
 }
 
-bool GraphicText::Dialog(QWidget *parent)
-{
-    QFont f(QucsSettings.font); // to avoid wrong text width
-    bool changed = false;
+bool GraphicText::Dialog(QWidget* parent) {
+  QFont f(QucsSettings.font); // to avoid wrong text width
+  bool changed = false;
 
-    auto d = std::make_unique<GraphicTextDialog>(parent);
+  auto d = std::make_unique<GraphicTextDialog>(parent);
 
-    QPalette palette;
-    palette.setColor(d->ColorButt->backgroundRole(), color);
-    d->ColorButt->setPalette(palette);
+  QPalette palette;
+  palette.setColor(d->ColorButt->backgroundRole(), color);
+  d->ColorButt->setPalette(palette);
 
-    d->TextSize->setText(QString::number(font.pointSize()));
-    d->Angle->setText(QString::number(angle));
-    QString _Text = text;
-    decode_String(_Text); // replace special characters with LaTeX commands
-    d->text->setText(_Text);
+  d->TextSize->setText(QString::number(font.pointSize()));
+  d->Angle->setText(QString::number(angle));
+  QString _Text = text;
+  decode_String(_Text); // replace special characters with LaTeX commands
+  d->text->setText(_Text);
 
-    if (d->exec() == QDialog::Rejected) {
-        return false;
+  if (d->exec() == QDialog::Rejected) {
+    return false;
+  }
+
+  if (color != d->ColorButt->palette().color(d->ColorButt->backgroundRole())) {
+    color   = d->ColorButt->palette().color(d->ColorButt->backgroundRole());
+    changed = true;
+  }
+  f.setPointSize(d->TextSize->text().toInt()); // to avoid wrong text width
+  if (font.pointSize() != d->TextSize->text().toInt()) {
+    font.setPointSize(d->TextSize->text().toInt());
+    changed = true;
+  }
+  int tmp = d->Angle->text().toInt();
+  if (angle != tmp) {
+    angle   = tmp % 360;
+    changed = true;
+  }
+
+  encode_String(d->text->toPlainText(), _Text); // create special characters
+  if (!_Text.isEmpty()) {
+    if (_Text != text) {
+      text    = _Text;
+      changed = true;
     }
+  }
 
-    if (color != d->ColorButt->palette().color(d->ColorButt->backgroundRole())) {
-        color = d->ColorButt->palette().color(d->ColorButt->backgroundRole());
-        changed = true;
-    }
-    f.setPointSize(d->TextSize->text().toInt()); // to avoid wrong text width
-    if (font.pointSize() != d->TextSize->text().toInt()) {
-        font.setPointSize(d->TextSize->text().toInt());
-        changed = true;
-    }
-    int tmp = d->Angle->text().toInt();
-    if (angle != tmp) {
-        angle = tmp % 360;
-        changed = true;
-    }
-
-    encode_String(d->text->toPlainText(), _Text); // create special characters
-    if (!_Text.isEmpty())
-        if (_Text != text) {
-            text = _Text;
-            changed = true;
-        }
-
-    return changed;
+  return changed;
 }

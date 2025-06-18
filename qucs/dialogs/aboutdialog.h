@@ -23,8 +23,8 @@
 #ifndef ABOUTDIALOG_H
 #define ABOUTDIALOG_H
 
-#include <random>
 #include <array>
+#include <random>
 
 #include <QDialog>
 #include <QVBoxLayout>
@@ -32,14 +32,14 @@
 class QString;
 class QTextBrowser;
 
-class AboutDialog : public QDialog  {
-   Q_OBJECT
+class AboutDialog : public QDialog {
+  Q_OBJECT
 
 public:
-  AboutDialog(QWidget *parent = 0);
+  AboutDialog(QWidget* parent = 0);
 
 protected:
-  bool eventFilter(QObject *obj, QEvent *ev);
+  bool eventFilter(QObject* obj, QEvent* ev);
 
 private:
   void setAuthorsText(void);
@@ -48,19 +48,18 @@ private:
   std::array<QString, 13> qucs_sDevs;
   std::array<QString, 9> currAuths; // current Qucs authors
   std::array<QString, 12> prevDevs; // previous Qucs developers
-  std::array<QString, 19> trAuths; // Qucs translators
+  std::array<QString, 19> trAuths;  // Qucs translators
 
-  QVBoxLayout *all;
-  QTextBrowser *authorsBrowser; // to show authors
-  QTextBrowser *trBrowser; // to show translators
+  QVBoxLayout* all;
+  QTextBrowser* authorsBrowser; // to show authors
+  QTextBrowser* trBrowser;      // to show translators
 
   int prevTab; // previously selected tab
 
-  std::mt19937 rng {std::random_device{}()}; // random number generator
+  std::mt19937 rng{std::random_device{}()}; // random number generator
 
 public slots:
   void currentChangedSlot(int index); // tab selection changed
-
 };
 
 #endif

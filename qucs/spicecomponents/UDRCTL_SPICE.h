@@ -15,14 +15,15 @@
 
 class UDRCTL_SPICE : public Component {
 public:
-    UDRCTL_SPICE();
-    ~UDRCTL_SPICE();
-    Component* newOne();
-    static Element* info(QString&, char* &, bool getNewOne=false);
+  UDRCTL_SPICE();
+  ~UDRCTL_SPICE();
+  Component* newOne();
+  static Element* info(QString&, char*&, bool getNewOne = false);
 
 protected:
-    QString netlist();
-    QString spice_netlist(spicecompat::SpiceDialect dialect = spicecompat::SPICEDefault);
+  QString netlist();
+  QString
+  spice_netlist(spicecompat::SpiceDialect dialect = spicecompat::SPICEDefault);
 };
 
 #endif /* UDRCTL_SPICE_H */

@@ -15,16 +15,13 @@
  *                                                                         *
  ***************************************************************************/
 
-
-
 #ifndef CUSTOMSIMDIALOG_H
 #define CUSTOMSIMDIALOG_H
 
+#include "components/component.h"
 #include "schematic.h"
 #include "spicecomponents/sp_customsim.h"
-#include "components/component.h"
 #include <QtGui>
-
 
 /*!
   \file customsimdialog.h
@@ -36,44 +33,41 @@
  *        of Ngspice Custom Simulation component. You can edit multiline
  *        component properties with it.
  */
-class CustomSimDialog : public QDialog
-{
-    Q_OBJECT
+class CustomSimDialog : public QDialog {
+  Q_OBJECT
 
 private:
+  bool a_isXyceScr;
+  bool a_isChanged = false;
 
-    bool a_isXyceScr;
-    bool a_isChanged = false;
+  SpiceCustomSim* a_comp;
+  Schematic* a_schematic;
 
-    SpiceCustomSim* a_comp;
-    Schematic *a_schematic;
+  QTextEdit* a_edtCode;
+  QCheckBox* a_checkCode;
+  QPushButton* a_btnOK;
+  QPushButton* a_btnApply;
+  QPushButton* a_btnCancel;
+  QPushButton* a_btnPlotAll;
+  QPushButton* a_btnFindOutputs;
 
-    QTextEdit* a_edtCode;
-    QCheckBox *a_checkCode;
-    QPushButton *a_btnOK;
-    QPushButton *a_btnApply;
-    QPushButton *a_btnCancel;
-    QPushButton *a_btnPlotAll;
-    QPushButton *a_btnFindOutputs;
-
-    QLineEdit *a_edtVars;
-    QLineEdit *a_edtOutputs;
+  QLineEdit* a_edtVars;
+  QLineEdit* a_edtOutputs;
 
 public:
-    explicit CustomSimDialog(SpiceCustomSim *pc, Schematic *sch);
+  explicit CustomSimDialog(SpiceCustomSim* pc, Schematic* sch);
 
 signals:
 
 private slots:
-    void slotApply();
-    void slotOK();
-    void slotCancel();
-    void slotFindVars();
-    void slotFindOutputs();
-    void slotChanged();
+  void slotApply();
+  void slotOK();
+  void slotCancel();
+  void slotFindVars();
+  void slotFindOutputs();
+  void slotChanged();
 
 public slots:
-
 };
 
 #endif // CUSTOMSIMDIALOG_H

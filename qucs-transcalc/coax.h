@@ -3,7 +3,7 @@
  *
  * Copyright (C) 2001 Gopal Narayanan <gopal@astro.umass.edu>
  * Copyright (C) 2005 Stefan Jahn <stefan@lkcc.org>
- * 
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
@@ -17,7 +17,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this package; see the file COPYING.  If not, write to
  * the Free Software Foundation, Inc., 51 Franklin Street - Fifth Floor,
- * Boston, MA 02110-1301, USA.  
+ * Boston, MA 02110-1301, USA.
  *
  */
 
@@ -25,11 +25,11 @@
 #define __COAX_H
 
 class coax : public transline {
- public:
+public:
   coax();
   ~coax();
 
- private:
+private:
   double er;               /* dielectric constant */
   double tand;             /* Dielectric Loss Tangent */
   double din;              /* Inner diameter of cable */
@@ -42,11 +42,11 @@ class coax : public transline {
   double atten_cond;       /* Loss in conductors (dB) */
   double fc;               /* Cutoff frequency for higher order modes */
 
- public:
-  void analyze ();
-  int synthesize ();
+public:
+  void analyze();
+  int synthesize();
 
- private:
+private:
   void get_coax_sub();
   void get_coax_comp();
   void get_coax_phys();

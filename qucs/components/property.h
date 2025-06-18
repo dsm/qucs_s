@@ -1,9 +1,9 @@
 #ifndef COMPONENTS_PROPERTY_H
 #define COMPONENTS_PROPERTY_H
 
+#include "../extsimkernels/spicecompat.h"
 #include <QRect>
 #include <QString>
-#include "../extsimkernels/spicecompat.h"
 
 class QPainter;
 
@@ -11,23 +11,18 @@ struct Property {
   enum class Type { File, Equation, Value };
 
   Property() = delete;
-  Property(const QString& propertyName,
-           const QString& propertyValue,
-           bool isVisibleByDefault = false,
-           const QString& description = "",
-           Type propertyType = Type::Value,
-           spicecompat::Simulator supportedSims = spicecompat::Simulator::simAll)
-      : Name(propertyName)
-      , Value(propertyValue)
-      , display(isVisibleByDefault)
-      , Description(description)
-      , type(propertyType)
-      , simulators(supportedSims)
-      {};
+  Property(
+      const QString& propertyName, const QString& propertyValue,
+      bool isVisibleByDefault = false, const QString& description = "",
+      Type propertyType                    = Type::Value,
+      spicecompat::Simulator supportedSims = spicecompat::Simulator::simAll)
+      : Name(propertyName), Value(propertyValue), display(isVisibleByDefault),
+        Description(description), type(propertyType),
+        simulators(supportedSims){};
 
   QString Name;
   QString Value;
-  bool    display;   // show on schematic or not ?
+  bool display; // show on schematic or not ?
   QString Description;
   Type type;
   spicecompat::Simulator simulators;
@@ -44,36 +39,31 @@ struct Property {
 
   public:
     // Shotcut for name(name).value(value).desc(desc).buildNew()
-    Property* property(const QString& name, const QString& value, const QString& desc)
-    {
+    Property* property(const QString& name, const QString& value,
+                       const QString& desc) {
       this->name(name).value(value).desc(desc);
       return buildNew();
     }
 
-    Builder& name(const QString& name)
-    {
+    Builder& name(const QString& name) {
       m_name = name;
       return *this;
     }
 
-    Builder& value(const QString& value)
-    {
+    Builder& value(const QString& value) {
       m_value = value;
       return *this;
     }
 
-    Builder& hidden()
-    {
+    Builder& hidden() {
       m_display = false;
       return *this;
     }
-    Builder& visible()
-    {
+    Builder& visible() {
       m_display = true;
       return *this;
     }
-    Builder& desc(const QString& d)
-    {
+    Builder& desc(const QString& d) {
       m_description = d;
       return *this;
     }

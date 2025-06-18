@@ -3,7 +3,7 @@
  *
  * Copyright (C) 2001 Gopal Narayanan <gopal@astro.umass.edu>
  * Copyright (C) 2005 Stefan Jahn <stefan@lkcc.org>
- * 
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
@@ -17,7 +17,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this package; see the file COPYING.  If not, write to
  * the Free Software Foundation, Inc., 51 Franklin Street - Fifth Floor,
- * Boston, MA 02110-1301, USA.  
+ * Boston, MA 02110-1301, USA.
  *
  */
 
@@ -25,39 +25,39 @@
 #define __MICROSTRIP_H
 
 class microstrip : public transline {
- public:
+public:
   microstrip();
   ~microstrip();
 
   friend class c_microstrip;
 
- private:
-  double er;			/* dielectric constant */
-  double h;			/* height of substrate */
-  double ht;			/* height to the top of box */
-  double t;			/* thickness of top metal */
-  double tand;			/* Dielectric Loss Tangent */
-  double rough;			/* Roughness of top metal */
-  double w;			/* width of line */
-  double l;			/* length of line */
-  double Z0_0;			/* static characteristic impedance */
-  double Z0;			/* characteristic impedance */
-  double ang_l;			/* Electrical length in angle */
-  double er_eff_0;		/* Static effective dielectric constant */
-  double er_eff;		/* Effective dielectric constant */
-  double mur_eff;		/* Effective mag. permeability */
-  double w_eff;			/* Effective width of line */
-  double atten_dielectric;	/* Loss in dielectric (dB) */
-  double atten_cond;		/* Loss in conductors (dB) */
+private:
+  double er;               /* dielectric constant */
+  double h;                /* height of substrate */
+  double ht;               /* height to the top of box */
+  double t;                /* thickness of top metal */
+  double tand;             /* Dielectric Loss Tangent */
+  double rough;            /* Roughness of top metal */
+  double w;                /* width of line */
+  double l;                /* length of line */
+  double Z0_0;             /* static characteristic impedance */
+  double Z0;               /* characteristic impedance */
+  double ang_l;            /* Electrical length in angle */
+  double er_eff_0;         /* Static effective dielectric constant */
+  double er_eff;           /* Effective dielectric constant */
+  double mur_eff;          /* Effective mag. permeability */
+  double w_eff;            /* Effective width of line */
+  double atten_dielectric; /* Loss in dielectric (dB) */
+  double atten_cond;       /* Loss in conductors (dB) */
 
   /* private params */
-  double Z0_h_1;		/* homogeneous stripline impedance */
+  double Z0_h_1; /* homogeneous stripline impedance */
 
- public:
+public:
   void analyze();
   int synthesize();
 
- private:
+private:
   double er_eff_freq();
   double alpha_c();
   double alpha_c_roughness();

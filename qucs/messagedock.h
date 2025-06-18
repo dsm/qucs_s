@@ -34,31 +34,28 @@ class MessageDock : public QWidget {
   Q_OBJECT
 public:
   MessageDock(QucsApp*);
- ~MessageDock() {};
+  ~MessageDock(){};
 
 public:
+  QDockWidget* msgDock;
 
-  QDockWidget *msgDock;
-
-  QTabWidget *builderTabs;
+  QTabWidget* builderTabs;
 
   /*!
    * \brief admsOutput holds the make output of running admsXml
    */
-  QPlainTextEdit *admsOutput;
+  QPlainTextEdit* admsOutput;
   /*!
    * \brief cppOutput holds the make output of running a C++ compiler
    */
-  QPlainTextEdit *cppOutput;
+  QPlainTextEdit* cppOutput;
 
   void reset();
-
 
 private slots:
   void slotAdmsChanged();
   void slotCppChanged();
   void slotCursor();
-
 };
 
 #endif // MESSAGEDOCK_H

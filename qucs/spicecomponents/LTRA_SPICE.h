@@ -16,7 +16,7 @@
  *   (at your option) any later version.                                   *
  *                                                                         *
  ***************************************************************************/
- #ifndef LTRA_SPICE_H
+#ifndef LTRA_SPICE_H
 #define LTRA_SPICE_H
 
 #include "components/component.h"
@@ -26,10 +26,12 @@ public:
   LTRA_SPICE();
   ~LTRA_SPICE();
   Component* newOne();
-  static Element* info(QString&, char* &, bool getNewOne=false);
+  static Element* info(QString&, char*&, bool getNewOne = false);
+
 protected:
   QString netlist();
-  QString spice_netlist(spicecompat::SpiceDialect dialect = spicecompat::SPICEDefault);
+  QString
+  spice_netlist(spicecompat::SpiceDialect dialect = spicecompat::SPICEDefault);
 };
 
 #endif // LTRA_SPICE_H

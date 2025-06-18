@@ -24,21 +24,21 @@
 #include "marker.h"
 #include "diagram.h"
 #include "graph.h"
-#include "one_point.h"
 #include "main.h"
+#include "one_point.h"
 
-#include <QString>
+#include <QDebug>
 #include <QPainter>
 #include <QPainterPath>
-#include <QDebug>
+#include <QString>
 
-#include <limits.h>
 #include <cmath>
+#include <limits.h>
 #include <stdlib.h>
 
 #include "misc.h"
 
-static double default_Z0=50;
+static double default_Z0 = 50;
 
 #define IND_SIZE 8
 
@@ -50,36 +50,29 @@ static double default_Z0=50;
  * marker position is the sampling point closest to the click.
  */
 
-Marker::Marker(Graph *pg_, int branchNo, int cx_, int cy_) :
-  Element(),
-  pGraph(pg_),
-  Precision(3),
-  numMode(0),
-  indicatorMode(indicator_Triangle),
-  Z0(default_Z0) // BUG: see declaration.
+Marker::Marker(Graph* pg_, int branchNo, int cx_, int cy_)
+    : Element(), pGraph(pg_), Precision(3), numMode(0),
+      indicatorMode(indicator_Triangle), Z0(default_Z0) // BUG: see declaration.
 {
-  Type = isMarker;
+  Type       = isMarker;
   isSelected = transparent = false;
 
-  cx =  cx_;
-  cy = -cy_;
+  cx  = cx_;
+  cy  = -cy_;
   fCX = float(cx);
   fCY = float(cy);
-  if(!pGraph){
+  if (!pGraph) {
     makeInvalid();
-  }else{
-    initText(branchNo);   // finally create marker
+  } else {
+    initText(branchNo); // finally create marker
     createText();
   }
 
-  x1 =  cx + 60;
+  x1 = cx + 60;
   y1 = -cy - 60;
-
 }
 
-Marker::~Marker()
-{
-}
+Marker::~Marker() {}
 
 /*!
  * Original function doctext:
@@ -103,28 +96,25 @@ Marker::~Marker()
  *   datapoints before the subsequence of datapoints corresponding to a branch
  *   on which the click was made.
  */
-void Marker::initText(int datapoints_before_branch)
-{
+void Marker::initText(int datapoints_before_branch) {
   if (pGraph->isEmpty()) {
     makeInvalid();
     return;
   }
 
   assert(diag());
-  Axis const *pa = pGraph->yAxisNo == 0
-                 ? &(diag()->yAxis)
-                 : &(diag()->zAxis);
+  Axis const* pa = pGraph->yAxisNo == 0 ? &(diag()->yAxis) : &(diag()->zAxis);
 
   double Dummy = 0.0; // needed for 2D graph in 3D diagram
-  double *py = &Dummy;
-  Text = "";
+  double* py   = &Dummy;
+  Text         = "";
 
   bool isCross = false;
   int nn;
-  DataX const *x_axis_values = pGraph->axis(0);
-  double* x_axis_values_arr_p = x_axis_values->Points;
+  DataX const* x_axis_values      = pGraph->axis(0);
+  double* x_axis_values_arr_p     = x_axis_values->Points;
   std::size_t x_axis_values_count = x_axis_values->count;
-  DataX const *pDy = pGraph->axis(1);
+  DataX const* pDy                = pGraph->axis(1);
   if (pDy) { // only for 3D diagram
     nn = pGraph->countY * x_axis_values->count;
     py = pDy->Points;
@@ -134,7 +124,10 @@ void Marker::initText(int datapoints_before_branch)
       datapoints_before_branch /= x_axis_values_count;
       x_axis_values_arr_p += (datapoints_before_branch % x_axis_values_count);
       if (pGraph->axis(2)) { // more than 2 indep variables ?
-        datapoints_before_branch = (datapoints_before_branch % x_axis_values_count) + (datapoints_before_branch / x_axis_values_count) * x_axis_values_count * pDy->count;
+        datapoints_before_branch =
+            (datapoints_before_branch % x_axis_values_count) +
+            (datapoints_before_branch / x_axis_values_count) *
+                x_axis_values_count * pDy->count;
       }
       x_axis_values_count = pDy->count;
     } else {
@@ -144,9 +137,10 @@ void Marker::initText(int datapoints_before_branch)
 
   // find exact marker position
   std::size_t closest_datapoint_ix = x_axis_values_count - 1;
-  double* pz = pGraph->cPointsY + 2 * datapoints_before_branch;
+  double* pz               = pGraph->cPointsY + 2 * datapoints_before_branch;
   double smallest_distance = std::numeric_limits<double>::max();
-  for (std::size_t datapoint_ix = 0; datapoint_ix < x_axis_values_count; datapoint_ix++) {
+  for (std::size_t datapoint_ix = 0; datapoint_ix < x_axis_values_count;
+       datapoint_ix++) {
     diag()->calcCoordinate(x_axis_values_arr_p, pz, py, &fCX, &fCY, pa);
     ++x_axis_values_arr_p;
     pz += 2;
@@ -158,11 +152,11 @@ void Marker::initText(int datapoints_before_branch)
 
     // Here distance between click screen coordinates (cx, cy) and
     // datapoint screen coordinates (fCX, fCY) is assesed.
-    const double x = fCX + 0.5 - cx;
-    const double y = fCY + 0.5 - cy;
+    const double x        = fCX + 0.5 - cx;
+    const double y        = fCY + 0.5 - cy;
     const double r_square = x * x + y * y;
     if (r_square < smallest_distance) {
-      smallest_distance = r_square;
+      smallest_distance    = r_square;
       closest_datapoint_ix = datapoint_ix;
     }
   }
@@ -180,10 +174,12 @@ void Marker::initText(int datapoints_before_branch)
 
   // gather text of all independent variables
   nn = datapoints_before_branch;
-  for (unsigned axis_ix = 0; (x_axis_values = pGraph->axis(axis_ix)); ++axis_ix) {
+  for (unsigned axis_ix = 0; (x_axis_values = pGraph->axis(axis_ix));
+       ++axis_ix) {
     const double* x_value = x_axis_values->Points + (nn % x_axis_values->count);
-    VarPos[axis_ix] = *x_value;
-    Text += x_axis_values->Var + ": " + QString::number(*x_value, 'g', Precision) + "\n";
+    VarPos[axis_ix]       = *x_value;
+    Text += x_axis_values->Var + ": " +
+            QString::number(*x_value, 'g', Precision) + "\n";
     nn /= x_axis_values->count;
   }
 
@@ -196,40 +192,39 @@ void Marker::initText(int datapoints_before_branch)
  * create marker label Text the screen position cx and cy from VarPos.
  * does a lot of fancy stuff to be sorted out.
  */
-void Marker::createText()
-{
-  if(!(pGraph->cPointsY)) {
+void Marker::createText() {
+  if (!(pGraph->cPointsY)) {
     makeInvalid();
     return;
   }
 
   unsigned nVarPos = VarPos.size();
 
-  if(nVarPos > pGraph->numAxes()){
+  if (nVarPos > pGraph->numAxes()) {
     qDebug() << "huh, VarPos too big?!";
   }
-  if(nVarPos != pGraph->numAxes()){
+  if (nVarPos != pGraph->numAxes()) {
     qDebug() << "padding" << VarPos.size() << pGraph->numAxes();
     VarPos.resize(pGraph->numAxes());
-    while((unsigned int)nVarPos < pGraph->numAxes()){
+    while ((unsigned int)nVarPos < pGraph->numAxes()) {
       VarPos[nVarPos++] = 0.; // pad
     }
   }
 
   // independent variables
   Text = "";
-  double *pp;
+  double* pp;
   nVarPos = pGraph->numAxes();
-  DataX const *pD;
+  DataX const* pD;
 
-  auto p = pGraph->findSample(VarPos);
+  auto p    = pGraph->findSample(VarPos);
   VarDep[0] = p.first;
   VarDep[1] = p.second;
 
-  double v=0.;   // needed for 2D graph in 3D diagram
-  double *py=&v;
-  pD = pGraph->axis(0);
-  if(pGraph->axis(1)) {
+  double v   = 0.; // needed for 2D graph in 3D diagram
+  double* py = &v;
+  pD         = pGraph->axis(0);
+  if (pGraph->axis(1)) {
     *py = VarPos[1];
   }
 
@@ -239,102 +234,117 @@ void Marker::createText()
 
   // now actually create text.
   bool engNotation = pGraph->parentDiagram()->engineeringNotation;
-  for(unsigned ii=0; (pD=pGraph->axis(ii)); ++ii) {
+  for (unsigned ii = 0; (pD = pGraph->axis(ii)); ++ii) {
     Text += pD->Var + ": ";
     if (engNotation) {
-        Text += misc::num2str(VarPos[ii],Precision) + "\n";
+      Text += misc::num2str(VarPos[ii], Precision) + "\n";
     } else {
-        Text += QString::number(VarPos[ii],'g',Precision) + "\n";
+      Text += QString::number(VarPos[ii], 'g', Precision) + "\n";
     }
   }
 
-  if ( pGraph->Var.contains('/') )
+  if (pGraph->Var.contains('/')) {
     Text += pGraph->Var.section('/', 1) + ": ";
-  else
+  } else {
     Text += pGraph->Var + ": ";
-  const Axis *ax = &(diag()->yAxis);
-  if (pGraph->yAxisNo > 0) ax = &(diag()->zAxis);
+  }
+  const Axis* ax = &(diag()->yAxis);
+  if (pGraph->yAxisNo > 0) {
+    ax = &(diag()->zAxis);
+  }
   int units = ax->Units;
   if (units == Axis::NoUnits || !ax->log) {
-      switch(numMode) {
-      case nM_Rect: Text += misc::complexRect(*pz, *(pz+1), Precision);
-          break;
-      case nM_Deg: Text += misc::complexDeg(*pz, *(pz+1), Precision);
-          break;
-      case nM_Rad: Text += misc::complexRad(*pz, *(pz+1), Precision);
-          break;
-      }
+    switch (numMode) {
+    case nM_Rect:
+      Text += misc::complexRect(*pz, *(pz + 1), Precision);
+      break;
+    case nM_Deg:
+      Text += misc::complexDeg(*pz, *(pz + 1), Precision);
+      break;
+    case nM_Rad:
+      Text += misc::complexRad(*pz, *(pz + 1), Precision);
+      break;
+    }
   } else {
-      double mag = sqrt(pz[0]*pz[0] + pz[1]*pz[1]);
-      double val = qucs::num2db(mag,ax->Units);
-      if (engNotation) {
-          Text += misc::num2str(val,Precision) + "\n";
-      } else {
-          Text += QString::number(val,'g',Precision);
-      }
+    double mag = sqrt(pz[0] * pz[0] + pz[1] * pz[1]);
+    double val = qucs::num2db(mag, ax->Units);
+    if (engNotation) {
+      Text += misc::num2str(val, Precision) + "\n";
+    } else {
+      Text += QString::number(val, 'g', Precision);
+    }
   }
 
   assert(diag());
   Text += diag()->extraMarkerText(this);
 
-  Axis const *pa;
-  if(pGraph->yAxisNo == 0)  pa = &(diag()->yAxis);
-  else  pa = &(diag()->zAxis);
+  Axis const* pa;
+  if (pGraph->yAxisNo == 0) {
+    pa = &(diag()->yAxis);
+  } else {
+    pa = &(diag()->zAxis);
+  }
   pp = &(VarPos[0]);
 
   diag()->calcCoordinate(pp, pz, py, &fCX, &fCY, pa);
   diag()->finishMarkerCoordinates(fCX, fCY);
 
-  cx = int(fCX+0.5);
-  cy = int(fCY+0.5);
+  cx = int(fCX + 0.5);
+  cy = int(fCY + 0.5);
   getTextSize();
 }
 
 // ---------------------------------------------------------------------
-void Marker::makeInvalid()
-{
+void Marker::makeInvalid() {
   fCX = fCY = -1e3; // invalid coordinates
   assert(diag());
   diag()->finishMarkerCoordinates(fCX, fCY); // leave to diagram
-  cx = int(fCX+0.5);
-  cy = int(fCY+0.5);
+  cx = int(fCX + 0.5);
+  cy = int(fCY + 0.5);
 
   Text = QObject::tr("invalid");
   getTextSize();
 }
 
 // ---------------------------------------------------------------------
-void Marker::getTextSize()
-{
+void Marker::getTextSize() {
   // get size of text using the screen-compatible metric
   QFontMetrics metrics(QucsSettings.font, 0);
   QSize r = metrics.size(0, Text);
-  x2 = r.width()+5;
-  y2 = r.height()+5;
+  x2      = r.width() + 5;
+  y2      = r.height() + 5;
 }
 
 // ---------------------------------------------------------------------
-bool Marker::moveLeftRight(bool left)
-{
+bool Marker::moveLeftRight(bool left) {
   int n;
-  double *px;
+  double* px;
 
-  DataX const *pD = pGraph->axis(0);
-  px = pD->Points;
-  if(!px) return false;
-  for(n=0; n<pD->count; n++) {
-    if(VarPos[0] <= *px) break;
+  DataX const* pD = pGraph->axis(0);
+  px              = pD->Points;
+  if (!px) {
+    return false;
+  }
+  for (n = 0; n < pD->count; n++) {
+    if (VarPos[0] <= *px) {
+      break;
+    }
     px++;
   }
-  if(n == pD->count) px--;
-
-  if(left) {
-    if(px <= pD->Points) return false;
-    px--;  // one position to the left
+  if (n == pD->count) {
+    px--;
   }
-  else {
-    if(px >= (pD->Points + pD->count - 1)) return false;
-    px++;  // one position to the right
+
+  if (left) {
+    if (px <= pD->Points) {
+      return false;
+    }
+    px--; // one position to the left
+  } else {
+    if (px >= (pD->Points + pD->count - 1)) {
+      return false;
+    }
+    px++; // one position to the right
   }
   VarPos[0] = *px;
   createText();
@@ -343,51 +353,63 @@ bool Marker::moveLeftRight(bool left)
 }
 
 // ---------------------------------------------------------------------
-bool Marker::moveUpDown(bool up)
-{
-  int n, i=0;
-  double *px;
+bool Marker::moveUpDown(bool up) {
+  int n, i = 0;
+  double* px;
 
-  DataX const *pD = pGraph->axis(0);
-  if(!pD) return false;
+  DataX const* pD = pGraph->axis(0);
+  if (!pD) {
+    return false;
+  }
 
-  if(up) {  // move upwards ? **********************
+  if (up) { // move upwards ? **********************
     do {
       pD = pGraph->axis(++i);
-      if(!pD) return false;
+      if (!pD) {
+        return false;
+      }
       px = pD->Points;
-      if(!px) return false;
-      for(n=1; n<pD->count; n++) {  // go through all data points
-        if(fabs(VarPos[i]-(*px)) < fabs(VarPos[i]-(*(px+1)))) break;
+      if (!px) {
+        return false;
+      }
+      for (n = 1; n < pD->count; n++) { // go through all data points
+        if (fabs(VarPos[i] - (*px)) < fabs(VarPos[i] - (*(px + 1)))) {
+          break;
+        }
         px++;
       }
 
-    } while(px >= (pD->Points + pD->count - 1));  // go to next dimension ?
+    } while (px >= (pD->Points + pD->count - 1)); // go to next dimension ?
 
-    px++;  // one position up
+    px++; // one position up
     VarPos[i] = *px;
-    while(i > 1) {
-      pD = pGraph->axis(--i);
+    while (i > 1) {
+      pD        = pGraph->axis(--i);
       VarPos[i] = *(pD->Points);
     }
-  }
-  else {  // move downwards **********************
+  } else { // move downwards **********************
     do {
       pD = pGraph->axis(++i);
-      if(!pD) return false;
+      if (!pD) {
+        return false;
+      }
       px = pD->Points;
-      if(!px) return false;
-      for(n=0; n<pD->count; n++) {
-        if(fabs(VarPos[i]-(*px)) < fabs(VarPos[i]-(*(px+1)))) break;
+      if (!px) {
+        return false;
+      }
+      for (n = 0; n < pD->count; n++) {
+        if (fabs(VarPos[i] - (*px)) < fabs(VarPos[i] - (*(px + 1)))) {
+          break;
+        }
         px++;
       }
 
-    } while(px <= pD->Points);  // go to next dimension ?
+    } while (px <= pD->Points); // go to next dimension ?
 
-    px--;  // one position down
+    px--; // one position down
     VarPos[i] = *px;
-    while(i > 1) {
-      pD = pGraph->axis(--i);
+    while (i > 1) {
+      pD        = pGraph->axis(--i);
       VarPos[i] = *(pD->Points + pD->count - 1);
     }
   }
@@ -485,86 +507,103 @@ void Marker::paint(QPainter* painter) {
 }
 
 // -------------------------------------------------------
-void Marker::Bounding(int& _x1, int& _y1, int& _x2, int& _y2)
-{
-  if(diag()) {
+void Marker::Bounding(int& _x1, int& _y1, int& _x2, int& _y2) {
+  if (diag()) {
     _x1 = diag()->cx + x1;
     _y1 = diag()->cy + y1;
-    _x2 = diag()->cx + x1+x2;
-    _y2 = diag()->cy + y1+y2;
-  }
-  else {
+    _x2 = diag()->cx + x1 + x2;
+    _y2 = diag()->cy + y1 + y2;
+  } else {
     _x1 = x1;
-    _y1 = y1+y2;
-    _x2 = x1+x2;
+    _y1 = y1 + y2;
+    _x2 = x1 + x2;
     _y2 = y1;
   }
 }
 
 // ---------------------------------------------------------------------
-QString Marker::save()
-{
-  QString s  = "<Mkr ";
+QString Marker::save() {
+  QString s = "<Mkr ";
 
-  for(auto i : VarPos){
-    s += QString::number(i)+"/";
+  for (auto i : VarPos) {
+    s += QString::number(i) + "/";
   }
-  s.replace(s.length()-1,1,' ');
-  //s.at(s.length()-1) = (const QChar&)' ';
+  s.replace(s.length() - 1, 1, ' ');
+  // s.at(s.length()-1) = (const QChar&)' ';
 
-  s += QString::number(x1) +" "+ QString::number(y1) +" "
-      +QString::number(Precision) +" "+ QString::number(numMode);
-  if(transparent)  s += " 1>";
-  else  s += " 0>";
+  s += QString::number(x1) + " " + QString::number(y1) + " " +
+       QString::number(Precision) + " " + QString::number(numMode);
+  if (transparent) {
+    s += " 1>";
+  } else {
+    s += " 0>";
+  }
 
   return s;
 }
 
 // ---------------------------------------------------------------------
 // All graphs must have been loaded before this function !
-bool Marker::load(const QString& Line)
-{
+bool Marker::load(const QString& Line) {
   bool ok;
   QString s = Line;
 
-  if(s.at(0) != '<') return false;
-  if(s.at(s.length()-1) != '>') return false;
-  s = s.mid(1, s.length()-2);   // cut off start and end character
+  if (s.at(0) != '<') {
+    return false;
+  }
+  if (s.at(s.length() - 1) != '>') {
+    return false;
+  }
+  s = s.mid(1, s.length() - 2); // cut off start and end character
 
-  if(s.section(' ',0,0) != "Mkr") return false;
+  if (s.section(' ', 0, 0) != "Mkr") {
+    return false;
+  }
 
-  int i=0, j;
-  QString n = s.section(' ',1,1);    // VarPos
+  int i     = 0, j;
+  QString n = s.section(' ', 1, 1); // VarPos
 
   unsigned nVarPos = 0;
-  j = (n.count('/') + 3);
+  j                = (n.count('/') + 3);
   VarPos.resize(j);
 
   do {
-    j = n.indexOf('/', i);
-    VarPos[nVarPos++] = n.mid(i,j-i).toDouble(&ok);
-    if(!ok) return false;
-    i = j+1;
-  } while(j >= 0);
+    j                 = n.indexOf('/', i);
+    VarPos[nVarPos++] = n.mid(i, j - i).toDouble(&ok);
+    if (!ok) {
+      return false;
+    }
+    i = j + 1;
+  } while (j >= 0);
 
-  n  = s.section(' ',2,2);    // x1
+  n  = s.section(' ', 2, 2); // x1
   x1 = n.toInt(&ok);
-  if(!ok) return false;
+  if (!ok) {
+    return false;
+  }
 
-  n  = s.section(' ',3,3);    // y1
+  n  = s.section(' ', 3, 3); // y1
   y1 = n.toInt(&ok);
-  if(!ok) return false;
+  if (!ok) {
+    return false;
+  }
 
-  n  = s.section(' ',4,4);      // Precision
+  n         = s.section(' ', 4, 4); // Precision
   Precision = n.toInt(&ok);
-  if(!ok) return false;
+  if (!ok) {
+    return false;
+  }
 
-  n  = s.section(' ',5,5);      // numMode
+  n       = s.section(' ', 5, 5); // numMode
   numMode = n.toInt(&ok);
-  if(!ok) return false;
+  if (!ok) {
+    return false;
+  }
 
-  n  = s.section(' ',6,6);      // transparent
-  if(n.isEmpty()) return true;  // is optional
+  n = s.section(' ', 6, 6); // transparent
+  if (n.isEmpty()) {
+    return true; // is optional
+  }
   transparent = n != "0";
 
   return true;
@@ -573,10 +612,16 @@ bool Marker::load(const QString& Line)
 // ------------------------------------------------------------------------
 // Checks if the coordinates x/y point to the marker text. x/y are relative
 // to diagram cx/cy.
-bool Marker::getSelected(int x_, int y_)
-{
-  if(x_ >= x1) if(x_ <= x1+x2) if(y_ >= y1) if(y_ <= y1+y2)
-    return true;
+bool Marker::getSelected(int x_, int y_) {
+  if (x_ >= x1) {
+    if (x_ <= x1 + x2) {
+      if (y_ >= y1) {
+        if (y_ <= y1 + y2) {
+          return true;
+        }
+      }
+    }
+  }
 
   return false;
 }
@@ -585,19 +630,21 @@ bool Marker::getSelected(int x_, int y_)
 /*
  * the diagram this belongs to
  */
-const Diagram* Marker::diag() const
-{
-  if(!pGraph) return nullptr;
+const Diagram* Marker::diag() const {
+  if (!pGraph) {
+    return nullptr;
+  }
   return pGraph->parentDiagram();
 }
 
 // ------------------------------------------------------------------------
-Marker* Marker::sameNewOne(Graph *pGraph_)
-{
-  Marker *pm = new Marker(pGraph_, 0, cx ,cy);
+Marker* Marker::sameNewOne(Graph* pGraph_) {
+  Marker* pm = new Marker(pGraph_, 0, cx, cy);
 
-  pm->x1 = x1;  pm->y1 = y1;
-  pm->x2 = x2;  pm->y2 = y2;
+  pm->x1 = x1;
+  pm->y1 = y1;
+  pm->x2 = x2;
+  pm->y2 = y2;
 
   pm->VarPos = VarPos;
 
@@ -609,17 +656,12 @@ Marker* Marker::sameNewOne(Graph *pGraph_)
   return pm;
 }
 
-
-QRect Marker::boundingRect() const noexcept
-{
-  return QRect{QPoint{cx, cy}, QPoint{x1, y1}}
-    .normalized()
-    .united(QRect{x1, y1, x2, y2}.normalized());
+QRect Marker::boundingRect() const noexcept {
+  return QRect{QPoint{cx, cy}, QPoint{x1, y1}}.normalized().united(
+      QRect{x1, y1, x2, y2}.normalized());
 }
 
-
-bool Marker::moveCenter(int dx, int dy) noexcept
-{
+bool Marker::moveCenter(int dx, int dy) noexcept {
   // Members cx and cy store coordinates of root of the marker.
   // Members x1 and y1 store coordinates of marker text
   x1 += dx;
@@ -627,27 +669,19 @@ bool Marker::moveCenter(int dx, int dy) noexcept
   return dx != 0 || dy != 0;
 }
 
-
-bool Marker::rotate() noexcept
-{
+bool Marker::rotate() noexcept {
   qucs_s::geom::rotate_point_ccw(x1, y1, cx, cy);
   return true;
 }
 
-
-bool Marker::mirrorX() noexcept
-{
-  return moveCenterTo(
-    center().x(),
-    qucs_s::geom::mirror_coordinate(center().y(), cy));
+bool Marker::mirrorX() noexcept {
+  return moveCenterTo(center().x(),
+                      qucs_s::geom::mirror_coordinate(center().y(), cy));
 }
 
-
-bool Marker::mirrorY() noexcept
-{
-  return moveCenterTo(
-    qucs_s::geom::mirror_coordinate(center().x(), cx),
-    center().y());
+bool Marker::mirrorY() noexcept {
+  return moveCenterTo(qucs_s::geom::mirror_coordinate(center().x(), cx),
+                      center().y());
 }
 
 // vim:ts=8:sw=2:noet

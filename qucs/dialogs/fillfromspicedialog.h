@@ -14,30 +14,36 @@ class fillFromSpiceDialog : public QDialog {
   Q_OBJECT
 
 private:
-
-  Component *Comp;
-  QMap<QString,QString> parsedProps;
+  Component* Comp;
+  QMap<QString, QString> parsedProps;
   QString ModelName;
   QString ModelType;
   int ModelLevel;
 
-  enum errorCode { noError = 0, noModel = 1, modelMismatch = 2, wrongModel = 3, subcirFound = 4,
-                   numberError = 5, wrongLevel = 6 };
+  enum errorCode {
+    noError       = 0,
+    noModel       = 1,
+    modelMismatch = 2,
+    wrongModel    = 3,
+    subcirFound   = 4,
+    numberError   = 5,
+    wrongLevel    = 6
+  };
 
-  QPlainTextEdit *edtModel;
+  QPlainTextEdit* edtModel;
   QPushButton *btnOK, *btnCancel;
-  QCheckBox *chbNumNotation;
+  QCheckBox* chbNumNotation;
 
   int parseModelcard();
   void fillCompProps();
   void showErrorMsg(int code);
-  QString convertNumNotation(const QString &value);
+  QString convertNumNotation(const QString& value);
 
 private slots:
   void slotOK();
 
 public:
-  fillFromSpiceDialog(Component *pc, QWidget *w = nullptr);
+  fillFromSpiceDialog(Component* pc, QWidget* w = nullptr);
 };
 
 #endif // FILLFROMSPICEDIALOG_H

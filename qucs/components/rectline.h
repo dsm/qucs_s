@@ -20,13 +20,12 @@
 
 #include "component.h"
 
-
-class RectLine : public Component  {
+class RectLine : public Component {
 public:
   RectLine();
- ~RectLine();
+  ~RectLine();
   Component* newOne();
-  static Element* info(QString&, char* &, bool getNewOne=false);
+  static Element* info(QString&, char*&, bool getNewOne = false);
 };
 
 #endif

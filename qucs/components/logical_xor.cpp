@@ -17,35 +17,32 @@
 
 #include "logical_xor.h"
 
-Logical_XOR::Logical_XOR()
-{
+Logical_XOR::Logical_XOR() {
   Description = QObject::tr("logical XOR");
-  Model = "XOR";
-  SpiceModel = "A";
+  Model       = "XOR";
+  SpiceModel  = "A";
 
   createSymbol();
-  tx = x1+4;
-  ty = y2+4;
+  tx = x1 + 4;
+  ty = y2 + 4;
 }
 
-Logical_XOR::~Logical_XOR()
-{
-}
+Logical_XOR::~Logical_XOR() {}
 
-Component* Logical_XOR::newOne()
-{
-  Logical_XOR* p = new Logical_XOR();
+Component* Logical_XOR::newOne() {
+  Logical_XOR* p          = new Logical_XOR();
   p->Props.front()->Value = Props.front()->Value;
-  p->Props.back()->Value = Props.back()->Value;
+  p->Props.back()->Value  = Props.back()->Value;
   p->recreate();
   return p;
 }
 
-Element* Logical_XOR::info(QString& Name, char* &BitmapFile, bool getNewOne)
-{
-  Name = QObject::tr("n-port XOR");
-  BitmapFile = (char *) "xor";
+Element* Logical_XOR::info(QString& Name, char*& BitmapFile, bool getNewOne) {
+  Name       = QObject::tr("n-port XOR");
+  BitmapFile = (char*)"xor";
 
-  if(getNewOne)  return new Logical_XOR();
+  if (getNewOne) {
+    return new Logical_XOR();
+  }
   return 0;
 }

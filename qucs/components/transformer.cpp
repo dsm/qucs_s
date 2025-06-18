@@ -15,78 +15,81 @@
  *                                                                         *
  ***************************************************************************/
 
-#include "node.h"
 #include "main.h"
+#include "node.h"
 
-#include "transformer.h"
 #include "extsimkernels/spicecompat.h"
+#include "transformer.h"
 
-
-Transformer::Transformer()
-{
+Transformer::Transformer() {
   Description = QObject::tr("ideal transformer");
-  Simulator = spicecompat::simAll;
+  Simulator   = spicecompat::simAll;
 
-  Arcs.append(new qucs::Arc(-16,-18,12,12, 16*270,16*180, QPen(Qt::darkBlue,2)));
-  Arcs.append(new qucs::Arc(-16, -6,12,12, 16*270,16*180, QPen(Qt::darkBlue,2)));
-  Arcs.append(new qucs::Arc(-16,  6,12,12, 16*270,16*180, QPen(Qt::darkBlue,2)));
-  Arcs.append(new qucs::Arc(  4,-18,12,12,  16*90,16*180, QPen(Qt::darkBlue,2)));
-  Arcs.append(new qucs::Arc(  4, -6,12,12,  16*90,16*180, QPen(Qt::darkBlue,2)));
-  Arcs.append(new qucs::Arc(  4,  6,12,12,  16*90,16*180, QPen(Qt::darkBlue,2)));
-  Lines.append(new qucs::Line(-10,-18,-10,-30,QPen(Qt::darkBlue,2)));
-  Lines.append(new qucs::Line(-10,-30,-30,-30,QPen(Qt::darkBlue,2)));
-  Lines.append(new qucs::Line( 10,-18, 10,-30,QPen(Qt::darkBlue,2)));
-  Lines.append(new qucs::Line( 10,-30, 30,-30,QPen(Qt::darkBlue,2)));
-  Lines.append(new qucs::Line(-10, 18,-10, 30,QPen(Qt::darkBlue,2)));
-  Lines.append(new qucs::Line(-10, 30,-30, 30,QPen(Qt::darkBlue,2)));
-  Lines.append(new qucs::Line( 10, 18, 10, 30,QPen(Qt::darkBlue,2)));
-  Lines.append(new qucs::Line( 10, 30, 30, 30,QPen(Qt::darkBlue,2)));
-  Lines.append(new qucs::Line( -1,-20, -1, 20,QPen(Qt::darkBlue,1)));
-  Lines.append(new qucs::Line(  1,-20,  1, 20,QPen(Qt::darkBlue,1)));
+  Arcs.append(new qucs::Arc(-16, -18, 12, 12, 16 * 270, 16 * 180,
+                            QPen(Qt::darkBlue, 2)));
+  Arcs.append(new qucs::Arc(-16, -6, 12, 12, 16 * 270, 16 * 180,
+                            QPen(Qt::darkBlue, 2)));
+  Arcs.append(
+      new qucs::Arc(-16, 6, 12, 12, 16 * 270, 16 * 180, QPen(Qt::darkBlue, 2)));
+  Arcs.append(
+      new qucs::Arc(4, -18, 12, 12, 16 * 90, 16 * 180, QPen(Qt::darkBlue, 2)));
+  Arcs.append(
+      new qucs::Arc(4, -6, 12, 12, 16 * 90, 16 * 180, QPen(Qt::darkBlue, 2)));
+  Arcs.append(
+      new qucs::Arc(4, 6, 12, 12, 16 * 90, 16 * 180, QPen(Qt::darkBlue, 2)));
+  Lines.append(new qucs::Line(-10, -18, -10, -30, QPen(Qt::darkBlue, 2)));
+  Lines.append(new qucs::Line(-10, -30, -30, -30, QPen(Qt::darkBlue, 2)));
+  Lines.append(new qucs::Line(10, -18, 10, -30, QPen(Qt::darkBlue, 2)));
+  Lines.append(new qucs::Line(10, -30, 30, -30, QPen(Qt::darkBlue, 2)));
+  Lines.append(new qucs::Line(-10, 18, -10, 30, QPen(Qt::darkBlue, 2)));
+  Lines.append(new qucs::Line(-10, 30, -30, 30, QPen(Qt::darkBlue, 2)));
+  Lines.append(new qucs::Line(10, 18, 10, 30, QPen(Qt::darkBlue, 2)));
+  Lines.append(new qucs::Line(10, 30, 30, 30, QPen(Qt::darkBlue, 2)));
+  Lines.append(new qucs::Line(-1, -20, -1, 20, QPen(Qt::darkBlue, 1)));
+  Lines.append(new qucs::Line(1, -20, 1, 20, QPen(Qt::darkBlue, 1)));
 
-  Texts.append(new Text(-21, -18,"T"));
-  Arcs.append(new qucs::Arc(-21,-24,  5,  5,  0, 16*360,QPen(Qt::darkBlue,2)));
-  Arcs.append(new qucs::Arc( 15,-24,  5,  5,  0, 16*360,QPen(Qt::darkBlue,2)));
+  Texts.append(new Text(-21, -18, "T"));
+  Arcs.append(
+      new qucs::Arc(-21, -24, 5, 5, 0, 16 * 360, QPen(Qt::darkBlue, 2)));
+  Arcs.append(new qucs::Arc(15, -24, 5, 5, 0, 16 * 360, QPen(Qt::darkBlue, 2)));
 
-
-  Ports.append(new Port(-30,-30));
-  Ports.append(new Port( 30,-30));
-  Ports.append(new Port( 30, 30));
+  Ports.append(new Port(-30, -30));
+  Ports.append(new Port(30, -30));
+  Ports.append(new Port(30, 30));
   Ports.append(new Port(-30, 30));
 
-  x1 = -33; y1 = -34;
-  x2 =  33; y2 =  34;
+  x1 = -33;
+  y1 = -34;
+  x2 = 33;
+  y2 = 34;
 
-  tx = x1+4;
-  ty = y2+4;
-  Model = "Tr";
-  Name  = "Tr";
+  tx         = x1 + 4;
+  ty         = y2 + 4;
+  Model      = "Tr";
+  Name       = "Tr";
   SpiceModel = "X";
 
   Props.append(new Property("T", "1", true,
-		QObject::tr("voltage transformation ratio")));
+                            QObject::tr("voltage transformation ratio")));
 }
 
-Transformer::~Transformer()
-{
-}
+Transformer::~Transformer() {}
 
-Component* Transformer::newOne()
-{
+Component* Transformer::newOne() {
   return new Transformer();
 }
 
-Element* Transformer::info(QString& Name, char* &BitmapFile, bool getNewOne)
-{
-  Name = QObject::tr("Transformer");
-  BitmapFile = (char *) "transformer";
+Element* Transformer::info(QString& Name, char*& BitmapFile, bool getNewOne) {
+  Name       = QObject::tr("Transformer");
+  BitmapFile = (char*)"transformer";
 
-  if(getNewOne)  return new Transformer();
+  if (getNewOne) {
+    return new Transformer();
+  }
   return 0;
 }
 
-QString Transformer::spice_netlist(spicecompat::SpiceDialect dialect)
-{
+QString Transformer::spice_netlist(spicecompat::SpiceDialect dialect) {
   Q_UNUSED(dialect);
   QString s;
   s = "X_" + Name + " ";
@@ -99,10 +102,8 @@ QString Transformer::spice_netlist(spicecompat::SpiceDialect dialect)
   return s;
 }
 
-
-QString Transformer::getSpiceLibrary()
-{
+QString Transformer::getSpiceLibrary() {
   QString f = spicecompat::getSpiceLibPath("xfmr.cir");
-  QString s = QString (".INCLUDE \"%1\"\n").arg(f);
+  QString s = QString(".INCLUDE \"%1\"\n").arg(f);
   return s;
 }

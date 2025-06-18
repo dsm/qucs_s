@@ -18,7 +18,7 @@
  *   (at your option) any later version.                                   *
  *                                                                         *
  ***************************************************************************/
- #ifndef NJF_SPICE_H
+#ifndef NJF_SPICE_H
 #define NJF_SPICE_H
 
 #include "components/component.h"
@@ -28,11 +28,12 @@ public:
   NJF_SPICE();
   ~NJF_SPICE();
   Component* newOne();
-  static Element* info(QString&, char* &, bool getNewOne=false);
+  static Element* info(QString&, char*&, bool getNewOne = false);
 
 protected:
   QString netlist();
-  QString spice_netlist(spicecompat::SpiceDialect dialect = spicecompat::SPICEDefault);
+  QString
+  spice_netlist(spicecompat::SpiceDialect dialect = spicecompat::SPICEDefault);
   virtual QString cdl_netlist();
 };
 

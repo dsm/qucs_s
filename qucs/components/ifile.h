@@ -20,19 +20,19 @@
 
 #include "component.h"
 
-
-class iFile : public Component  {
+class iFile : public Component {
 public:
   iFile();
   ~iFile();
   Component* newOne();
-  static Element* info(QString&, char* &, bool getNewOne=false);
+  static Element* info(QString&, char*&, bool getNewOne = false);
 
   QString getSubcircuitFile();
 
 protected:
   QString netlist();
-  QString spice_netlist(spicecompat::SpiceDialect dialect = spicecompat::SPICEDefault);
+  QString
+  spice_netlist(spicecompat::SpiceDialect dialect = spicecompat::SPICEDefault);
 };
 
 #endif

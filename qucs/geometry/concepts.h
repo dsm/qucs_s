@@ -8,14 +8,14 @@ namespace geom {
 
 template <typename T>
 concept PointLike = requires(T t) {
-    { t.x() } -> std::same_as<int>;
-    { t.y() } -> std::same_as<int>;
+  { t.x() } -> std::same_as<int>;
+  { t.y() } -> std::same_as<int>;
 } || requires(T t) {
-    { t->x() } -> std::same_as<int>;
-    { t->y() } -> std::same_as<int>;
+  { t->x() } -> std::same_as<int>;
+  { t->y() } -> std::same_as<int>;
 };
 
-}
+} // namespace geom
 } // namespace qucs_s
 
 #endif

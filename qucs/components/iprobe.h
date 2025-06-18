@@ -20,18 +20,19 @@
 
 #include "component.h"
 
-
-class iProbe : public Component  {
+class iProbe : public Component {
 public:
   iProbe();
   ~iProbe();
   Component* newOne();
-  static Element* info(QString&, char* &, bool getNewOne=false);
-  QString getExpression(spicecompat::SpiceDialect) { return "";}
-  QString getProbeVariable(spicecompat::SpiceDialect dialect = spicecompat::SPICEDefault);
+  static Element* info(QString&, char*&, bool getNewOne = false);
+  QString getExpression(spicecompat::SpiceDialect) { return ""; }
+  QString getProbeVariable(
+      spicecompat::SpiceDialect dialect = spicecompat::SPICEDefault);
 
 protected:
-  QString spice_netlist(spicecompat::SpiceDialect dialect = spicecompat::SPICEDefault);
+  QString
+  spice_netlist(spicecompat::SpiceDialect dialect = spicecompat::SPICEDefault);
 };
 
 #endif

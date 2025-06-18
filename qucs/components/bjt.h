@@ -20,19 +20,19 @@
 
 #include "bjtsub.h"
 
-
-class BJT : public Basic_BJT  {
+class BJT : public Basic_BJT {
 public:
   BJT();
- ~BJT() {};
+  ~BJT(){};
   Component* newOne();
-  static Element* info(QString&, char* &, bool getNewOne=false);
-  static Element* info_pnp(QString&, char* &, bool getNewOne=false);
+  static Element* info(QString&, char*&, bool getNewOne = false);
+  static Element* info_pnp(QString&, char*&, bool getNewOne = false);
 
 protected:
   void createSymbol();
   QString netlist();
-  QString spice_netlist(spicecompat::SpiceDialect dialect = spicecompat::SPICEDefault);
+  QString
+  spice_netlist(spicecompat::SpiceDialect dialect = spicecompat::SPICEDefault);
   virtual QString cdl_netlist();
 };
 

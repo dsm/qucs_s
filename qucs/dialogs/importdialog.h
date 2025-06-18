@@ -19,9 +19,9 @@
 #define IMPORTDIALOG_H
 
 #include <QDialog>
-#include <QProcess>
 #include <QGridLayout>
 #include <QLabel>
+#include <QProcess>
 
 class QPlainTextEdit;
 class QLineEdit;
@@ -30,16 +30,15 @@ class QPushButton;
 class QComboBox;
 class QLabel;
 
-
-class ImportDialog : public QDialog  {
-   Q_OBJECT
+class ImportDialog : public QDialog {
+  Q_OBJECT
 
 private:
-    QString lastImportDir;
+  QString lastImportDir;
 
 public:
   ImportDialog(QWidget*);
- ~ImportDialog();
+  ~ImportDialog();
 
 private slots:
   void slotDisplayMsg();
@@ -55,21 +54,20 @@ private slots:
 
 private:
   void startSimulator();
-  bool getDataVarsFromDatafile(const QString &filename);
+  bool getDataVarsFromDatafile(const QString& filename);
 
 private:
-  QGridLayout *all;
+  QGridLayout* all;
 
   QLabel *OutputLabel, *LibLabel;
   QProcess Process;
-  QPlainTextEdit *MsgText;
+  QPlainTextEdit* MsgText;
   QLineEdit *ImportEdit, *OutputEdit, *LibName;
   QPushButton *ImportButt, *CancelButt, *AbortButt;
   QComboBox *OutType, *InType, *OutputData;
 
 public:
-  void setImportDir(const QString &dir) { lastImportDir = dir; };
-
+  void setImportDir(const QString& dir) { lastImportDir = dir; };
 };
 
 #endif

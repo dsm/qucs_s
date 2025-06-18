@@ -20,8 +20,7 @@
 
 #include "painting.h"
 
-
-class EllipseArc : public Painting  {
+class EllipseArc : public Painting {
 public:
   EllipseArc();
 
@@ -29,7 +28,7 @@ public:
   void paintScheme(Schematic*) override;
 
   Painting* newOne() override;
-  static Element* info(QString&, char* &, bool getNewOne=false);
+  static Element* info(QString&, char*&, bool getNewOne = false);
 
   bool load(const QString&) override;
   QString save() override;
@@ -39,7 +38,8 @@ public:
   bool getSelected(const QPoint& click, int tolerance) override;
   bool resizeTouched(const QPoint& click, int tolerance) override;
 
-  void MouseMoving(const QPoint& onGrid, Schematic* sch, const QPoint& cursor) override;
+  void MouseMoving(const QPoint& onGrid, Schematic* sch,
+                   const QPoint& cursor) override;
   bool MousePressing(Schematic* sch = nullptr) override;
   void MouseResizeMoving(int, int, Schematic*) override;
 
@@ -50,18 +50,33 @@ public:
   bool Dialog(QWidget* parent = nullptr) override;
 
 private:
-  enum class State { idle, moving_top_left, moving_top_right, moving_bottom_right, moving_bottom_left };
+  enum class State {
+    idle,
+    moving_top_left,
+    moving_top_right,
+    moving_bottom_right,
+    moving_bottom_left
+  };
   State resizeState = State::idle;
 
-  enum class DrawingState { idle, defining_arc_bounds, defining_arc_start, defining_arc_length };
+  enum class DrawingState {
+    idle,
+    defining_arc_bounds,
+    defining_arc_start,
+    defining_arc_length
+  };
   DrawingState drawingState = DrawingState::idle;
 
-  QPen  pen;
-  int   arcStartAngle, arcLengthAngle;
+  QPen pen;
+  int arcStartAngle, arcLengthAngle;
 
-  void   normalize() noexcept {
-    if (x2 < x1) std::swap(x1, x2);
-    if (y2 < y1) std::swap(y1, y2);
+  void normalize() noexcept {
+    if (x2 < x1) {
+      std::swap(x1, x2);
+    }
+    if (y2 < y1) {
+      std::swap(y1, y2);
+    }
   }
 };
 

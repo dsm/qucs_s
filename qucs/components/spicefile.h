@@ -19,24 +19,24 @@
 #define SPICEFILE_H
 #include "component.h"
 
-#include <QObject>
 #include <QDateTime>
+#include <QObject>
 
 class QProcess;
 class QTextStream;
 class QString;
 
-class SpiceFile : public QObject, public MultiViewComponent  {
-   Q_OBJECT
+class SpiceFile : public QObject, public MultiViewComponent {
+  Q_OBJECT
 public:
   SpiceFile();
- ~SpiceFile() {};
+  ~SpiceFile(){};
   Component* newOne();
-  static Element* info(QString&, char* &, bool getNewOne=false);
+  static Element* info(QString&, char*&, bool getNewOne = false);
 
   bool withSim;
-  bool createSubNetlist(QTextStream *);
-  bool createSpiceSubckt(QTextStream * stream);
+  bool createSubNetlist(QTextStream*);
+  bool createSpiceSubckt(QTextStream* stream);
   QString getErrorText() { return ErrText; }
   QString getSubcircuitFile();
 
@@ -48,12 +48,13 @@ private:
   QString NetText, ErrText, NetLine, SimText;
   QTextStream *outstream, *filstream, *prestream;
   QDateTime lastLoaded;
-  bool recreateSubNetlist(QString *, QString *);
+  bool recreateSubNetlist(QString*, QString*);
 
 protected:
   QString netlist();
   void createSymbol();
-  QString spice_netlist(spicecompat::SpiceDialect dialect = spicecompat::SPICEDefault);
+  QString
+  spice_netlist(spicecompat::SpiceDialect dialect = spicecompat::SPICEDefault);
   virtual QString cdl_netlist();
 
 private slots:

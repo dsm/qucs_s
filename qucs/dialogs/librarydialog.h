@@ -27,16 +27,16 @@
 #include <QRegularExpression>
 #include <QRegularExpressionValidator>
 
+#include <QCheckBox>
+#include <QDialog>
+#include <QDir>
+#include <QFile>
+#include <QLabel>
 #include <QList>
+#include <QStackedWidget>
 #include <QStringList>
 #include <QTextStream>
-#include <QDialog>
-#include <QFile>
-#include <QDir>
-#include <QCheckBox>
 #include <QVBoxLayout>
-#include <QLabel>
-#include <QStackedWidget>
 
 class QLabel;
 class QLineEdit;
@@ -48,15 +48,14 @@ class QTreeWidgetItem;
 class QGroupBox;
 class QRegExpValidator;
 class QStackedWidget;
-//class QStringList;
+// class QStringList;
 class QListWidget;
 
-
 class LibraryDialog : public QDialog {
-   Q_OBJECT
+  Q_OBJECT
 public:
-  LibraryDialog(QWidget *);
- ~LibraryDialog();
+  LibraryDialog(QWidget*);
+  ~LibraryDialog();
 
   void fillSchematicList(QStringList);
 
@@ -72,34 +71,34 @@ private slots:
 
 private:
   void intoStream(QTextStream&, QString&, const char*);
-  int intoFile(QString&, QString&,  QStringList&);
+  int intoFile(QString&, QString&, QStringList&);
 
 private:
   int curDescr;
-  QVBoxLayout *all;   // the mother of all widgets
-  QVBoxLayout *subcirListLayout;
-  QStackedWidget *stackedWidgets;
-  QLabel *theLabel;
-  QLabel *checkedCktName;
-  QLabel *libSaveName;
-  QLineEdit *NameEdit;
-  QPlainTextEdit *ErrText;
-  QTextEdit *textDescr;
-  QGroupBox *Group;
+  QVBoxLayout* all; // the mother of all widgets
+  QVBoxLayout* subcirListLayout;
+  QStackedWidget* stackedWidgets;
+  QLabel* theLabel;
+  QLabel* checkedCktName;
+  QLabel* libSaveName;
+  QLineEdit* NameEdit;
+  QPlainTextEdit* ErrText;
+  QTextEdit* textDescr;
+  QGroupBox* Group;
   QPushButton *ButtCreateNext, *ButtCancel, *ButtSelectAll, *ButtSelectNone;
   QPushButton *prevButt, *nextButt;
-  QPushButton *createButt;
-  QListWidget *subcirFileList;
-  //QList<QCheckBox *> BoxList;
+  QPushButton* createButt;
+  QListWidget* subcirFileList;
+  // QList<QCheckBox *> BoxList;
   QStringList SelectedNames;
   QStringList Descriptions;
-  QCheckBox *checkDescr;
-  QCheckBox *checkAnalogLib;
+  QCheckBox* checkDescr;
+  QCheckBox* checkAnalogLib;
 
   QFile LibFile;
   QDir LibDir;
   QRegularExpression Expr;
-  QRegularExpressionValidator *Validator;
+  QRegularExpressionValidator* Validator;
 };
 
 #endif

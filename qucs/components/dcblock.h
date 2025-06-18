@@ -20,16 +20,16 @@
 
 #include "component.h"
 
-
-class dcBlock : public Component  {
+class dcBlock : public Component {
 public:
   dcBlock();
   ~dcBlock();
   Component* newOne();
-  static Element* info(QString&, char* &, bool getNewOne=false);
+  static Element* info(QString&, char*&, bool getNewOne = false);
 
 protected:
-  QString spice_netlist(spicecompat::SpiceDialect dialect = spicecompat::SPICEDefault);
+  QString
+  spice_netlist(spicecompat::SpiceDialect dialect = spicecompat::SPICEDefault);
   virtual QString cdl_netlist();
 };
 
