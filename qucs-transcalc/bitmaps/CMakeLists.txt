@@ -12,4 +12,4 @@ cpw_back.png)
 
 SET(ICON )
 
-INSTALL( FILES ${PNGS} DESTINATION share/qucs/bitmaps )
+INSTALL( FILES ${PNGS} DESTINATION ${DEPLOY_FILES_DIR}/qucs/bitmaps )
