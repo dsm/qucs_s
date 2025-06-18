@@ -6,5 +6,5 @@ loadQucsDataSet.m	plotCartesian2D2V.m	plotTimeFFT.m
 loadQucsVariable.m	plotFFT.m		showQucsDataSet.m
 )
 
-INSTALL(FILES ${BASICS} DESTINATION ${DEPLOY_FILES_DIR}/${QUCS_NAME}/octave/)
+INSTALL(FILES ${BASICS} DESTINATION ${DEPLOY_FILES_DIR}/${QUCS_NAME}/octave)
 
