@@ -127,3 +127,17 @@ INSTALL(TARGETS ${QUCS_NAME}powercombining
     RUNTIME DESTINATION ${DEPLOY_BIN_DIR} COMPONENT Runtime
     )
 
+if(WIN32 AND APPLE)
+    set(deploy_tool_options_arg "")
+    if(WIN32)
+        set(deploy_tool_options_arg --svg --no-translations --no-opengl-sw --no-system-d3d-compiler --no-network --no-compiler-runtime)
+    endif(WIN32)
+    
+    qt_generate_deploy_app_script(
+        TARGET ${QUCS_NAME}powercombining
+        OUTPUT_SCRIPT qucs_powercombining_deploy_script
+        NO_UNSUPPORTED_PLATFORM_ERROR
+        DEPLOY_TOOL_OPTIONS ${deploy_tool_options_arg}
+    )
+    install(SCRIPT ${qucs_powercombining_deploy_script})
+endif()
