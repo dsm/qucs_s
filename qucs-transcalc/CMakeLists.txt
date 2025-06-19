@@ -158,9 +158,9 @@ if(WIN32 AND APPLE)
     
     qt_generate_deploy_app_script(
         TARGET ${QUCS_NAME}trans
-        OUTPUT_SCRIPT qucs_s_deploy_script
+        OUTPUT_SCRIPT qucs_trans_deploy_script
         NO_UNSUPPORTED_PLATFORM_ERROR
         DEPLOY_TOOL_OPTIONS ${deploy_tool_options_arg}
     )
-    install(SCRIPT ${qucs_s_deploy_script})
+    install(SCRIPT ${qucs_trans_deploy_script})
 endif()
