@@ -293,15 +293,17 @@ ENDIF()
 INSTALL( FILES ${SCRIPTS} PERMISSIONS OWNER_EXECUTE OWNER_WRITE OWNER_READ
     GROUP_EXECUTE GROUP_READ WORLD_EXECUTE WORLD_READ DESTINATION ${DEPLOY_BIN_DIR} )
 
-set(deploy_tool_options_arg "")
-if(WIN32)
-    set(deploy_tool_options_arg --svg --no-translations --no-opengl-sw --no-system-d3d-compiler --no-network --no-compiler-runtime)
-endif(WIN32)
-
-qt_generate_deploy_app_script(
-    TARGET ${QUCS_NAME}
-    OUTPUT_SCRIPT qucs_s_deploy_script
-    NO_UNSUPPORTED_PLATFORM_ERROR
-    DEPLOY_TOOL_OPTIONS ${deploy_tool_options_arg}
-)
-install(SCRIPT ${qucs_s_deploy_script})
+if(WIN32 AND APPLE)
+    set(deploy_tool_options_arg "")
+    if(WIN32)
+        set(deploy_tool_options_arg --svg --no-translations --no-opengl-sw --no-system-d3d-compiler --no-network --no-compiler-runtime)
+    endif(WIN32)
+    
+    qt_generate_deploy_app_script(
+        TARGET ${QUCS_NAME}
+        OUTPUT_SCRIPT qucs_s_deploy_script
+        NO_UNSUPPORTED_PLATFORM_ERROR
+        DEPLOY_TOOL_OPTIONS ${deploy_tool_options_arg}
+    )
+    install(SCRIPT ${qucs_s_deploy_script})
+endif()
