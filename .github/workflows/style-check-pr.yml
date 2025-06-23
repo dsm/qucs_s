@@ -1,0 +1,38 @@
+name: 'Code Formatter Check'
+
+on:
+  pull_request:
+
+jobs:
+  pr-style-check:
+    name: 'PR Style Check'
+    runs-on: ubuntu-latest
+    steps:
+    - name: '📥 Checkout code'
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    - name: '🔍 Get changed files'
+      id: changed-files
+      uses: tj-actions/changed-files@v46
+      with:
+        files: |
+          **.c
+          **.cpp
+          **.h
+          **.hpp
+
+    - name: '🛠️ Install clang-format'
+      if: steps.changed-files.outputs.all_changed_files != ''
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y clang-format
+
+
+    - name: '🎯 Run clang-format check'
+      if: steps.changed-files.outputs.all_changed_files != ''
+      run: |
+        echo "ℹ️ Checking formatting for the following files:"
+        echo "${{ steps.changed-files.outputs.all_changed_files }}"
+        clang-format --dry-run -Werror ${{ steps.changed-files.outputs.all_changed_files }}
