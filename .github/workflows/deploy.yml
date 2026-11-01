@@ -14,7 +14,7 @@ env:
   EXECUTABLE_NAME: "qucs-s"
   PUBLISHER_NAME: "The Qucs-S Team"
   BUILD_TYPE: Release
-  QT_VERSION: 6.10.3
+  QT_VERSION: 6.12.0
   QUCS_MACOS_BIN: ${{github.workspace}}/build/qucs/qucs-s.app/Contents/MacOS/bin
   QUCS_MACOS_RESOURCES: ${{github.workspace}}/build/qucs/qucs-s.app/Contents/MacOS/share/qucs-s
   #NGSPICE_URL: https://downloads.sourceforge.net/project/ngspice/ng-spice-rework/46/ngspice-46_64.7z
@@ -152,7 +152,7 @@ jobs:
             qt_version: 6.2.4
             xcode-ver: '16.2'
           - arch: universal
-            os: macos-15
+            os: xcode-27
             cmake_arch: arm64;x86_64
             dmg_suffix: macOS
             deployment_target: 13.0
@@ -294,6 +294,8 @@ jobs:
         arch: 'win64_msvc2022_64'
         install-deps: 'true'
         modules: 'qtcharts'
+        aqtsource: git+https://github.com/miurahr/aqtinstall.git@076e1659807d0b362a3ed684d54c2e9c775eb9c7
+
 
     - name: '⚙️ Install CMake'
       uses: lukka/get-cmake@latest
